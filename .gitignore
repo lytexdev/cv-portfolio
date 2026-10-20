@@ -1,0 +1,10 @@
+.env
+!.env.example
+.DS_Store
+.cursor
+.claude
+.vscode
+.next
+node_modules
+dist
+build
