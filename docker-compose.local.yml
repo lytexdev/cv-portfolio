@@ -1,0 +1,8 @@
+services:
+  cv:
+    ports:
+      - "127.0.0.1:3100:3000"
+    networks: !override
+      - default
+networks:
+  proxy: !reset {}
