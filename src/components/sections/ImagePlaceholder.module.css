@@ -1,0 +1,19 @@
+.root {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  gap: var(--space-3);
+  justify-items: center;
+  background:
+    linear-gradient(var(--border) 1px, transparent 1px) 0 0 / 16px 16px,
+    linear-gradient(90deg, var(--border) 1px, transparent 1px) 0 0 / 16px 16px,
+    var(--surface-2);
+  color: var(--muted);
+}
+
+.slug {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+}

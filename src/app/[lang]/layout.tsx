@@ -6,6 +6,7 @@ import { SectionRail } from '@/components/layout/SectionRail'
 import { TopBar } from '@/components/layout/TopBar'
 import { jetbrainsMono, montserrat } from '@/lib/fonts'
 import { getDictionary, hasLocale } from '@/lib/i18n'
+import { getEnv } from '@/lib/server/env'
 import '@/styles/globals.css'
 
 type Props = {
@@ -41,6 +42,7 @@ export default async function LangLayout({ children, params }: Props) {
   const locale = hasLocale(lang) ? lang : 'de'
   const dictionary = getDictionary(locale)
   const nonce = (await headers()).get('x-nonce') ?? undefined
+  const env = getEnv()
 
   return (
     <html
@@ -66,10 +68,10 @@ export default async function LangLayout({ children, params }: Props) {
             {children}
             <Footer
               dictionary={dictionary}
-              imprintUrl={process.env.LEGAL_IMPRINT_URL || undefined}
-              privacyUrl={process.env.LEGAL_PRIVACY_URL || undefined}
-              sourceUrl={process.env.SOURCE_URL || undefined}
-              buildSha={process.env.BUILD_SHA || undefined}
+              imprintUrl={env.legalImprintUrl}
+              privacyUrl={env.legalPrivacyUrl}
+              sourceUrl={env.sourceUrl}
+              buildSha={env.buildSha}
             />
           </div>
         </div>

@@ -1,0 +1,43 @@
+import {
+  compactProjectOrder,
+  featuredProjectOrder,
+} from '@/content/shared'
+import type { CvDictionary } from '@/content/types'
+import { SectionHeading } from '@/components/layout/SectionHeading'
+import { FeaturedProject } from '@/components/projects/FeaturedProject'
+import { ProjectRow } from '@/components/projects/ProjectRow'
+import styles from './Projects.module.css'
+
+type Props = {
+  dictionary: CvDictionary
+}
+
+export function Projects({ dictionary }: Props) {
+  const section = dictionary.sections.projects
+
+  return (
+    <section
+      id="projects"
+      className="section"
+      aria-labelledby="projects-title"
+      data-reveal
+    >
+      <SectionHeading id="projects" rail={section.rail} title={section.title} />
+      <div className={styles.featured}>
+        {featuredProjectOrder.map((slug, index) => (
+          <FeaturedProject
+            key={slug}
+            slug={slug}
+            dictionary={dictionary}
+            alternate={index % 2 === 1}
+          />
+        ))}
+      </div>
+      <div className={styles.compact}>
+        {compactProjectOrder.map((slug) => (
+          <ProjectRow key={slug} slug={slug} dictionary={dictionary} />
+        ))}
+      </div>
+    </section>
+  )
+}

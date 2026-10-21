@@ -1,0 +1,162 @@
+import {
+  IconBrandGithub,
+  IconBrandLinkedin,
+  IconCalendar,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconPrinter,
+} from '@tabler/icons-react'
+import { person } from '@/content/shared'
+import type { CvDictionary } from '@/content/types'
+import { SectionHeading } from '@/components/layout/SectionHeading'
+import { formatBirthDate } from '@/lib/dates'
+import type { Locale } from '@/content/types'
+import type { PrivateData } from '@/lib/server/private-data'
+import type { Viewer } from '@/lib/server/viewer'
+import styles from './Contact.module.css'
+
+type Props = {
+  locale: Locale
+  dictionary: CvDictionary
+  viewer: Viewer
+  privateData: PrivateData | null
+  tokenQuery?: string
+}
+
+export function Contact({
+  locale,
+  dictionary,
+  viewer,
+  privateData,
+  tokenQuery,
+}: Props) {
+  const section = dictionary.sections.contact
+  const isToken = viewer.kind === 'token'
+  const showPrivate = isToken && privateData
+
+  return (
+    <section
+      id="contact"
+      className="section"
+      aria-labelledby="contact-title"
+      data-reveal
+    >
+      <SectionHeading id="contact" rail={section.rail} title={section.title} />
+      <h3 className={styles.headline}>{dictionary.contact.headline}</h3>
+
+      {viewer.kind === 'expired' ? (
+        <p className={styles.banner}>{dictionary.contact.expiredHint}</p>
+      ) : null}
+
+      <div className={styles.grid}>
+        <div>
+          <a href={`mailto:${person.email}`} className={styles.email}>
+            {person.email}
+          </a>
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.button}
+              data-copy-email={person.email}
+            >
+              <IconMail size={18} stroke={1.75} aria-hidden="true" />
+              {dictionary.contact.copyEmail}
+            </button>
+            <button type="button" className={styles.button} data-print-trigger>
+              <IconPrinter size={18} stroke={1.75} aria-hidden="true" />
+              {dictionary.contact.savePdf}
+            </button>
+            {isToken && tokenQuery ? (
+              <a
+                href={`/api/vcard?k=${encodeURIComponent(tokenQuery)}`}
+                className={styles.linkButton}
+              >
+                {dictionary.contact.saveVcard}
+              </a>
+            ) : null}
+          </div>
+
+          {!isToken ? (
+            <div className={styles.social}>
+              <a
+                href={person.github}
+                className={styles.linkButton}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IconBrandGithub size={18} stroke={1.75} aria-hidden="true" />
+                GitHub
+                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
+              </a>
+              <a
+                href={person.linkedin}
+                className={styles.linkButton}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IconBrandLinkedin size={18} stroke={1.75} aria-hidden="true" />
+                LinkedIn
+                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
+              </a>
+            </div>
+          ) : null}
+        </div>
+
+        <div className={styles.details}>
+          {showPrivate ? (
+            <>
+              <div className={styles.detailRow}>
+                <IconPhone size={18} stroke={1.75} aria-hidden="true" />
+                <div>
+                  <p className={`mono-label ${styles.detailLabel}`}>
+                    {dictionary.contact.phone}
+                  </p>
+                  <p className={styles.detailValue}>
+                    <a href={`tel:${privateData.phone.replace(/\s+/g, '')}`}>
+                      {privateData.phone}
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div className={styles.detailRow}>
+                <IconMapPin size={18} stroke={1.75} aria-hidden="true" />
+                <div>
+                  <p className={`mono-label ${styles.detailLabel}`}>
+                    {dictionary.contact.address}
+                  </p>
+                  <p className={styles.detailValue}>
+                    {privateData.street}
+                    <br />
+                    {privateData.postalCode} {privateData.city}
+                    <br />
+                    {privateData.country}
+                  </p>
+                </div>
+              </div>
+              <div className={styles.detailRow}>
+                <IconCalendar size={18} stroke={1.75} aria-hidden="true" />
+                <div>
+                  <p className={`mono-label ${styles.detailLabel}`}>
+                    {dictionary.contact.birthDate}
+                  </p>
+                  <p className={styles.detailValue}>
+                    {formatBirthDate(privateData.birthDate, locale)}
+                  </p>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={styles.detailRow}>
+                <IconMapPin size={18} stroke={1.75} aria-hidden="true" />
+                <p className={styles.detailValue}>{person.city}</p>
+              </div>
+              <p className={styles.hint}>{dictionary.contact.publicHint}</p>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}

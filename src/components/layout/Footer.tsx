@@ -25,7 +25,7 @@ export function Footer({
             <li>
               <a href={imprintUrl} target="_blank" rel="noopener noreferrer">
                 {dictionary.footer.imprint}
-                <span className="visually-hidden"> (öffnet in neuem Tab)</span>
+                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
               </a>
             </li>
           ) : null}
@@ -33,7 +33,7 @@ export function Footer({
             <li>
               <a href={privacyUrl} target="_blank" rel="noopener noreferrer">
                 {dictionary.footer.privacy}
-                <span className="visually-hidden"> (öffnet in neuem Tab)</span>
+                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
               </a>
             </li>
           ) : null}
@@ -41,7 +41,7 @@ export function Footer({
             <li>
               <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
                 {dictionary.footer.source}
-                <span className="visually-hidden"> (öffnet in neuem Tab)</span>
+                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
               </a>
             </li>
           ) : null}
