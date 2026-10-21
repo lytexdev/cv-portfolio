@@ -1,6 +1,6 @@
-# cv.lytex.dev
+# CV / Portfolio
 
-Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo` admin CMS, fish-style mini terminal (including AI `ask`), DE/EN i18n, and Docker deployment.
+Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo` admin CMS, fish-style mini terminal (including AI `ask`), DE/EN i18n and Docker deployment.
 
 ## Features
 
@@ -14,16 +14,16 @@ Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo`
 
 ## Requirements
 
-- Node.js 24+
 - npm
-- Docker and Docker Compose (for production-like runs)
+- Node.js 24+
+- Docker & Docker Compose (for production)
 
 ## Quick start
 
 ```bash
 npm ci
 cp data/private.example.json data/private.json
-cp .env.example .env
+cp .env.example .env.production
 # set SECRET_KEY and SECRET_ADMIN_PHRASE (long random values)
 npm run fonts
 npm run images
@@ -46,7 +46,7 @@ Log in at `/sudo`, change credentials, optionally enable TOTP.
 Create a personal token:
 
 ```bash
-npm run token -- create --label "Test GmbH" --role "Frontend Developer" --base-url http://localhost:3000
+npm run token -- create --label "Testo GmbH" --role "Frontend Developer" --base-url http://localhost:3000
 ```
 
 ```bash
@@ -119,7 +119,7 @@ BUILD_SHA=$(git rev-parse --short HEAD) docker compose -f docker-compose.yml -f 
 App: `http://127.0.0.1:3100/de`
 
 ```bash
-docker compose run --rm tokenctl create --label "ACME GmbH" --role "Frontend Developer"
+docker compose run --rm tokenctl create --label "Testo GmbH" --role "Frontend Developer"
 docker compose run --rm tokenctl list
 ```
 
@@ -143,20 +143,6 @@ BUILD_SHA=$(git rev-parse --short HEAD) docker compose up -d --build
 
 Volume: `./data:/app/data:rw` (SQLite + uploads). Root filesystem stays `read_only: true`.
 
-### Leak check
-
-[`data/private.example.json`](data/private.example.json) uses canary strings for leak tests. Ensure real `private.json` values never appear in the image or git history.
-
-```bash
-docker run --rm --entrypoint sh cv-lytex:latest -c 'grep -rl "Kanarienweg" /app || true'
-```
-
-Expect no matches for your real private data. Runtime data lives only on the volume.
-
-### Privacy note
-
-The privacy policy should mention server logs, token view events, and optional AI `ask` requests (processed by Mistral when configured).
-
 ## Security notes
 
 - Viewer pages stay cookieless; admin session cookie only after `/sudo` login
@@ -166,4 +152,4 @@ The privacy policy should mention server logs, token view events, and optional A
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT - see [LICENSE](LICENSE).
