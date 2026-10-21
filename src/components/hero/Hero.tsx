@@ -44,7 +44,7 @@ export function Hero({
         ) : null}
 
         <p className={`mono-label ${styles.prompt}`}>{dictionary.hero.prompt}</p>
-        <div className={styles.bootSlot} aria-hidden="true">
+        <div className={`boot-slot ${styles.bootSlot}`} aria-hidden="true">
           <BootTerminal />
         </div>
 

@@ -15,7 +15,7 @@ type Props = {
 
 export function TopBar({ locale, dictionary }: Props) {
   return (
-    <header className={styles.root}>
+    <header className={`topbar-root ${styles.root}`}>
       <div className={`page-shell ${styles.inner}`}>
         <a href={`/${locale}#whoami`} className={styles.name}>
           {person.name}

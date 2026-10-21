@@ -1,0 +1,105 @@
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  :root,
+  [data-theme='dark'],
+  [data-theme='light'] {
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #ffffff;
+    --border: #cccccc;
+    --border-strong: #666666;
+    --text: #000000;
+    --muted: #333333;
+    --accent: #000000;
+    --accent-strong: #000000;
+    --on-accent: #ffffff;
+    --ok: #000000;
+    --focus: #000000;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #000000 !important;
+    font-size: 10.5pt;
+    line-height: 1.35;
+  }
+
+  .skip-link,
+  .topbar-root,
+  .rail-root,
+  [data-open-palette],
+  [data-open-terminal],
+  [data-print-trigger],
+  [data-copy-email],
+  [data-project-details],
+  dialog,
+  .boot-slot,
+  button:not(.print-keep),
+  .no-print,
+  .thumbs,
+  .mainImage,
+  .thumb,
+  .portrait,
+  .actions,
+  .metrics,
+  .iconLink,
+  .social {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .page-shell,
+  .layout-with-rail,
+  .main-content,
+  .main-column {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+  }
+
+  .section {
+    scroll-margin: 0;
+    break-inside: avoid;
+    margin-bottom: 0.75rem;
+  }
+
+  h1 {
+    font-size: 20pt !important;
+    line-height: 1.1 !important;
+    margin-bottom: 0.25rem !important;
+  }
+
+  h2 {
+    font-size: 13pt !important;
+    margin-bottom: 0.35rem;
+  }
+
+  h3 {
+    font-size: 11pt !important;
+  }
+
+  a {
+    color: #000000 !important;
+    text-decoration: none !important;
+  }
+
+  img {
+    display: none !important;
+  }
+
+  .print-stack-text,
+  .print-project-compact {
+    display: block !important;
+  }
+}

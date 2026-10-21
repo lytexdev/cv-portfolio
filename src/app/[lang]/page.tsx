@@ -2,6 +2,7 @@ import { connection } from 'next/server'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { InteractiveChrome } from '@/components/interactive/InteractiveChrome'
+import { PrintHeader } from '@/components/print/PrintHeader'
 import { About } from '@/components/sections/About'
 import { Contact } from '@/components/sections/Contact'
 import { Experience } from '@/components/sections/Experience'
@@ -16,6 +17,7 @@ import {
 import type { ProjectSlug } from '@/content/types'
 import { getDictionary, hasLocale } from '@/lib/i18n'
 import { portraitSrc, projectImageSrc } from '@/lib/server/assets'
+import { getEnv } from '@/lib/server/env'
 import { detectAgent, logEvent } from '@/lib/server/log'
 import { getPrivateData, getPublicAge } from '@/lib/server/private-data'
 import { resolveViewer } from '@/lib/server/viewer'
@@ -74,6 +76,11 @@ export default async function Page({ params, searchParams }: Props) {
   const age = getPublicAge()
   const privateData = viewer.kind === 'token' ? getPrivateData() : null
   const tokenQuery = viewer.kind === 'token' ? viewer.token : undefined
+  const env = getEnv()
+  const pageUrl =
+    viewer.kind === 'token' && tokenQuery
+      ? `${env.publicBaseUrl}/${lang}?k=${encodeURIComponent(tokenQuery)}`
+      : `${env.publicBaseUrl}/${lang}`
 
   return (
     <>
@@ -86,6 +93,12 @@ export default async function Page({ params, searchParams }: Props) {
         projectPayloads={buildProjectPayloads(dictionary)}
       />
       <main id="main" className="main-content">
+        <PrintHeader
+          dictionary={dictionary}
+          viewer={viewer}
+          privateData={privateData}
+          pageUrl={pageUrl}
+        />
         <About
           locale={lang}
           dictionary={dictionary}

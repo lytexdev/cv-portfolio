@@ -1,0 +1,44 @@
+.root {
+  display: none;
+}
+
+@media print {
+  .root {
+    display: flex !important;
+    justify-content: space-between;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.55rem;
+    border-bottom: 1px solid #000;
+  }
+
+  .name {
+    font-size: 16pt;
+    font-weight: 800;
+    margin: 0 0 0.2rem;
+  }
+
+  .role {
+    margin: 0 0 0.35rem;
+    font-size: 10pt;
+  }
+
+  .contact {
+    margin: 0;
+    font-size: 9pt;
+    color: #000;
+  }
+
+  .url {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-mono), ui-monospace, monospace;
+    font-size: 8pt;
+  }
+
+  .qr :global(svg) {
+    width: 72px;
+    height: 72px;
+    display: block;
+  }
+}
