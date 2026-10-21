@@ -1,0 +1,50 @@
+.root {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  max-width: 40rem;
+  margin-inline: auto;
+}
+
+.prompt {
+  color: var(--ok);
+}
+
+.code {
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  color: var(--warn, #d97706);
+  line-height: 1;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+}
+
+.sep {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.message {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.back {
+  margin-top: var(--space-4);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  text-decoration: none;
+}
