@@ -1,3 +1,9 @@
+# Environment
+.env
+.env.production
+!.env.example
+
+# Development & Build
 node_modules/
 .next/
 next-env.d.ts
@@ -6,11 +12,14 @@ assets/raw/
 data/*
 !data/*.example.json
 .DS_Store
-.cursor
-.claude
-.vscode
 data/
 
-.env
-.env.production
-!.env.example
+# Editor
+.vscode
+.idea
+
+# AI Agents
+AGENTS.md
+.cursor
+.claude
+.cursorrules
