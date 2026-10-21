@@ -4,17 +4,15 @@ import type { ReactNode } from 'react'
 import { Footer } from '@/components/layout/Footer'
 import { SectionRail } from '@/components/layout/SectionRail'
 import { TopBar } from '@/components/layout/TopBar'
-import { jetbrainsMono, montserrat } from '@/lib/fonts'
 import { getDictionary, hasLocale } from '@/lib/i18n'
 import { getEnv } from '@/lib/server/env'
-import '@/styles/globals.css'
 
 type Props = {
   children: ReactNode
   params: Promise<{ lang: string }>
 }
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem('cv-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}}catch(e){}document.documentElement.classList.add('js');if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-reduced-motion','true')}else{document.documentElement.setAttribute('data-reduced-motion','false')}})();`
+const themeInitScript = `(function(){try{var t=localStorage.getItem('cv-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}document.documentElement.setAttribute('lang',document.documentElement.getAttribute('data-lang')||'de')}catch(e){}document.documentElement.classList.add('js');if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-reduced-motion','true')}else{document.documentElement.setAttribute('data-reduced-motion','false')}})();`
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params
@@ -45,37 +43,30 @@ export default async function LangLayout({ children, params }: Props) {
   const env = getEnv()
 
   return (
-    <html
-      lang={locale}
-      data-theme="dark"
-      className={`${montserrat.variable} ${jetbrainsMono.variable}`}
-      suppressHydrationWarning
-    >
-      <head>
-        <script
-          nonce={nonce}
-          dangerouslySetInnerHTML={{ __html: themeInitScript }}
-        />
-      </head>
-      <body>
-        <a className="skip-link" href="#main">
-          {dictionary.skipLink}
-        </a>
-        <TopBar locale={locale} dictionary={dictionary} />
-        <div className="page-shell layout-with-rail">
-          <SectionRail locale={locale} dictionary={dictionary} />
-          <div className="main-column">
-            {children}
-            <Footer
-              dictionary={dictionary}
-              imprintUrl={env.legalImprintUrl}
-              privacyUrl={env.legalPrivacyUrl}
-              sourceUrl={env.sourceUrl}
-              buildSha={env.buildSha}
-            />
-          </div>
+    <>
+      <script
+        nonce={nonce}
+        dangerouslySetInnerHTML={{
+          __html: `document.documentElement.setAttribute('lang',${JSON.stringify(locale)});document.documentElement.setAttribute('data-lang',${JSON.stringify(locale)});${themeInitScript}`,
+        }}
+      />
+      <a className="skip-link" href="#main">
+        {dictionary.skipLink}
+      </a>
+      <TopBar locale={locale} dictionary={dictionary} />
+      <div className="page-shell layout-with-rail">
+        <SectionRail locale={locale} dictionary={dictionary} />
+        <div className="main-column">
+          {children}
+          <Footer
+            dictionary={dictionary}
+            imprintUrl={env.legalImprintUrl}
+            privacyUrl={env.legalPrivacyUrl}
+            version={env.version}
+            buildSha={env.buildSha}
+          />
         </div>
-      </body>
-    </html>
+      </div>
+    </>
   )
 }

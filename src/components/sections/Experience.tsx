@@ -1,8 +1,8 @@
-import { experiences } from '@/content/shared'
 import type { CvDictionary, Locale } from '@/content/types'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { formatDuration, formatRange } from '@/lib/dates'
 import { SectionHeading } from '@/components/layout/SectionHeading'
+import { getRuntimeExperiences } from '@/lib/server/content-db'
 import styles from './Experience.module.css'
 
 type Props = {
@@ -12,6 +12,7 @@ type Props = {
 
 export function Experience({ locale, dictionary }: Props) {
   const section = dictionary.sections.experience
+  const experiences = getRuntimeExperiences()
 
   return (
     <section
@@ -23,7 +24,10 @@ export function Experience({ locale, dictionary }: Props) {
       <SectionHeading id="experience" rail={section.rail} title={section.title} />
       <ol className={styles.list}>
         {experiences.map((entry) => {
-          const copy = dictionary.experience.entries[entry.id]
+          const copy = dictionary.experience.entries[
+            entry.id as keyof typeof dictionary.experience.entries
+          ]
+          if (!copy) return null
           const current = entry.end === null
           return (
             <li

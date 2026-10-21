@@ -1,9 +1,9 @@
 import Image from 'next/image'
-import { projects } from '@/content/shared'
 import type { CvDictionary, ProjectSlug } from '@/content/types'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { projectImageSrc } from '@/lib/server/assets'
+import { getRuntimeProjects } from '@/lib/server/content-db'
 import styles from './ProjectRow.module.css'
 
 type Props = {
@@ -12,8 +12,9 @@ type Props = {
 }
 
 export function ProjectRow({ slug, dictionary }: Props) {
-  const project = projects[slug]
+  const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.compact[slug]
+  if (!project || !copy) return null
   const filename = project.images[0]
   const src = filename ? projectImageSrc(slug, filename) : null
 

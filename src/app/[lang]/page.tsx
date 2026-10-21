@@ -1,6 +1,7 @@
 import { connection } from 'next/server'
 import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
+import { TokenGate } from '@/components/gate/TokenGate'
 import { InteractiveChrome } from '@/components/interactive/InteractiveChrome'
 import { PrintHeader } from '@/components/print/PrintHeader'
 import { About } from '@/components/sections/About'
@@ -9,17 +10,19 @@ import { Experience } from '@/components/sections/Experience'
 import { More } from '@/components/sections/More'
 import { Projects } from '@/components/sections/Projects'
 import { Stack } from '@/components/sections/Stack'
-import {
-  compactProjectOrder,
-  featuredProjectOrder,
-  projects,
-} from '@/content/shared'
 import type { ProjectSlug } from '@/content/types'
-import { getDictionary, hasLocale } from '@/lib/i18n'
+import { hasLocale } from '@/lib/i18n'
 import { portraitSrc, projectImageSrc } from '@/lib/server/assets'
+import {
+  getRuntimeCompactOrder,
+  getRuntimeDictionary,
+  getRuntimeFeaturedOrder,
+  getRuntimeProjects,
+} from '@/lib/server/content-db'
 import { getEnv } from '@/lib/server/env'
 import { detectAgent, logEvent } from '@/lib/server/log'
 import { getPrivateData, getPublicAge } from '@/lib/server/private-data'
+import { incrementTokenView } from '@/lib/server/tokens'
 import { resolveViewer } from '@/lib/server/viewer'
 
 type Props = {
@@ -27,23 +30,26 @@ type Props = {
   searchParams: Promise<{ k?: string | string[] }>
 }
 
-function buildProjectPayloads(dictionary: ReturnType<typeof getDictionary>) {
-  const all = [...featuredProjectOrder, ...compactProjectOrder]
+function buildProjectPayloads(
+  dictionary: ReturnType<typeof getRuntimeDictionary>,
+) {
+  const projects = getRuntimeProjects()
+  const all = [...getRuntimeFeaturedOrder(), ...getRuntimeCompactOrder()]
   return all.map((slug: ProjectSlug) => {
     const project = projects[slug]
-    const featured = project.featured
+    const featured = project?.featured
     const copy = featured
       ? dictionary.projects.featured[slug]
       : dictionary.projects.compact[slug]
 
     return {
       slug,
-      featured,
-      images: project.images.map((filename) => ({
+      featured: Boolean(featured),
+      images: (project?.images ?? []).map((filename) => ({
         filename,
         src: projectImageSrc(slug, filename),
-        alt: copy.images[filename]?.alt ?? copy.title,
-        caption: copy.images[filename]?.caption ?? copy.title,
+        alt: copy?.images?.[filename]?.alt ?? copy?.title ?? slug,
+        caption: copy?.images?.[filename]?.caption ?? copy?.title ?? slug,
       })),
     }
   })
@@ -57,30 +63,38 @@ export default async function Page({ params, searchParams }: Props) {
     notFound()
   }
 
-  const dictionary = getDictionary(lang)
+  const dictionary = getRuntimeDictionary(lang)
   const query = await searchParams
   const rawK = Array.isArray(query.k) ? query.k[0] : query.k
   const { viewer, event } = resolveViewer(rawK ?? null)
+  const requestHeaders = await headers()
+  const agent = detectAgent(requestHeaders.get('user-agent'))
 
   if (event) {
-    const requestHeaders = await headers()
     logEvent({
       evt: event,
       tokenId:
         viewer.kind === 'token' || viewer.kind === 'expired' ? viewer.id : undefined,
       lang,
-      agent: detectAgent(requestHeaders.get('user-agent')),
+      agent,
     })
   }
 
+  if (viewer.kind === 'gate') {
+    return <TokenGate locale={lang} reason={viewer.reason} />
+  }
+
+  if (viewer.kind === 'expired') {
+    return <TokenGate locale={lang} reason="expired" label={viewer.label} />
+  }
+
+  incrementTokenView(viewer.id, { lang, agent })
+
   const age = getPublicAge()
-  const privateData = viewer.kind === 'token' ? getPrivateData() : null
-  const tokenQuery = viewer.kind === 'token' ? viewer.token : undefined
+  const privateData = getPrivateData()
+  const tokenQuery = viewer.token
   const env = getEnv()
-  const pageUrl =
-    viewer.kind === 'token' && tokenQuery
-      ? `${env.publicBaseUrl}/${lang}?k=${encodeURIComponent(tokenQuery)}`
-      : `${env.publicBaseUrl}/${lang}`
+  const pageUrl = `${env.publicBaseUrl}/${lang}?k=${encodeURIComponent(tokenQuery)}`
 
   return (
     <>

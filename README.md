@@ -1,6 +1,6 @@
 # cv.lytex.dev
 
-Interactive CV and portfolio for Immanuel Mruk. Self-hosted Next.js app with personalized token links.
+Interactive CV and portfolio for Immanuel Mruk. Token-gated Next.js app with `/sudo` admin CMS.
 
 ## Requirements
 
@@ -14,20 +14,27 @@ Interactive CV and portfolio for Immanuel Mruk. Self-hosted Next.js app with per
 npm ci
 cp data/private.example.json data/private.json
 cp .env.example .env
+# set SECRET_KEY and SECRET_ADMIN_PHRASE
 npm run fonts
 npm run images
 npm run dev
 ```
 
-Open `http://localhost:3000/de`.
+Open `http://localhost:3000/de` — without `?k=` you get the token gate.
+
+On first boot SQLite is created at `data/cv.sqlite`, content is seeded, and an initial admin is logged once:
+
+```json
+{"evt":"admin_bootstrap","username":"admin","temporaryPassword":"..."}
+```
+
+Log in at `/sudo`, change credentials, optionally enable TOTP.
 
 Create a personal token:
 
 ```bash
-npm run token -- add --label "Test GmbH" --role "Frontend Developer" --base-url http://localhost:3000
+npm run token -- create --label "Test GmbH" --role "Frontend Developer" --base-url http://localhost:3000
 ```
-
-Other token commands:
 
 ```bash
 npm run token -- list
@@ -40,105 +47,97 @@ Quality gate:
 npm run check
 ```
 
-## Content placeholders
+## Environment
 
-Open items from the brief live in [`CONTENT_TODO.md`](CONTENT_TODO.md). Do not invent missing content.
+See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `.env.production` (gitignored).
 
-## Screenshots checklist (before `npm run images`)
+| Variable | Purpose |
+| --- | --- |
+| `PUBLIC_BASE_URL` | Canonical site URL |
+| `PORT` | Listen port (Compose maps host port locally) |
+| `VERSION` | Shown in footer |
+| `SECRET_KEY` | Session signing (≥16 chars) |
+| `SECRET_ADMIN_PHRASE` | Extra admin login factor |
+| `LEGAL_*` | Imprint / privacy URLs |
+| `DEEPL_API_KEY` | Optional DeepL Free (`:fx`) for DE→EN |
+| `MISTRAL_AI_API_KEY` | Reserved, unused |
 
-Place originals in `assets/raw/` (gitignored). Generated WebPs in `public/` are committed.
+## Token gate
 
-- No hostnames, IPs, ports, usernames, tokens, or filesystem paths visible
-- Nextcloud and Paperless-ngx only with demo data or redacted document titles
-- Jellyfin only with own or public-domain media, or admin/dashboard views
-- Person detection only with the owner or anonymized people
-- Client project screenshots only with client approval
+CV pages require a valid `?k=` token. Missing, invalid, revoked, or expired tokens show a gate UI with token input (expired includes a specific hint).
+
+## Admin (`/sudo`)
+
+- Login: username + password + `SECRET_ADMIN_PHRASE` + TOTP if enabled
+- First login: mandatory credential change; TOTP optional
+- Session cookie: httpOnly, Secure (prod), SameSite=Strict, path `/sudo` only
+- CRUD: tokens, projects, experience, content strings
+- Image upload: magic-byte check → sharp rotate/strip → WebP → `data/uploads/projects/<slug>/`
+- DeepL translate actions (server-side only)
+
+Honeypots (fake login, never real auth): `/admin`, `/wp-admin` — rate-limited, `honeypot_hit` logged.
+
+## Error pages
+
+- App: `/e/400` … `/e/504` (correct HTTP status)
+- NPM custom pages: `public/errors/*.html` (502–504 and others)
 
 ## Docker (local)
 
 ```bash
 cp .env.example .env
-# set PUBLIC_BASE_URL=http://127.0.0.1:3100 and any PROXY_NETWORK value
+# PUBLIC_BASE_URL=http://127.0.0.1:3100
 cp data/private.example.json data/private.json
 BUILD_SHA=$(git rev-parse --short HEAD) docker compose -f docker-compose.yml -f docker-compose.local.yml up --build
 ```
 
 App: `http://127.0.0.1:3100/de`
 
-Token CLI inside the image:
-
 ```bash
-docker compose run --rm tokenctl add --label "ACME GmbH" --role "Frontend Developer"
+docker compose run --rm tokenctl create --label "ACME GmbH" --role "Frontend Developer"
 docker compose run --rm tokenctl list
 ```
 
 ## Production deployment
 
-1. Clone the repository on the server
-2. Create `.env` from `.env.example`
-   - `PUBLIC_BASE_URL=https://cv.lytex.dev`
-   - `LEGAL_IMPRINT_URL` / `LEGAL_PRIVACY_URL` (required for footer links)
-   - `PROXY_NETWORK` = Docker network name used by Nginx Proxy Manager (`docker network ls`)
-3. Create `data/private.json` with real values (never commit):
-   - phone, street, postalCode, city, country, birthDate
-4. Permissions (tokenctl writes as UID 1000):
+1. Clone on the server
+2. Create `.env.production` from `.env.example` (never commit)
+3. Create `data/private.json` (never commit)
+4. Permissions:
 
 ```bash
 sudo chown -R 1000:1000 data
 chmod 700 data
-chmod 600 data/*.json
 ```
 
-5. Build and start:
+5. Start (external reverse proxy attaches to the container network; no host port publish in prod Compose):
 
 ```bash
 BUILD_SHA=$(git rev-parse --short HEAD) docker compose up -d --build
 ```
 
-6. Leak check against the finished image:
+Volume: `./data:/app/data:rw` (SQLite + uploads). Root filesystem stays `read_only: true`.
+
+### Leak check
 
 ```bash
-docker run --rm --entrypoint sh cv-lytex:latest -c 'ls /app/data 2>&1; grep -rl "<phone-digits-without-spaces>" /app || true'
+docker run --rm --entrypoint sh cv-lytex:latest -c 'grep -rl "CANARY_PRIVATE_PHONE" /app || true'
 ```
 
-Expect: no `/app/data` directory in the image, and no matches for private values.
+Expect no matches for private canaries. Runtime data lives only on the volume.
 
-### Cloudflare
+### Cloudflare / NPM
 
-- A/AAAA record `cv` → server IP
-- Proxy status: DNS only
-
-### Nginx Proxy Manager
-
-- Domain: `cv.lytex.dev` → `http://cv-lytex:3000`
-- Block Common Exploits: on
-- Websockets: off
-- SSL: Let's Encrypt, Force SSL, HTTP/2
-- Optional Advanced: `access_log off;` so token URLs are not written to NPM access logs
-
-### Token workflow
-
-```bash
-docker compose run --rm tokenctl add --label "ACME GmbH" --role "Frontend Developer"
-docker compose run --rm tokenctl list
-docker compose run --rm tokenctl revoke <id>
-```
-
-Copy the printed link once into the application. Only hashes are stored in `data/tokens.json`.
+- DNS `cv` → server (DNS only at Cloudflare if desired)
+- NPM: `cv.lytex.dev` → container `:3000`
+- Custom error pages can point at `/errors/502.html` etc.
 
 ### Privacy note
 
-The linked privacy policy must mention server logs and token view events (which personalized link was opened when).
-
-### Updates
-
-```bash
-git pull
-BUILD_SHA=$(git rev-parse --short HEAD) docker compose up -d --build
-```
+The privacy policy should mention server logs and token view events.
 
 ## Security notes
 
-- No cookies, no analytics, no third-party requests
-- Private contact data only with a valid `?k=` token
-- `data/` is mounted read-only at runtime and excluded from the image build
+- CV viewer pages stay cookieless; admin cookies only under `/sudo`
+- Private contact data only with a valid token
+- No third-party client requests; DeepL only from the server

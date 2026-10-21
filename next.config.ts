@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   poweredByHeader: false,
   agentRules: false,
+  serverExternalPackages: ['sharp'],
   experimental: {
     globalNotFound: true,
   },

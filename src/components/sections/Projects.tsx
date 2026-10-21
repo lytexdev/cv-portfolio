@@ -1,11 +1,11 @@
-import {
-  compactProjectOrder,
-  featuredProjectOrder,
-} from '@/content/shared'
 import type { CvDictionary } from '@/content/types'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { FeaturedProject } from '@/components/projects/FeaturedProject'
 import { ProjectRow } from '@/components/projects/ProjectRow'
+import {
+  getRuntimeCompactOrder,
+  getRuntimeFeaturedOrder,
+} from '@/lib/server/content-db'
 import styles from './Projects.module.css'
 
 type Props = {
@@ -14,6 +14,8 @@ type Props = {
 
 export function Projects({ dictionary }: Props) {
   const section = dictionary.sections.projects
+  const featuredProjectOrder = getRuntimeFeaturedOrder()
+  const compactProjectOrder = getRuntimeCompactOrder()
 
   return (
     <section

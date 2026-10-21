@@ -21,7 +21,7 @@ ENV TZ=Europe/Berlin
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV CV_DATA_DIR=/app/data
 
-RUN mkdir -p /app/.next/cache && chown -R node:node /app
+RUN mkdir -p /app/.next/cache /app/data /app/scripts && chown -R node:node /app
 
 COPY --from=build --chown=node:node /app/public ./public
 COPY --from=build --chown=node:node /app/scripts/token.mjs ./scripts/token.mjs

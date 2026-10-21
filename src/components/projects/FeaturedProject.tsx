@@ -1,10 +1,10 @@
 import { IconExternalLink } from '@tabler/icons-react'
 import Image from 'next/image'
-import { projects } from '@/content/shared'
 import type { CvDictionary, ProjectSlug } from '@/content/types'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { projectImageSrc } from '@/lib/server/assets'
+import { getRuntimeProjects } from '@/lib/server/content-db'
 import styles from './FeaturedProject.module.css'
 
 type Props = {
@@ -14,8 +14,9 @@ type Props = {
 }
 
 export function FeaturedProject({ slug, dictionary, alternate = false }: Props) {
-  const project = projects[slug]
+  const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.featured[slug]
+  if (!project || !copy) return null
   const mainImage = project.images[0]
   const mainSrc = mainImage ? projectImageSrc(slug, mainImage) : null
 

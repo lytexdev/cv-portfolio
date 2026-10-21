@@ -1,8 +1,9 @@
 services:
   cv:
+    env_file: .env
+    environment:
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      CV_DATA_DIR: /app/data
     ports:
-      - "127.0.0.1:3100:3000"
-    networks: !override
-      - default
-networks:
-  proxy: !reset {}
+      - "127.0.0.1:${PORT:-3100}:3000"

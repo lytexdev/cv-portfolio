@@ -8,36 +8,35 @@ services:
     image: cv-lytex:latest
     pull_policy: build
     container_name: cv-lytex
-    env_file: .env
+    env_file: .env.production
+    environment:
+      PORT: "3000"
+      HOSTNAME: "0.0.0.0"
+      CV_DATA_DIR: /app/data
     restart: unless-stopped
     read_only: true
     tmpfs:
       - /tmp:size=16m
       - /app/.next/cache:size=128m,mode=1777
     volumes:
-      - ./data:/app/data:ro
+      - ./data:/app/data:rw
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
-    pids_limit: 128
-    mem_limit: 384m
+    pids_limit: 256
+    mem_limit: 512m
     logging:
       driver: json-file
       options:
         max-size: 10m
         max-file: "3"
-    networks: [proxy]
   tokenctl:
     image: cv-lytex:latest
     pull_policy: never
     profiles: [tools]
-    env_file: .env
+    env_file: .env.production
     entrypoint: ["node", "scripts/token.mjs"]
     user: "1000:1000"
     read_only: true
     volumes:
       - ./data:/app/data:rw
     network_mode: none
-networks:
-  proxy:
-    external: true
-    name: ${PROXY_NETWORK:?PROXY_NETWORK must be set}

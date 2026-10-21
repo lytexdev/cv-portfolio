@@ -2,7 +2,7 @@ import 'server-only'
 import { findTokenByPlaintext, isValidTokenFormat } from './tokens'
 
 export type Viewer =
-  | { kind: 'public' }
+  | { kind: 'gate'; reason: 'missing' | 'invalid' | 'revoked' }
   | { kind: 'expired'; id: string; label: string }
   | {
       kind: 'token'
@@ -14,21 +14,24 @@ export type Viewer =
 
 export type ViewerResolveResult = {
   viewer: Viewer
-  event: 'cv_view' | 'cv_view_expired' | 'cv_token_invalid' | null
+  event: 'cv_view' | 'cv_view_expired' | 'cv_token_invalid' | 'cv_token_missing' | null
 }
 
 export function resolveViewer(rawToken: string | undefined | null): ViewerResolveResult {
   if (!rawToken) {
-    return { viewer: { kind: 'public' }, event: null }
+    return { viewer: { kind: 'gate', reason: 'missing' }, event: 'cv_token_missing' }
   }
 
   if (!isValidTokenFormat(rawToken)) {
-    return { viewer: { kind: 'public' }, event: 'cv_token_invalid' }
+    return { viewer: { kind: 'gate', reason: 'invalid' }, event: 'cv_token_invalid' }
   }
 
   const entry = findTokenByPlaintext(rawToken)
-  if (!entry || entry.revoked) {
-    return { viewer: { kind: 'public' }, event: 'cv_token_invalid' }
+  if (!entry) {
+    return { viewer: { kind: 'gate', reason: 'invalid' }, event: 'cv_token_invalid' }
+  }
+  if (entry.revoked) {
+    return { viewer: { kind: 'gate', reason: 'revoked' }, event: 'cv_token_invalid' }
   }
 
   if (entry.expiresAt) {
