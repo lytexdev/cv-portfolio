@@ -1,12 +1,9 @@
-import {
-  IconBrandGithub,
-  IconBrandLinkedin,
-  IconPrinter,
-} from '@tabler/icons-react'
+import { IconBrandGithub, IconBrandLinkedin, IconPrinter } from '@tabler/icons-react'
 import Image from 'next/image'
 import { projectCount } from '@/content/shared'
 import type { CvDictionary } from '@/content/types'
 import { RichText } from '@/components/content/RichText'
+import { LanguageFlags } from '@/components/hero/LanguageFlags'
 import { Tooltip } from '@/components/interactive/Tooltip'
 import styles from './Hero.module.css'
 
@@ -14,7 +11,7 @@ type Props = {
   dictionary: CvDictionary
   age: number | null
   portraitSrc: string | null
-  languagesLabel: string
+  languages: Array<{ name: string; level: string; code?: 'de' | 'en' }>
   personName: string
   personCity: string
   personMonogram: string
@@ -27,7 +24,7 @@ export function Hero({
   dictionary,
   age,
   portraitSrc,
-  languagesLabel,
+  languages,
   personName,
   personCity,
   personMonogram,
@@ -95,7 +92,7 @@ export function Hero({
       </div>
 
       <aside className={styles.aside}>
-        <div className={styles.portrait}>
+        <div className={styles.portrait} data-protect-media>
           {portraitSrc ? (
             <Image
               src={portraitSrc}
@@ -106,6 +103,7 @@ export function Hero({
               loading="eager"
               fetchPriority="high"
               unoptimized
+              draggable={false}
             />
           ) : (
             <div className={styles.monogram}>{personMonogram}</div>
@@ -114,32 +112,26 @@ export function Hero({
 
         <dl className={styles.meta}>
           <div className={styles.metaRow}>
-            <dt className={`mono-label ${styles.metaKey}`}>
-              {dictionary.hero.metaLocation}
-            </dt>
+            <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaLocation}</dt>
             <dd className={styles.metaValue}>{personCity}</dd>
           </div>
           {age !== null ? (
             <div className={styles.metaRow}>
-              <dt className={`mono-label ${styles.metaKey}`}>
-                {dictionary.hero.metaAge}
-              </dt>
+              <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaAge}</dt>
               <dd className={styles.metaValue}>
                 {dictionary.hero.ageYears.replace('{n}', String(age))}
               </dd>
             </div>
           ) : null}
           <div className={styles.metaRow}>
-            <dt className={`mono-label ${styles.metaKey}`}>
-              {dictionary.hero.metaLanguages}
-            </dt>
-            <dd className={styles.metaValue}>{languagesLabel}</dd>
+            <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaLanguages}</dt>
+            <dd className={styles.metaValue}>
+              <LanguageFlags languages={languages} />
+            </dd>
           </div>
           {dictionary.availability ? (
             <div className={styles.metaRow}>
-              <dt className={`mono-label ${styles.metaKey}`}>
-                {dictionary.hero.metaAvailability}
-              </dt>
+              <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaAvailability}</dt>
               <dd className={styles.metaValue}>{dictionary.availability}</dd>
             </div>
           ) : null}

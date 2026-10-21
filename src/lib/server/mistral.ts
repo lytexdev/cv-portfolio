@@ -10,10 +10,36 @@ export type MistralChatMessage = {
   content: string
 }
 
+export class MistralRequestError extends Error {
+  readonly status: number
+  readonly retryAfterSec: number | null
+
+  constructor(status: number, retryAfterSec: number | null = null) {
+    super(`Mistral request failed (${status})`)
+    this.name = 'MistralRequestError'
+    this.status = status
+    this.retryAfterSec = retryAfterSec
+  }
+}
+
+function parseRetryAfter(res: Response): number | null {
+  const raw = res.headers.get('retry-after')
+  if (!raw) return null
+  const asNumber = Number(raw)
+  if (Number.isFinite(asNumber) && asNumber >= 0) {
+    return Math.ceil(asNumber)
+  }
+  const asDate = Date.parse(raw)
+  if (!Number.isNaN(asDate)) {
+    return Math.max(0, Math.ceil((asDate - Date.now()) / 1000))
+  }
+  return null
+}
+
 export async function mistralChat(messages: MistralChatMessage[]): Promise<string> {
   const key = getEnv().mistralApiKey
   if (!key) {
-    throw new Error('MISTRAL_AI_API_KEY is not configured')
+    throw new MistralRequestError(503)
   }
 
   const controller = new AbortController()
@@ -36,7 +62,7 @@ export async function mistralChat(messages: MistralChatMessage[]): Promise<strin
     })
 
     if (!res.ok) {
-      throw new Error(`Mistral request failed (${res.status})`)
+      throw new MistralRequestError(res.status, parseRetryAfter(res))
     }
 
     const data = (await res.json()) as {
@@ -44,7 +70,7 @@ export async function mistralChat(messages: MistralChatMessage[]): Promise<strin
     }
     const content = data.choices?.[0]?.message?.content?.trim()
     if (!content) {
-      throw new Error('Mistral returned empty content')
+      throw new MistralRequestError(502)
     }
     return content
   } finally {

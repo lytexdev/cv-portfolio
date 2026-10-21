@@ -5,7 +5,6 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   compactProjectOrder,
   featuredProjectOrder,
-  person,
   stackGroups,
 } from '@/content/shared'
 import type { CvDictionary, Locale, ProjectSlug } from '@/content/types'
@@ -21,6 +20,11 @@ type Props = {
   hasToken: boolean
   token?: string
   phone?: string
+  email: string
+  github: string
+  linkedin: string
+  personName: string
+  personCity: string
   onOpenProject: (slug: ProjectSlug) => void
 }
 
@@ -99,6 +103,11 @@ export function MiniTerminal({
   hasToken,
   token,
   phone,
+  email,
+  github,
+  linkedin,
+  personName,
+  personCity,
   onOpenProject,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -205,7 +214,7 @@ export function MiniTerminal({
     }
 
     if (cmd === 'whoami') {
-      append(`${person.name}\n${dictionary.role}\n${person.city}`)
+      append(`${personName}\n${dictionary.role}\n${personCity}`)
       return
     }
 
@@ -270,7 +279,7 @@ export function MiniTerminal({
     }
 
     if (cmd === 'contact') {
-      const parts: string[] = [person.email, person.linkedin, person.github]
+      const parts: string[] = [email, linkedin, github]
       if (hasToken && phone) parts.push(phone)
       append(parts.join('\n'))
       return

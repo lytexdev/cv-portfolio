@@ -76,18 +76,22 @@ export function getAskContext(locale: Locale): string {
   }
 
   lines.push('Languages:')
-  for (const lang of dictionary.more.languages) {
-    lines.push(`- ${lang.name}: ${lang.level}`)
+  const languages = Array.isArray(dictionary.more.languages)
+    ? dictionary.more.languages
+    : []
+  for (const lang of languages) {
+    if (!lang?.name) continue
+    lines.push(`- ${lang.name}: ${lang.level ?? ''}`)
   }
 
   lines.push('Interests:')
-  for (const label of Object.values(dictionary.more.interests)) {
-    lines.push(`- ${label}`)
+  for (const label of Object.values(dictionary.more.interests ?? {})) {
+    if (typeof label === 'string' && label) lines.push(`- ${label}`)
   }
 
   lines.push('Strengths:')
-  for (const label of Object.values(dictionary.more.strengths)) {
-    lines.push(`- ${label}`)
+  for (const label of Object.values(dictionary.more.strengths ?? {})) {
+    if (typeof label === 'string' && label) lines.push(`- ${label}`)
   }
 
   const text = lines.join('\n')

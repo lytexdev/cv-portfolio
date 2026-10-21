@@ -1,8 +1,8 @@
 import type { CvDictionary } from '@/content/types'
 import { Hero } from '@/components/hero/Hero'
+import { TokenBanner } from '@/components/hero/TokenBanner'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import type { Viewer } from '@/lib/server/viewer'
-import styles from './About.module.css'
 
 type Props = {
   dictionary: CvDictionary
@@ -13,6 +13,8 @@ type Props = {
   personCity: string
   personMonogram: string
   softwareSinceYear: number
+  github?: string
+  linkedin?: string
 }
 
 export function About({
@@ -24,38 +26,35 @@ export function About({
   personCity,
   personMonogram,
   softwareSinceYear,
+  github,
+  linkedin,
 }: Props) {
   const section = dictionary.sections.whoami
-  const languagesLabel = Array.isArray(dictionary.more.languages)
-    ? dictionary.more.languages
-        .map((lang) => `${lang.name} (${lang.level})`)
-        .join(', ')
-    : ''
+  const languages = Array.isArray(dictionary.more.languages) ? dictionary.more.languages : []
 
   return (
     <section id="whoami" className="section" aria-labelledby="whoami-title">
       {viewer.kind === 'token' ? (
-        <div className={styles.tokenBanner}>
-          <strong>
-            {dictionary.hero.tokenBadge.replace('{label}', viewer.label)}
-          </strong>
-          {viewer.role ? (
-            <span className={styles.tokenRole}>
-              {dictionary.hero.tokenRole.replace('{role}', viewer.role)}
-            </span>
-          ) : null}
-        </div>
+        <TokenBanner
+          label={viewer.label}
+          role={viewer.role}
+          badgeTemplate={dictionary.hero.tokenBadge}
+          roleTemplate={dictionary.hero.tokenRole}
+          dismissLabel={dictionary.hero.tokenDismiss}
+        />
       ) : null}
       <SectionHeading id="whoami" rail={section.rail} title={section.title} />
       <Hero
         dictionary={dictionary}
         age={age}
         portraitSrc={portraitSrc}
-        languagesLabel={languagesLabel}
+        languages={languages}
         personName={personName}
         personCity={personCity}
         personMonogram={personMonogram}
         softwareSinceYear={softwareSinceYear}
+        github={github}
+        linkedin={linkedin}
       />
     </section>
   )

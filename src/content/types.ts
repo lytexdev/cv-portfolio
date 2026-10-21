@@ -1,12 +1,6 @@
 export type Locale = 'de' | 'en'
 
-export type SectionId =
-  | 'whoami'
-  | 'experience'
-  | 'stack'
-  | 'projects'
-  | 'more'
-  | 'contact'
+export type SectionId = 'whoami' | 'experience' | 'stack' | 'projects' | 'more' | 'contact'
 
 export type TechId =
   | 'typescript'
@@ -65,14 +59,18 @@ export type TechId =
   | 'vscodium'
   | 'office'
   | 'image-editing'
+  | 'bootstrap'
+  | 'gitlab'
+  | 'markdown'
+  | 'figma'
+  | 'angular'
+  | 'svelte'
+  | 'go'
+  | 'java'
+  | 'prisma'
+  | 'wordpress'
 
-export type StackGroupId =
-  | 'languages'
-  | 'frontend'
-  | 'backend'
-  | 'infra'
-  | 'security'
-  | 'tools'
+export type StackGroupId = 'languages' | 'frontend' | 'backend' | 'infra' | 'security' | 'tools'
 
 export type ExperienceId = 'freelance' | 'qiky' | 'apprenticeship'
 
@@ -117,6 +115,7 @@ export type CvDictionary = {
     metricProjects: string
     tokenBadge: string
     tokenRole: string
+    tokenDismiss: string
     metaLocation: string
     metaAge: string
     metaLanguages: string
@@ -166,7 +165,7 @@ export type CvDictionary = {
   }
   more: {
     languagesTitle: string
-    languages: { name: string; level: string }[]
+    languages: { name: string; level: string; code: 'de' | 'en' }[]
     interestsTitle: string
     interests: Record<InterestId, string>
     strengthsTitle: string
@@ -186,6 +185,7 @@ export type CvDictionary = {
     phone: string
     address: string
     birthDate: string
+    ageTooltip: string
   }
   palette: {
     placeholder: string

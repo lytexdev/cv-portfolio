@@ -27,6 +27,7 @@ export const en = {
     metricProjects: '{n} projects',
     tokenBadge: 'Personal version for {label}',
     tokenRole: 'Application for {role}',
+    tokenDismiss: 'Dismiss notice',
     metaLocation: 'Location',
     metaAge: 'Age',
     metaLanguages: 'Languages',
@@ -362,8 +363,8 @@ export const en = {
   more: {
     languagesTitle: 'Languages',
     languages: [
-      { name: 'German', level: 'native' },
-      { name: 'English', level: 'good, written and spoken' },
+      { name: 'German', level: 'native', code: 'de' },
+      { name: 'English', level: 'good, written and spoken', code: 'en' },
     ],
     interestsTitle: 'Interests',
     interests: {
@@ -395,6 +396,7 @@ export const en = {
     phone: 'Phone',
     address: 'Address',
     birthDate: 'Date of birth',
+    ageTooltip: '{n} years old',
   },
   palette: {
     placeholder: 'Search command or section…',

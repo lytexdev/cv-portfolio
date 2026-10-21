@@ -16,6 +16,16 @@
   letter-spacing: 0.04em;
 }
 
+.repoLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.repoLink:hover {
+  color: var(--ok);
+}
+
 .socials {
   display: flex;
   flex-wrap: wrap;

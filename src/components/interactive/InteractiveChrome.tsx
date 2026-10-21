@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { ProjectDialog, type ProjectDialogData } from '@/components/projects/ProjectDialog'
-import { person, projects } from '@/content/shared'
+import { projects } from '@/content/shared'
 import type { CvDictionary, Locale, ProjectSlug } from '@/content/types'
 import { ActiveSection } from './ActiveSection'
 import { CommandPalette } from './CommandPalette'
+import { MediaProtect } from './MediaProtect'
 import { MiniTerminal } from './MiniTerminal'
 import { RevealObserver } from './RevealObserver'
 import { ToasterProvider, useToast } from './Toaster'
@@ -22,6 +23,11 @@ type Props = {
   token?: string
   age: number | null
   phone?: string
+  email: string
+  github: string
+  linkedin: string
+  personName: string
+  personCity: string
   projectPayloads: ProjectPayload[]
 }
 
@@ -31,6 +37,11 @@ function InteractiveChromeInner({
   token,
   age,
   phone,
+  email,
+  github,
+  linkedin,
+  personName,
+  personCity,
   projectPayloads,
 }: Props) {
   const { showToast } = useToast()
@@ -79,11 +90,11 @@ function InteractiveChromeInner({
 
   const copyEmail = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(person.email)
+      await navigator.clipboard.writeText(email)
       showToast(dictionary.contact.emailCopied)
     } catch {
     }
-  }, [dictionary.contact.emailCopied, showToast])
+  }, [dictionary.contact.emailCopied, email, showToast])
 
   const onPrint = useCallback(() => window.print(), [])
 
@@ -141,6 +152,7 @@ function InteractiveChromeInner({
 
   return (
     <>
+      <MediaProtect />
       <RevealObserver />
       <ActiveSection />
 
@@ -154,8 +166,8 @@ function InteractiveChromeInner({
         onCopyEmail={() => void copyEmail()}
         onPrint={onPrint}
         onVcard={onVcard}
-        githubUrl={person.github}
-        linkedinUrl={person.linkedin}
+        githubUrl={github}
+        linkedinUrl={linkedin}
       />
 
       <MiniTerminal
@@ -167,6 +179,11 @@ function InteractiveChromeInner({
         hasToken={Boolean(token)}
         token={token}
         phone={phone}
+        email={email}
+        github={github}
+        linkedin={linkedin}
+        personName={personName}
+        personCity={personCity}
         onOpenProject={openProject}
       />
 

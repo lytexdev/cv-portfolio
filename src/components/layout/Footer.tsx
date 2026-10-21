@@ -43,12 +43,29 @@ export function Footer({
   const tagline = locale === 'en' ? footer.taglineEn : footer.taglineDe
   const imprintUrl = footer.imprintUrl || undefined
   const privacyUrl = footer.privacyUrl || undefined
+  const repoUrl = footer.repoUrl?.trim() || undefined
   const socials = footer.socials.filter((s) => s.url.trim())
 
   return (
     <footer className={styles.root}>
       <div className={styles.inner}>
-        {tagline ? <p className={`mono-label ${styles.tagline}`}>{tagline}</p> : null}
+        {tagline || repoUrl ? (
+          <p className={`mono-label ${styles.tagline}`}>
+            {tagline || null}
+            {tagline && repoUrl ? ' · ' : null}
+            {repoUrl ? (
+              <a
+                href={repoUrl}
+                className={styles.repoLink}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
+              </a>
+            ) : null}
+          </p>
+        ) : null}
 
         {socials.length > 0 ? (
           <ul className={styles.socials}>

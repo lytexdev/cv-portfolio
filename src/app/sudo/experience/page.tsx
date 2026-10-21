@@ -1,9 +1,11 @@
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import Link from 'next/link'
 import { createCsrfToken } from '@/lib/server/csrf'
-import { listDbExperiences } from '@/lib/server/content-db'
+import { listDbExperiences, listDbProjects } from '@/lib/server/content-db'
 import {
   deleteExperienceAction,
   ensureAdminOrRedirect,
+  moveExperienceAction,
   saveExperienceAction,
   translateExperienceAction,
 } from '../actions'
@@ -20,11 +22,11 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
   const session = await ensureAdminOrRedirect()
   const csrf = await createCsrfToken(String(session.adminId))
   const items = listDbExperiences()
+  const projects = listDbProjects()
   const query = await searchParams
   const creating = query.new === '1'
-  const editing = creating
-    ? null
-    : (items.find((e) => e.id === query.edited) ?? items[0] ?? null)
+  const editing = creating ? null : (items.find((e) => e.id === query.edited) ?? items[0] ?? null)
+  const selectedLinks = new Set(editing?.projectLinks ?? [])
 
   return (
     <div className={styles.wrap}>
@@ -47,27 +49,48 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
 
       <div className={styles.split}>
         <aside className={styles.sideList}>
-          {items.map((e) => {
+          {items.map((e, index) => {
             const active = !creating && editing?.id === e.id
             return (
-              <Link
-                key={e.id}
-                href={`/sudo/experience?edited=${encodeURIComponent(e.id)}`}
-                className={`${styles.sideItem} ${active ? styles.sideItemActive : ''}`}
-              >
-                <span className={styles.sideItemTitle}>{e.role.de || e.id}</span>
-                <span className={styles.muted}>
-                  {e.company.de} · sort {e.sortOrder}
-                </span>
-              </Link>
+              <div key={e.id} className={styles.sideItemRow}>
+                <Link
+                  href={`/sudo/experience?edited=${encodeURIComponent(e.id)}`}
+                  className={`${styles.sideItem} ${active ? styles.sideItemActive : ''}`}
+                >
+                  <span className={styles.sideItemTitle}>{e.role.de || e.id}</span>
+                  <span className={styles.muted}>
+                    {e.company.de} · sort {e.sortOrder}
+                  </span>
+                </Link>
+                <div className={styles.sideSort}>
+                  <form action={moveExperienceAction}>
+                    <input type="hidden" name="csrf" value={csrf} />
+                    <input type="hidden" name="id" value={e.id} />
+                    <input type="hidden" name="direction" value="up" />
+                    <button type="submit" disabled={index === 0} aria-label="Move up">
+                      <IconChevronUp size={16} stroke={1.75} aria-hidden="true" />
+                    </button>
+                  </form>
+                  <form action={moveExperienceAction}>
+                    <input type="hidden" name="csrf" value={csrf} />
+                    <input type="hidden" name="id" value={e.id} />
+                    <input type="hidden" name="direction" value="down" />
+                    <button
+                      type="submit"
+                      disabled={index === items.length - 1}
+                      aria-label="Move down"
+                    >
+                      <IconChevronDown size={16} stroke={1.75} aria-hidden="true" />
+                    </button>
+                  </form>
+                </div>
+              </div>
             )
           })}
         </aside>
 
-        <div className={styles.editorPane}>
-          <h2 className={styles.title}>
-            {editing ? `Edit · ${editing.id}` : 'New experience'}
-          </h2>
+        <div className={styles.editorPane} key={creating ? 'new' : (editing?.id ?? 'empty')}>
+          <h2 className={styles.title}>{editing ? `Edit · ${editing.id}` : 'New experience'}</h2>
 
           <form action={saveExperienceAction} className={styles.grid}>
             <input type="hidden" name="csrf" value={csrf} />
@@ -121,14 +144,40 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
                 />
               </label>
               <label className={styles.label}>
-                Project links
+                Company URL
                 <input
                   className={styles.input}
-                  name="projectLinks"
-                  defaultValue={editing?.projectLinks.join(', ') ?? ''}
+                  name="companyUrl"
+                  type="url"
+                  defaultValue={editing?.companyUrl ?? ''}
+                  placeholder="https://"
                 />
               </label>
             </div>
+
+            <label className={styles.label}>
+              Project links
+              <div className={styles.checkList}>
+                {projects.length === 0 ? (
+                  <span className={styles.muted}>No projects available</span>
+                ) : (
+                  projects.map((project) => (
+                    <label key={project.slug} className={styles.checkItem}>
+                      <input
+                        type="checkbox"
+                        name="projectLinks"
+                        value={project.slug}
+                        defaultChecked={selectedLinks.has(project.slug as never)}
+                      />
+                      <span>
+                        {project.title.de || project.slug}
+                        <span className={styles.muted}> · {project.slug}</span>
+                      </span>
+                    </label>
+                  ))
+                )}
+              </div>
+            </label>
 
             <p className={styles.sectionLabel}>Copy</p>
             <LocaleTabs

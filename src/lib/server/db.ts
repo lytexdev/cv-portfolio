@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS experience (
   end_date TEXT,
   stack_json TEXT NOT NULL DEFAULT '[]',
   project_links_json TEXT NOT NULL DEFAULT '[]',
+  company_url TEXT,
   role_de TEXT NOT NULL,
   role_en TEXT NOT NULL,
   company_de TEXT NOT NULL,
@@ -153,6 +154,13 @@ function migrateSchema(database: DatabaseSync) {
     .all() as Array<{ name: string }>
   if (!tokenCols.some((col) => col.name === 'sealed')) {
     database.exec('ALTER TABLE tokens ADD COLUMN sealed TEXT')
+  }
+
+  const experienceCols = database
+    .prepare("PRAGMA table_info('experience')")
+    .all() as Array<{ name: string }>
+  if (!experienceCols.some((col) => col.name === 'company_url')) {
+    database.exec('ALTER TABLE experience ADD COLUMN company_url TEXT')
   }
 }
 

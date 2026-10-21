@@ -1,3 +1,4 @@
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import Link from 'next/link'
 import { createCsrfToken } from '@/lib/server/csrf'
 import { listDbProjects } from '@/lib/server/content-db'
@@ -5,6 +6,7 @@ import { projectImageSrc } from '@/lib/server/assets'
 import {
   deleteProjectAction,
   ensureAdminOrRedirect,
+  moveProjectAction,
   removeProjectImageAction,
   saveProjectAction,
   translateProjectAction,
@@ -65,24 +67,50 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
 
       <div className={styles.split}>
         <aside className={styles.sideList}>
-          {projects.map((p) => {
+          {projects.map((p, index) => {
             const active = !creating && editing?.slug === p.slug
             return (
-              <Link
-                key={p.slug}
-                href={`/sudo/projects?edited=${encodeURIComponent(p.slug)}`}
-                className={`${styles.sideItem} ${active ? styles.sideItemActive : ''}`}
-              >
-                <span className={styles.sideItemTitle}>{p.title.de || p.slug}</span>
-                <span className={styles.muted}>
-                  {p.slug} · {p.featured ? 'featured' : 'compact'} · sort {p.sortOrder}
-                </span>
-              </Link>
+              <div key={p.slug} className={styles.sideItemRow}>
+                <Link
+                  href={`/sudo/projects?edited=${encodeURIComponent(p.slug)}`}
+                  className={`${styles.sideItem} ${active ? styles.sideItemActive : ''}`}
+                >
+                  <span className={styles.sideItemTitle}>{p.title.de || p.slug}</span>
+                  <span className={styles.muted}>
+                    {p.slug} · {p.featured ? 'featured' : 'compact'} · sort {p.sortOrder}
+                  </span>
+                </Link>
+                <div className={styles.sideSort}>
+                  <form action={moveProjectAction}>
+                    <input type="hidden" name="csrf" value={csrf} />
+                    <input type="hidden" name="slug" value={p.slug} />
+                    <input type="hidden" name="direction" value="up" />
+                    <button type="submit" disabled={index === 0} aria-label="Move up">
+                      <IconChevronUp size={16} stroke={1.75} aria-hidden="true" />
+                    </button>
+                  </form>
+                  <form action={moveProjectAction}>
+                    <input type="hidden" name="csrf" value={csrf} />
+                    <input type="hidden" name="slug" value={p.slug} />
+                    <input type="hidden" name="direction" value="down" />
+                    <button
+                      type="submit"
+                      disabled={index === projects.length - 1}
+                      aria-label="Move down"
+                    >
+                      <IconChevronDown size={16} stroke={1.75} aria-hidden="true" />
+                    </button>
+                  </form>
+                </div>
+              </div>
             )
           })}
         </aside>
 
-        <div className={styles.editorPane}>
+        <div
+          className={styles.editorPane}
+          key={creating ? 'new' : (editing?.slug ?? 'empty')}
+        >
           <h2 className={styles.title}>
             {editing ? `Edit · ${editing.slug}` : 'New project'}
           </h2>

@@ -78,6 +78,16 @@
   color: var(--muted);
 }
 
+.companyLink {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.companyLink:hover {
+  color: var(--ok);
+}
+
 .highlights {
   display: flex;
   flex-direction: column;

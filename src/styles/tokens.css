@@ -33,13 +33,13 @@
 }
 
 [data-theme='light'] {
-  --bg: #f6f7f9;
-  --surface: #ffffff;
-  --surface-2: #eef0f4;
-  --border: #d9dee7;
-  --border-strong: #7d8799;
+  --bg: #e8eaef;
+  --surface: #f4f5f8;
+  --surface-2: #dde1e8;
+  --border: #c9cfda;
+  --border-strong: #6f7a8d;
   --text: #0e1116;
-  --muted: #5b6475;
+  --muted: #4f5868;
   --accent: #157a52;
   --accent-strong: #1a9463;
   --on-accent: #ffffff;

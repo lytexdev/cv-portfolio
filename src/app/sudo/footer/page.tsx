@@ -83,6 +83,16 @@ export default async function FooterAdminPage({ searchParams }: Props) {
             />
           </label>
           <label className={styles.label}>
+            Repository URL
+            <input
+              className={styles.input}
+              name="repoUrl"
+              type="url"
+              defaultValue={config.repoUrl}
+              placeholder="https://github.com/..."
+            />
+          </label>
+          <label className={styles.label}>
             <span>
               <input
                 type="checkbox"

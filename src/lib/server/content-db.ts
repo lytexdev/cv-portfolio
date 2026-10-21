@@ -37,6 +37,7 @@ export type DbExperience = {
   end: string | null
   stack: TechId[]
   projectLinks: ProjectSlug[]
+  companyUrl?: string
   role: { de: string; en: string }
   company: { de: string; en: string }
   location: { de: string; en: string }
@@ -96,6 +97,7 @@ export function listDbExperiences(): DbExperience[] {
     end: row.end_date ? String(row.end_date) : null,
     stack: parseJson<TechId[]>(String(row.stack_json), []),
     projectLinks: parseJson<ProjectSlug[]>(String(row.project_links_json), []),
+    companyUrl: row.company_url ? String(row.company_url) : undefined,
     role: { de: String(row.role_de), en: String(row.role_en) },
     company: { de: String(row.company_de), en: String(row.company_en) },
     location: { de: String(row.location_de), en: String(row.location_en) },
@@ -249,6 +251,7 @@ export function getRuntimeExperiences(): ExperienceShared[] {
     end: exp.end,
     stack: exp.stack,
     projectLinks: exp.projectLinks,
+    companyUrl: exp.companyUrl,
   }))
 }
 
@@ -308,15 +311,16 @@ export function upsertExperience(exp: DbExperience) {
     .prepare(
       `INSERT INTO experience (
         id, sort_order, start_date, end_date, stack_json, project_links_json,
-        role_de, role_en, company_de, company_en, location_de, location_en,
+        company_url, role_de, role_en, company_de, company_en, location_de, location_en,
         highlights_de_json, highlights_en_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         sort_order = excluded.sort_order,
         start_date = excluded.start_date,
         end_date = excluded.end_date,
         stack_json = excluded.stack_json,
         project_links_json = excluded.project_links_json,
+        company_url = excluded.company_url,
         role_de = excluded.role_de,
         role_en = excluded.role_en,
         company_de = excluded.company_de,
@@ -333,6 +337,7 @@ export function upsertExperience(exp: DbExperience) {
       exp.end,
       JSON.stringify(exp.stack),
       JSON.stringify(exp.projectLinks),
+      exp.companyUrl ?? null,
       exp.role.de,
       exp.role.en,
       exp.company.de,

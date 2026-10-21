@@ -349,6 +349,11 @@ export async function removeProjectImageAction(formData: FormData) {
 export async function saveExperienceAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
+  const projectLinks = formData
+    .getAll('projectLinks')
+    .map(String)
+    .map((s) => s.trim())
+    .filter(Boolean) as DbExperience['projectLinks']
   const exp: DbExperience = {
     id: formString(formData, 'id'),
     sortOrder: Number(formString(formData, 'sortOrder') || '0'),
@@ -358,10 +363,8 @@ export async function saveExperienceAction(formData: FormData) {
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean) as TechId[],
-    projectLinks: formString(formData, 'projectLinks')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean) as DbExperience['projectLinks'],
+    projectLinks,
+    companyUrl: formString(formData, 'companyUrl') || undefined,
     role: {
       de: formString(formData, 'role_de'),
       en: formString(formData, 'role_en'),
@@ -390,6 +393,64 @@ export async function saveExperienceAction(formData: FormData) {
   revalidatePath('/de')
   revalidatePath('/en')
   redirect(`/sudo/experience?edited=${encodeURIComponent(exp.id)}&saved=1`)
+}
+
+export async function moveExperienceAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const id = formString(formData, 'id')
+  const direction = formString(formData, 'direction')
+  const items = listDbExperiences()
+  const index = items.findIndex((item) => item.id === id)
+  if (index < 0) redirect('/sudo/experience')
+  const swapIndex = direction === 'up' ? index - 1 : index + 1
+  if (swapIndex < 0 || swapIndex >= items.length) {
+    redirect(`/sudo/experience?edited=${encodeURIComponent(id)}`)
+  }
+  const current = items[index]!
+  const neighbor = items[swapIndex]!
+  const currentOrder = current.sortOrder
+  current.sortOrder = neighbor.sortOrder
+  neighbor.sortOrder = currentOrder
+  if (current.sortOrder === neighbor.sortOrder) {
+    current.sortOrder = swapIndex
+    neighbor.sortOrder = index
+  }
+  upsertExperience(current)
+  upsertExperience(neighbor)
+  revalidatePath('/sudo/experience')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  redirect(`/sudo/experience?edited=${encodeURIComponent(id)}`)
+}
+
+export async function moveProjectAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const slug = formString(formData, 'slug')
+  const direction = formString(formData, 'direction')
+  const items = listDbProjects()
+  const index = items.findIndex((item) => item.slug === slug)
+  if (index < 0) redirect('/sudo/projects')
+  const swapIndex = direction === 'up' ? index - 1 : index + 1
+  if (swapIndex < 0 || swapIndex >= items.length) {
+    redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}`)
+  }
+  const current = items[index]!
+  const neighbor = items[swapIndex]!
+  const currentOrder = current.sortOrder
+  current.sortOrder = neighbor.sortOrder
+  neighbor.sortOrder = currentOrder
+  if (current.sortOrder === neighbor.sortOrder) {
+    current.sortOrder = swapIndex
+    neighbor.sortOrder = index
+  }
+  upsertProject(current)
+  upsertProject(neighbor)
+  revalidatePath('/sudo/projects')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}`)
 }
 
 export async function deleteExperienceAction(formData: FormData) {
@@ -582,6 +643,7 @@ export async function saveFooterConfigAction(formData: FormData) {
     taglineEn: formString(formData, 'taglineEn'),
     imprintUrl: formString(formData, 'imprintUrl'),
     privacyUrl: formString(formData, 'privacyUrl'),
+    repoUrl: formString(formData, 'repoUrl'),
     showVersion: formData.get('showVersion') === 'on',
     socials,
   }

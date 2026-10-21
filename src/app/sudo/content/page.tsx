@@ -54,6 +54,7 @@ export default async function ContentAdminPage({ searchParams }: Props) {
       ) : null}
 
       <ContentEditor
+        key={`${query.saved ?? '0'}:${query.translated ?? '0'}`}
         entries={entries}
         initialKey={query.key}
         csrf={csrf}

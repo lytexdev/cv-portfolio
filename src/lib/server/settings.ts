@@ -48,6 +48,7 @@ export type FooterConfig = {
   taglineEn: string
   imprintUrl: string
   privacyUrl: string
+  repoUrl: string
   showVersion: boolean
   socials: SocialLink[]
 }
@@ -147,6 +148,7 @@ export function getFooterConfig(): FooterConfig {
     taglineEn: 'Self-hosted · Next.js',
     imprintUrl: env.legalImprintUrl ?? '',
     privacyUrl: env.legalPrivacyUrl ?? '',
+    repoUrl: 'https://github.com/lytexdev/cv-portfolio',
     showVersion: true,
     socials: [
       { platform: 'github', url: profile.github, label: 'GitHub' },

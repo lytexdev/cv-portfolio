@@ -46,7 +46,21 @@ export function Experience({ locale, dictionary }: Props) {
               <div>
                 <h3>{copy.role}</h3>
                 <p className={styles.company}>
-                  {copy.company} · {copy.location}
+                  {entry.companyUrl ? (
+                    <a
+                      href={entry.companyUrl}
+                      className={styles.companyLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {copy.company}
+                      <span className="visually-hidden"> {dictionary.externalNewTab}</span>
+                    </a>
+                  ) : (
+                    copy.company
+                  )}
+                  {' · '}
+                  {copy.location}
                 </p>
                 {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
                   <ul className={styles.highlights}>

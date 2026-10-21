@@ -26,9 +26,17 @@
 }
 
 .root:hover::after,
-.root:focus-within::after {
+.root:focus-within::after,
+.root:active::after {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
+}
+
+@media (hover: none) {
+  .root:focus-within::after {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -83,6 +83,7 @@ export type ExperienceShared = {
   end: string | null
   stack: TechId[]
   projectLinks?: ProjectSlug[]
+  companyUrl?: string
 }
 
 export const experiences: ExperienceShared[] = [

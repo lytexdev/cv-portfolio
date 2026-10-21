@@ -43,18 +43,6 @@ export function More({ dictionary }: Props) {
       <SectionHeading id="more" rail={section.rail} title={section.title} />
       <div className={styles.grid}>
         <div className={styles.block}>
-          <h3 className={styles.blockTitle}>{dictionary.more.languagesTitle}</h3>
-          <ul className={styles.list}>
-            {(Array.isArray(dictionary.more.languages) ? dictionary.more.languages : []).map(
-              (lang) => (
-                <li key={lang.name} className={styles.item}>
-                  <span className={styles.langName}>{lang.name}</span>
-                  <span className={styles.langLevel}>· {lang.level}</span>
-                </li>
-              ),
-            )}
-          </ul>
-
           <h3 className={styles.blockTitle}>{dictionary.more.interestsTitle}</h3>
           <ul className={styles.list}>
             {interestIds.map((id) => {

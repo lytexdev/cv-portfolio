@@ -3,7 +3,7 @@ import { getAskContext } from '@/lib/server/ask-context'
 import { writeAudit } from '@/lib/server/audit'
 import { hasLocale } from '@/lib/i18n'
 import { getEnv } from '@/lib/server/env'
-import { mistralChat } from '@/lib/server/mistral'
+import { MistralRequestError, mistralChat } from '@/lib/server/mistral'
 import { checkRateLimit } from '@/lib/server/rate-limit'
 import { resolveViewer } from '@/lib/server/viewer'
 import type { Locale } from '@/content/types'
@@ -172,7 +172,24 @@ export async function POST(request: Request) {
     })
 
     return Response.json({ answer })
-  } catch {
+  } catch (error) {
+    if (error instanceof MistralRequestError && error.status === 429) {
+      const retryAfterSec = error.retryAfterSec ?? 60
+      writeAudit({
+        category: 'ai',
+        event: 'ask_rate_limited',
+        detail: `${actorLabel}: upstream ${clipDetail(question)}`,
+        ip,
+      })
+      return Response.json(
+        { error: 'rate_limited', retryAfterSec },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(retryAfterSec) },
+        },
+      )
+    }
+
     writeAudit({
       category: 'ai',
       event: 'ask_error',

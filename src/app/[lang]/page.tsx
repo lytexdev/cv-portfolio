@@ -138,6 +138,11 @@ export default async function Page({ params, searchParams }: Props) {
         token={tokenQuery}
         age={age}
         phone={privateData?.phone}
+        email={profile.email}
+        github={profile.github}
+        linkedin={profile.linkedin}
+        personName={profile.name}
+        personCity={profile.city}
         projectPayloads={buildProjectPayloads(dictionary, tokenQuery)}
       />
       <CvShell
@@ -154,6 +159,9 @@ export default async function Page({ params, searchParams }: Props) {
             viewer={viewer}
             privateData={privateData}
             pageUrl={pageUrl}
+            personName={profile.name}
+            email={profile.email}
+            city={profile.city}
           />
           <About
             dictionary={dictionary}
@@ -164,6 +172,8 @@ export default async function Page({ params, searchParams }: Props) {
             personCity={profile.city}
             personMonogram={profile.monogram}
             softwareSinceYear={profile.softwareSinceYear}
+            github={profile.github}
+            linkedin={profile.linkedin}
           />
           <Experience locale={lang} dictionary={dictionary} />
           <Stack dictionary={dictionary} />
@@ -175,6 +185,9 @@ export default async function Page({ params, searchParams }: Props) {
             viewer={viewer}
             privateData={privateData}
             tokenQuery={tokenQuery}
+            email={profile.email}
+            city={profile.city}
+            age={age}
           />
         </main>
       </CvShell>

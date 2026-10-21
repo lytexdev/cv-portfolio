@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useState, useTransition } from 'react'
 import styles from '../sudo.module.css'
 
 type Entry = {
@@ -17,6 +17,14 @@ type Props = {
   translateAction: (formData: FormData) => void | Promise<void>
 }
 
+function draftsFromEntries(entries: Entry[]) {
+  const initial: Record<string, { de: string; en: string }> = {}
+  for (const entry of entries) {
+    initial[entry.key] = { de: entry.de, en: entry.en }
+  }
+  return initial
+}
+
 export function ContentEditor({
   entries,
   initialKey,
@@ -31,6 +39,13 @@ export function ContentEditor({
       : (entries[0]?.key ?? ''),
   )
   const [pending, startTransition] = useTransition()
+  const [drafts, setDrafts] = useState(() => draftsFromEntries(entries))
+
+  useEffect(() => {
+    if (initialKey && entries.some((e) => e.key === initialKey)) {
+      setSelected(initialKey)
+    }
+  }, [entries, initialKey])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -39,14 +54,6 @@ export function ContentEditor({
   }, [entries, query])
 
   const current = entries.find((e) => e.key === selected)
-  const [drafts, setDrafts] = useState<Record<string, { de: string; en: string }>>(() => {
-    const initial: Record<string, { de: string; en: string }> = {}
-    for (const entry of entries) {
-      initial[entry.key] = { de: entry.de, en: entry.en }
-    }
-    return initial
-  })
-
   const de = drafts[selected]?.de ?? current?.de ?? ''
   const en = drafts[selected]?.en ?? current?.en ?? ''
 
@@ -113,6 +120,7 @@ export function ContentEditor({
               <label className={styles.label}>
                 Deutsch
                 <textarea
+                  key={`${selected}:de`}
                   className={styles.textareaTall}
                   value={de}
                   onChange={(event) => setDe(event.target.value)}
@@ -121,6 +129,7 @@ export function ContentEditor({
               <label className={styles.label}>
                 English
                 <textarea
+                  key={`${selected}:en`}
                   className={styles.textareaTall}
                   value={en}
                   onChange={(event) => setEn(event.target.value)}

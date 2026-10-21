@@ -27,6 +27,7 @@ export const de = {
     metricProjects: '{n} Projekte',
     tokenBadge: 'Persönliche Version für {label}',
     tokenRole: 'Bewerbung als {role}',
+    tokenDismiss: 'Hinweis ausblenden',
     metaLocation: 'Ort',
     metaAge: 'Alter',
     metaLanguages: 'Sprachen',
@@ -363,8 +364,8 @@ export const de = {
   more: {
     languagesTitle: 'Sprachen',
     languages: [
-      { name: 'Deutsch', level: 'Muttersprache' },
-      { name: 'Englisch', level: 'gut in Wort und Schrift' },
+      { name: 'Deutsch', level: 'Muttersprache', code: 'de' },
+      { name: 'Englisch', level: 'gut in Wort und Schrift', code: 'en' },
     ],
     interestsTitle: 'Interessen',
     interests: {
@@ -397,6 +398,7 @@ export const de = {
     phone: 'Telefon',
     address: 'Anschrift',
     birthDate: 'Geburtsdatum',
+    ageTooltip: '{n} Jahre alt',
   },
   palette: {
     placeholder: 'Befehl oder Sektion suchen …',

@@ -1,4 +1,3 @@
-import { person } from '@/content/shared'
 import type { CvDictionary } from '@/content/types'
 import type { PrivateData } from '@/lib/server/private-data'
 import type { Viewer } from '@/lib/server/viewer'
@@ -10,6 +9,9 @@ type Props = {
   viewer: Viewer
   privateData: PrivateData | null
   pageUrl: string
+  personName: string
+  email: string
+  city: string
 }
 
 export async function PrintHeader({
@@ -17,22 +19,23 @@ export async function PrintHeader({
   viewer,
   privateData,
   pageUrl,
+  personName,
+  email,
+  city,
 }: Props) {
-  const contactParts: string[] = [person.email]
+  const contactParts: string[] = [email]
 
   if (viewer.kind === 'token' && privateData) {
     contactParts.push(privateData.phone)
-    contactParts.push(
-      `${privateData.street}, ${privateData.postalCode} ${privateData.city}`,
-    )
+    contactParts.push(`${privateData.street}, ${privateData.postalCode} ${privateData.city}`)
   } else {
-    contactParts.push(person.city)
+    contactParts.push(city)
   }
 
   return (
     <header className={`print-only ${styles.root}`}>
       <div>
-        <p className={styles.name}>{person.name}</p>
+        <p className={styles.name}>{personName}</p>
         <p className={styles.role}>{dictionary.role}</p>
         <p className={styles.contact}>{contactParts.join(' · ')}</p>
         <p className={styles.url}>{pageUrl}</p>
