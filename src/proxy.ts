@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { parseIndexPublic, robotsTagForPath } from '@/lib/robots-policy'
 
 const locales = new Set(['de', 'en'])
 const passthroughRoots = new Set([
@@ -7,7 +8,6 @@ const passthroughRoots = new Set([
   'wp-admin',
   'e',
   'media',
-  'errors',
   'healthz',
   'api',
   'favicon.ico',
@@ -41,12 +41,18 @@ function buildCsp(nonce: string): string {
   return csp.replace(/\s{2,}/g, ' ').trim()
 }
 
-function withSecurityHeaders(response: NextResponse, csp: string) {
+function withSecurityHeaders(
+  response: NextResponse,
+  csp: string,
+  pathname: string,
+) {
   response.headers.set('Content-Security-Policy', csp)
-  response.headers.set(
-    'X-Robots-Tag',
-    'noindex, nofollow, noarchive, nosnippet, noimageindex',
-  )
+  const robots = robotsTagForPath(pathname, parseIndexPublic(process.env.INDEX_PUBLIC))
+  if (robots) {
+    response.headers.set('X-Robots-Tag', robots)
+  } else {
+    response.headers.delete('X-Robots-Tag')
+  }
   return response
 }
 
@@ -66,6 +72,7 @@ export function proxy(request: NextRequest) {
     return withSecurityHeaders(
       NextResponse.rewrite(url, { request: { headers: requestHeaders } }),
       csp,
+      url.pathname,
     )
   }
 
@@ -92,14 +99,14 @@ export function proxy(request: NextRequest) {
     },
   })
 
-  return withSecurityHeaders(response, csp)
+  return withSecurityHeaders(response, csp, pathname)
 }
 
 export const config = {
   matcher: [
     {
       source:
-        '/((?!_next|api|healthz|favicon.ico|icon.svg|robots.txt|errors).*)',
+        '/((?!_next|api|healthz|favicon.ico|icon.svg|robots.txt).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },
