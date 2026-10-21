@@ -46,7 +46,12 @@ export function ProjectRow({ slug, dictionary }: Props) {
           </ul>
         ) : null}
       </div>
-      <button type="button" className={styles.details} data-project-details={slug}>
+      <button
+        type="button"
+        className={styles.details}
+        data-project-details={slug}
+        aria-label={`${dictionary.projects.details}: ${copy.title}`}
+      >
         {dictionary.projects.details}
       </button>
     </article>

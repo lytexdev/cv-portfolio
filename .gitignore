@@ -2,7 +2,6 @@ node_modules/
 .next/
 next-env.d.ts
 tsconfig.tsbuildinfo
-.env
 assets/raw/
 data/*
 !data/*.example.json
@@ -10,3 +9,8 @@ data/*
 .cursor
 .claude
 .vscode
+data/
+
+.env
+.env.production
+!.env.example

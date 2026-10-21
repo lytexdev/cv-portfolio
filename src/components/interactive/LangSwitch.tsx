@@ -17,10 +17,17 @@ export function LangSwitch({ locale, label }: Props) {
   const next = locale === 'de' ? 'en' : 'de'
   const href = token ? `/${next}?k=${encodeURIComponent(token)}` : `/${next}`
 
+  const nextLabel = next.toUpperCase()
+
   return (
-    <Link href={href} className={styles.button} hrefLang={next} aria-label={label}>
+    <Link
+      href={href}
+      className={styles.button}
+      hrefLang={next}
+      aria-label={`${label}: ${nextLabel}`}
+    >
       <IconLanguage size={20} stroke={1.75} aria-hidden="true" />
-      <span>{next.toUpperCase()}</span>
+      <span aria-hidden="true">{nextLabel}</span>
     </Link>
   )
 }

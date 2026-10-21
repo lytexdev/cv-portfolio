@@ -10,3 +10,9 @@
   min-width: 2.5rem;
   justify-content: center;
 }
+
+@media (max-width: 480px) {
+  .root {
+    display: none;
+  }
+}

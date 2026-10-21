@@ -25,7 +25,7 @@ export function TopBar({ locale, dictionary }: Props) {
             type="button"
             className={controlStyles.button}
             data-open-palette
-            aria-label={dictionary.palette.placeholder}
+            aria-label={`${dictionary.palette.placeholder} (Ctrl K)`}
           >
             <IconCommand size={18} stroke={1.75} aria-hidden="true" />
             <ShortcutHint />

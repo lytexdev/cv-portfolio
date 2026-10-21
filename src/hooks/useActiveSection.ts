@@ -4,37 +4,46 @@ import { useEffect, useState } from 'react'
 import { sectionOrder } from '@/content/shared'
 import type { SectionId } from '@/content/types'
 
+function resolveActiveSection(): SectionId {
+  const marker = window.innerHeight * 0.28
+  let current: SectionId = sectionOrder[0] ?? 'whoami'
+
+  for (const id of sectionOrder) {
+    const el = document.getElementById(id)
+    if (!el) continue
+    if (el.getBoundingClientRect().top <= marker) {
+      current = id
+    }
+  }
+
+  return current
+}
+
 export function useActiveSection(): SectionId {
   const [active, setActive] = useState<SectionId>('whoami')
 
   useEffect(() => {
-    const elements = sectionOrder
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => Boolean(el))
+    let frame = 0
 
-    if (elements.length === 0) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
-        const top = visible[0]
-        if (top?.target.id && sectionOrder.includes(top.target.id as SectionId)) {
-          setActive(top.target.id as SectionId)
-        }
-      },
-      {
-        rootMargin: '-20% 0px -55% 0px',
-        threshold: [0.1, 0.25, 0.5],
-      },
-    )
-
-    for (const el of elements) {
-      observer.observe(el)
+    const update = () => {
+      frame = 0
+      setActive(resolveActiveSection())
     }
 
-    return () => observer.disconnect()
+    const onScrollOrResize = () => {
+      if (frame) return
+      frame = window.requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', onScrollOrResize, { passive: true })
+    window.addEventListener('resize', onScrollOrResize)
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', onScrollOrResize)
+      window.removeEventListener('resize', onScrollOrResize)
+    }
   }, [])
 
   return active
