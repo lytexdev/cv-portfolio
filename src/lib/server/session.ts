@@ -83,7 +83,7 @@ export async function clearAdminSessionCookie() {
     httpOnly: true,
     secure: getEnv().isProduction,
     sameSite: 'strict',
-    path: '/sudo',
+    path: '/',
     maxAge: 0,
   })
 }

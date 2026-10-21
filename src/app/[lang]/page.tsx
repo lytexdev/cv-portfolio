@@ -37,7 +37,7 @@ type Props = {
 
 function buildProjectPayloads(
   dictionary: ReturnType<typeof getRuntimeDictionary>,
-  token: string,
+  token?: string,
 ) {
   const projects = getRuntimeProjects()
   const all = [...getRuntimeFeaturedOrder(), ...getRuntimeCompactOrder()]
@@ -109,14 +109,19 @@ export default async function Page({ params, searchParams }: Props) {
     )
   }
 
-  incrementTokenView(viewer.id, { lang, agent })
+  const isToken = viewer.kind === 'token'
+  if (isToken) {
+    incrementTokenView(viewer.id, { lang, agent })
+  }
 
   const age = getPublicAge()
-  const privateData = getPrivateData()
-  const tokenQuery = viewer.token
+  const privateData = isToken ? getPrivateData() : null
+  const tokenQuery = isToken ? viewer.token : undefined
   const env = getEnv()
   const footer = getFooterConfig()
-  const pageUrl = `${env.publicBaseUrl}/${lang}?k=${encodeURIComponent(tokenQuery)}`
+  const pageUrl = tokenQuery
+    ? `${env.publicBaseUrl}/${lang}?k=${encodeURIComponent(tokenQuery)}`
+    : `${env.publicBaseUrl}/${lang}`
   const resolvedPortrait = profile.portraitPath
     ? withAccessToken(profile.portraitPath, tokenQuery)
     : portraitSrc(tokenQuery)

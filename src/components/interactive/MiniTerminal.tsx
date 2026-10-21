@@ -287,16 +287,6 @@ export function MiniTerminal({
         )
         return
       }
-      if (!token) {
-        append(
-          locale === 'de'
-            ? 'ask: gültiger Zugangstoken erforderlich.'
-            : 'ask: a valid access token is required.',
-          'err',
-        )
-        return
-      }
-
       setBusy(true)
       append(locale === 'de' ? 'denke nach…' : 'thinking…', 'info')
       void (async () => {
@@ -304,7 +294,11 @@ export function MiniTerminal({
           const res = await fetch('/api/ask', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ k: token, q: question, lang: locale }),
+            body: JSON.stringify({
+              ...(token ? { k: token } : {}),
+              q: question,
+              lang: locale,
+            }),
           })
           const data = (await res.json().catch(() => null)) as
             | { answer?: string; error?: string; retryAfterSec?: number }

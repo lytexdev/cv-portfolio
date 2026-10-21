@@ -10,7 +10,7 @@ import styles from './FeaturedProject.module.css'
 type Props = {
   slug: ProjectSlug
   dictionary: CvDictionary
-  accessToken: string
+  accessToken?: string
   alternate?: boolean
 }
 

@@ -34,7 +34,6 @@ export function getAskContext(locale: Locale): string {
   const lines: string[] = [
     `Name: ${profile.name}`,
     `City: ${profile.city}`,
-    `Email: ${profile.email}`,
     `Role: ${clip(dictionary.role, 160)}`,
     `Summary: ${clip(dictionary.summary, 420)}`,
     `Availability: ${clip(dictionary.availability, 120)}`,

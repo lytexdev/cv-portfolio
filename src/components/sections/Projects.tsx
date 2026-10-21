@@ -10,7 +10,7 @@ import styles from './Projects.module.css'
 
 type Props = {
   dictionary: CvDictionary
-  accessToken: string
+  accessToken?: string
 }
 
 export function Projects({ dictionary, accessToken }: Props) {

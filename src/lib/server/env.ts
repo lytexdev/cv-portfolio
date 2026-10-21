@@ -2,6 +2,14 @@ import 'server-only'
 import { z } from 'zod'
 import { warnOnce } from './log'
 
+function parseBool(value: string | undefined, fallback: boolean): boolean {
+  if (value === undefined || value === '') return fallback
+  const v = value.trim().toLowerCase()
+  if (v === '1' || v === 'true' || v === 'yes' || v === 'on') return true
+  if (v === '0' || v === 'false' || v === 'no' || v === 'off') return false
+  return fallback
+}
+
 const envSchema = z.object({
   PUBLIC_BASE_URL: z.string().url().default('http://localhost:3000'),
   PORT: z.coerce.number().int().positive().default(3000),
@@ -12,6 +20,7 @@ const envSchema = z.object({
   LEGAL_PRIVACY_URL: z.string().url().optional().or(z.literal('')),
   DEEPL_API_KEY: z.string().optional().or(z.literal('')),
   MISTRAL_AI_API_KEY: z.string().optional().or(z.literal('')),
+  CV_REQUIRE_TOKEN: z.string().optional().or(z.literal('')),
   BUILD_SHA: z.string().optional(),
   NODE_ENV: z.enum(['development', 'production', 'test']).optional(),
 })
@@ -26,6 +35,7 @@ export type AppEnv = {
   legalPrivacyUrl?: string
   deeplApiKey?: string
   mistralApiKey?: string
+  requireToken: boolean
   buildSha?: string
   isProduction: boolean
 }
@@ -47,6 +57,7 @@ export function getEnv(): AppEnv {
     LEGAL_PRIVACY_URL: process.env.LEGAL_PRIVACY_URL,
     DEEPL_API_KEY: process.env.DEEPL_API_KEY,
     MISTRAL_AI_API_KEY: process.env.MISTRAL_AI_API_KEY,
+    CV_REQUIRE_TOKEN: process.env.CV_REQUIRE_TOKEN,
     BUILD_SHA: process.env.BUILD_SHA,
     NODE_ENV: process.env.NODE_ENV,
   })
@@ -75,6 +86,7 @@ export function getEnv(): AppEnv {
       legalPrivacyUrl: process.env.LEGAL_PRIVACY_URL || undefined,
       deeplApiKey: process.env.DEEPL_API_KEY || undefined,
       mistralApiKey: process.env.MISTRAL_AI_API_KEY || undefined,
+      requireToken: parseBool(process.env.CV_REQUIRE_TOKEN, true),
       buildSha: process.env.BUILD_SHA || undefined,
       isProduction: process.env.NODE_ENV === 'production',
     }
@@ -100,6 +112,7 @@ export function getEnv(): AppEnv {
     legalPrivacyUrl: privacy || undefined,
     deeplApiKey: data.DEEPL_API_KEY || undefined,
     mistralApiKey: data.MISTRAL_AI_API_KEY || undefined,
+    requireToken: parseBool(data.CV_REQUIRE_TOKEN, true),
     buildSha: data.BUILD_SHA || undefined,
     isProduction,
   }

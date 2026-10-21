@@ -9,7 +9,7 @@ import styles from './ProjectRow.module.css'
 type Props = {
   slug: ProjectSlug
   dictionary: CvDictionary
-  accessToken: string
+  accessToken?: string
 }
 
 export function ProjectRow({ slug, dictionary, accessToken }: Props) {

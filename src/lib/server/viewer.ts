@@ -1,7 +1,9 @@
 import 'server-only'
+import { getEnv } from './env'
 import { findTokenByPlaintext, isValidTokenFormat } from './tokens'
 
 export type Viewer =
+  | { kind: 'public' }
   | { kind: 'gate'; reason: 'missing' | 'invalid' | 'revoked' }
   | { kind: 'expired'; id: string; label: string }
   | {
@@ -18,7 +20,12 @@ export type ViewerResolveResult = {
 }
 
 export function resolveViewer(rawToken: string | undefined | null): ViewerResolveResult {
+  const requireToken = getEnv().requireToken
+
   if (!rawToken) {
+    if (!requireToken) {
+      return { viewer: { kind: 'public' }, event: null }
+    }
     return { viewer: { kind: 'gate', reason: 'missing' }, event: 'cv_token_missing' }
   }
 

@@ -1,6 +1,16 @@
 # cv.lytex.dev
 
-Interactive CV and portfolio for Immanuel Mruk. Token-gated Next.js app with `/sudo` admin CMS.
+Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo` admin CMS, fish-style mini terminal (including AI `ask`), DE/EN i18n, and Docker deployment.
+
+## Features
+
+- Token-gated or publicly readable CV (`CV_REQUIRE_TOKEN`)
+- Private contact data only with a valid personal token
+- Admin CMS at `/sudo` (tokens, projects, experience, content, stack, footer, logs)
+- Command palette, theme toggle, mini terminal, print/PDF + vCard
+- Optional DeepL (admin translate) and Mistral (`ask` in the terminal)
+- No client-side third-party requests; CSP via `proxy.ts`
+- `robots.txt` disallow all + `X-Robots-Tag: noindex`
 
 ## Requirements
 
@@ -8,19 +18,22 @@ Interactive CV and portfolio for Immanuel Mruk. Token-gated Next.js app with `/s
 - npm
 - Docker and Docker Compose (for production-like runs)
 
-## Local development
+## Quick start
 
 ```bash
 npm ci
 cp data/private.example.json data/private.json
 cp .env.example .env
-# set SECRET_KEY and SECRET_ADMIN_PHRASE
+# set SECRET_KEY and SECRET_ADMIN_PHRASE (long random values)
 npm run fonts
 npm run images
 npm run dev
 ```
 
-Open `http://localhost:3000/de` — without `?k=` you get the token gate.
+Open `http://localhost:3000/de`.
+
+With `CV_REQUIRE_TOKEN=true` (default), missing `?k=` shows the token gate.  
+With `CV_REQUIRE_TOKEN=false`, the CV is readable without a token; phone/address/birth date still need a valid token.
 
 On first boot SQLite is created at `data/cv.sqlite`, content is seeded, and an initial admin is logged once:
 
@@ -56,31 +69,43 @@ See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `
 | `PUBLIC_BASE_URL` | Canonical site URL |
 | `PORT` | Listen port (Compose maps host port locally) |
 | `VERSION` | Shown in footer |
-| `SECRET_KEY` | Session signing (≥16 chars) |
+| `SECRET_KEY` | Session / crypto signing (≥16 chars) |
 | `SECRET_ADMIN_PHRASE` | Extra admin login factor |
+| `CV_REQUIRE_TOKEN` | `true` = gate without `?k=`; `false` = public CV (default `true`) |
 | `LEGAL_*` | Imprint / privacy URLs |
 | `DEEPL_API_KEY` | Optional DeepL Free (`:fx`) for DE→EN |
 | `MISTRAL_AI_API_KEY` | Optional; powers terminal `ask` (server-side) |
 
-## Token gate
+**Never commit:** `.env`, `.env.production`, `data/private.json`, `data/cv.sqlite`, or `data/uploads/`.
 
-CV pages require a valid `?k=` token. Missing, invalid, revoked, or expired tokens show a gate UI with token input (expired includes a specific hint).
+## Access modes
+
+| Mode | Env | Without `?k=` | With valid `?k=` |
+| --- | --- | --- | --- |
+| Gated (default) | `CV_REQUIRE_TOKEN=true` | Token gate | Full CV + private PII |
+| Public | `CV_REQUIRE_TOKEN=false` | CV without private PII | CV + private PII |
+
+Media and terminal `ask` follow the same rule: public mode allows unauthenticated reads/asks (rate-limited); gated mode requires a valid token (or admin session for media).
 
 ## Admin (`/sudo`)
 
 - Login: username + password + `SECRET_ADMIN_PHRASE` + TOTP if enabled
 - First login: mandatory credential change; TOTP optional
-- Session cookie: httpOnly, Secure (prod), SameSite=Strict, path `/sudo` only
-- CRUD: tokens, projects, experience, content strings
-- Image upload: magic-byte check → sharp rotate/strip → WebP → `data/uploads/projects/<slug>/`
+- Session cookie: httpOnly, Secure in production, SameSite=Strict, path `/`
+- CRUD: tokens, projects, experience, content, stack, footer socials
+- Image upload: magic-byte check → sharp → WebP → `data/uploads/`
 - DeepL translate actions (server-side only)
+- Audit log categories include `ai` for terminal asks
 
 Honeypots (fake login, never real auth): `/admin`, `/wp-admin` — rate-limited, `honeypot_hit` logged.
 
-## Error pages
+## Terminal `ask`
 
-- App: `/e/400` … `/e/504` (correct HTTP status)
-- NPM custom pages: `public/errors/*.html` (502–504 and others)
+```text
+ask <question>
+```
+
+Server-side Mistral call with a compact public CV context (no phone/address/birth date). Rate-limited and audited under `/sudo/logs?category=ai`.
 
 ## Docker (local)
 
@@ -120,24 +145,25 @@ Volume: `./data:/app/data:rw` (SQLite + uploads). Root filesystem stays `read_on
 
 ### Leak check
 
+[`data/private.example.json`](data/private.example.json) uses canary strings for leak tests. Ensure real `private.json` values never appear in the image or git history.
+
 ```bash
-docker run --rm --entrypoint sh cv-lytex:latest -c 'grep -rl "CANARY_PRIVATE_PHONE" /app || true'
+docker run --rm --entrypoint sh cv-lytex:latest -c 'grep -rl "Kanarienweg" /app || true'
 ```
 
-Expect no matches for private canaries. Runtime data lives only on the volume.
-
-### Cloudflare / NPM
-
-- DNS `cv` → server (DNS only at Cloudflare if desired)
-- NPM: `cv.lytex.dev` → container `:3000`
-- Custom error pages can point at `/errors/502.html` etc.
+Expect no matches for your real private data. Runtime data lives only on the volume.
 
 ### Privacy note
 
-The privacy policy should mention server logs and token view events.
+The privacy policy should mention server logs, token view events, and optional AI `ask` requests (processed by Mistral when configured).
 
 ## Security notes
 
-- CV viewer pages stay cookieless; admin cookies only under `/sudo`
-- Private contact data only with a valid token
-- No third-party client requests; DeepL only from the server
+- Viewer pages stay cookieless; admin session cookie only after `/sudo` login
+- Private contact data only with a valid token (`viewer.kind === 'token'`)
+- No third-party client requests; DeepL and Mistral only from the server
+- Site is noindex by default
+
+## License
+
+MIT — see [LICENSE](LICENSE).

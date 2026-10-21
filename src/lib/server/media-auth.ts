@@ -1,10 +1,15 @@
 import 'server-only'
+import { getEnv } from './env'
 import { getAdminSession } from './session'
 import { resolveViewer } from './viewer'
 
 export async function canAccessProtectedMedia(
   token: string | null,
 ): Promise<boolean> {
+  if (!getEnv().requireToken) {
+    return true
+  }
+
   if (token) {
     const { viewer } = resolveViewer(token)
     if (viewer.kind === 'token') return true
