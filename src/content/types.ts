@@ -8,12 +8,100 @@ export type SectionId =
   | 'more'
   | 'contact'
 
+export type TechId =
+  | 'typescript'
+  | 'javascript'
+  | 'python'
+  | 'php'
+  | 'rust'
+  | 'html'
+  | 'css'
+  | 'scss'
+  | 'vue'
+  | 'nuxt'
+  | 'react'
+  | 'nextjs'
+  | 'tailwind'
+  | 'vite'
+  | 'symfony'
+  | 'shopware'
+  | 'graphql'
+  | 'nodejs'
+  | 'fastapi'
+  | 'flask'
+  | 'postgresql'
+  | 'sqlite'
+  | 'redis'
+  | 'docker'
+  | 'aws'
+  | 'linux'
+  | 'archlinux'
+  | 'ubuntu'
+  | 'debian'
+  | 'nginx'
+  | 'npm-proxy'
+  | 'letsencrypt'
+  | 'cloudflare'
+  | 'raspberrypi'
+  | 'nextcloud'
+  | 'paperless'
+  | 'jellyfin'
+  | 'frigate'
+  | 'mqtt'
+  | 'telegram'
+  | 'discord'
+  | 'gnupg'
+  | 'ssh'
+  | 'luks'
+  | 'restic'
+  | 'hardening'
+  | 'git'
+  | 'github'
+  | 'kde'
+  | 'fish'
+  | 'bash'
+  | 'cursor'
+  | 'claudecode'
+  | 'vscodium'
+  | 'office'
+  | 'image-editing'
+
+export type StackGroupId =
+  | 'languages'
+  | 'frontend'
+  | 'backend'
+  | 'infra'
+  | 'security'
+  | 'tools'
+
+export type ExperienceId = 'freelance' | 'qiky' | 'apprenticeship'
+
+export type ProjectSlug =
+  | 'kb-reifendienst'
+  | 'homelab'
+  | 'camera-system'
+  | 'rust-backup'
+  | 'lytex-media'
+  | 'lockbox'
+  | 'secure-shredder'
+  | 'metadata-cli'
+  | 'security-blog'
+  | 'muffin-bot'
+  | 'med-tracker'
+  | 'resilient-shop'
+
+export type InterestId = 'webdev' | 'security' | 'linux' | 'biology'
+export type StrengthId = 'analytical' | 'helpful' | 'goalOriented'
+
 export type CvDictionary = {
   meta: {
     title: string
     description: string
   }
   skipLink: string
+  role: string
+  summary: string
+  availability: string
   sections: Record<
     SectionId,
     {
@@ -21,6 +109,109 @@ export type CvDictionary = {
       title: string
     }
   >
+  hero: {
+    prompt: string
+    ctaContact: string
+    ctaPrint: string
+    metricSince: string
+    metricProjects: string
+    tokenBadge: string
+    tokenRole: string
+    metaLocation: string
+    metaAge: string
+    metaLanguages: string
+    metaAvailability: string
+    ageYears: string
+  }
+  experience: {
+    entries: Record<
+      ExperienceId,
+      {
+        role: string
+        company: string
+        location: string
+        highlights: string[]
+      }
+    >
+    since: string
+  }
+  stack: {
+    groups: Record<StackGroupId, string>
+    moreLabel: string
+  }
+  projects: {
+    featured: Record<
+      ProjectSlug,
+      {
+        kicker: string
+        title: string
+        summary: string
+        highlights: string[]
+        linkLabel: string
+        images: Record<string, { alt: string; caption: string }>
+      }
+    >
+    compact: Record<
+      ProjectSlug,
+      {
+        kicker: string
+        title: string
+        oneLiner: string
+        highlights: string[]
+        images: Record<string, { alt: string; caption: string }>
+      }
+    >
+    details: string
+    viewProject: string
+  }
+  more: {
+    languagesTitle: string
+    languages: { name: string; level: string }[]
+    interestsTitle: string
+    interests: Record<InterestId, string>
+    strengthsTitle: string
+    strengths: Record<StrengthId, string>
+    moreSkillsTitle: string
+    dailyDriverTitle: string
+    dailyDriverTagline: string
+  }
+  contact: {
+    headline: string
+    publicHint: string
+    expiredHint: string
+    saveVcard: string
+    savePdf: string
+    copyEmail: string
+    emailCopied: string
+    phone: string
+    address: string
+    birthDate: string
+  }
+  palette: {
+    placeholder: string
+    groups: {
+      navigation: string
+      actions: string
+      links: string
+    }
+    actions: {
+      theme: string
+      lang: string
+      copyEmail: string
+      print: string
+      vcard: string
+      terminal: string
+    }
+  }
+  theme: {
+    toLight: string
+    toDark: string
+  }
+  terminal: {
+    open: string
+    prompt: string
+    readOnlyNote: string
+  }
   notFound: {
     title: string
     message: string
@@ -36,6 +227,11 @@ export type CvDictionary = {
     privacy: string
     source: string
   }
+  externalNewTab: string
+  duration: {
+    years: string
+    year: string
+    months: string
+    month: string
+  }
 }
-
-export type TechId = string
