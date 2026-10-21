@@ -13,6 +13,7 @@ type Props = {
   footer: FooterConfig
   version?: string
   buildSha?: string
+  token?: string
   children: ReactNode
 }
 
@@ -23,13 +24,19 @@ export function CvShell({
   footer,
   version,
   buildSha,
+  token,
   children,
 }: Props) {
   return (
     <>
-      <TopBar locale={locale} dictionary={dictionary} personName={personName} />
+      <TopBar
+        locale={locale}
+        dictionary={dictionary}
+        personName={personName}
+        token={token}
+      />
       <div className="layout-with-rail">
-        <SectionRail locale={locale} dictionary={dictionary} />
+        <SectionRail locale={locale} dictionary={dictionary} token={token} />
         <div className="main-column page-shell">
           {children}
           <Footer

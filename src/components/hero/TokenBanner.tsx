@@ -1,7 +1,7 @@
 'use client'
 
 import { IconX } from '@tabler/icons-react'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import styles from '@/components/sections/About.module.css'
 
 type Props = {
@@ -12,12 +12,31 @@ type Props = {
   dismissLabel: string
 }
 
+function storageKey(label: string) {
+  return `cv-token-banner-dismissed:${label}`
+}
+
 export function TokenBanner({ label, role, badgeTemplate, roleTemplate, dismissLabel }: Props) {
-  const [visible, setVisible] = useState(true)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(storageKey(label)) === '1') {
+        setVisible(false)
+        return
+      }
+    } catch {
+    }
+    setVisible(true)
+  }, [label])
 
   const dismiss = useCallback(() => {
+    try {
+      sessionStorage.setItem(storageKey(label), '1')
+    } catch {
+    }
     setVisible(false)
-  }, [])
+  }, [label])
 
   if (!visible) return null
 

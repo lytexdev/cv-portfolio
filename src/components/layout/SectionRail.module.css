@@ -53,9 +53,21 @@
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: var(--space-2);
   max-width: 100%;
   overflow: visible;
+}
+
+.actions > * {
+  flex-shrink: 0;
+}
+
+.actions button,
+.actions a {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 0 var(--space-2);
+  flex-shrink: 0;
 }

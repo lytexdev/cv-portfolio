@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import { useId } from 'react'
-import { useSearchParams } from 'next/navigation'
 import type { Locale } from '@/content/types'
 import { Tooltip } from './Tooltip'
 import styles from './ControlButton.module.css'
@@ -11,6 +10,7 @@ import flagStyles from './LangSwitch.module.css'
 type Props = {
   locale: Locale
   label: string
+  token?: string
 }
 
 function FlagDe({ clipId }: { clipId: string }) {
@@ -49,10 +49,8 @@ function FlagEn({ clipId }: { clipId: string }) {
   )
 }
 
-export function LangSwitch({ locale, label }: Props) {
-  const searchParams = useSearchParams()
+export function LangSwitch({ locale, label, token }: Props) {
   const clipId = useId().replace(/:/g, '')
-  const token = searchParams.get('k')
   const next = locale === 'de' ? 'en' : 'de'
   const href = token ? `/${next}?k=${encodeURIComponent(token)}` : `/${next}`
   const tip = next === 'de' ? `${label}: Deutsch` : `${label}: English`

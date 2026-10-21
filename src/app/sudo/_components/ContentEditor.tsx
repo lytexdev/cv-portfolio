@@ -47,6 +47,10 @@ export function ContentEditor({
     }
   }, [entries, initialKey])
 
+  useEffect(() => {
+    setDrafts(draftsFromEntries(entries))
+  }, [entries])
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     if (!q) return entries

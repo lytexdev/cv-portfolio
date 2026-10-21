@@ -1,5 +1,4 @@
 import { IconSearch, IconTerminal2 } from '@tabler/icons-react'
-import { Suspense } from 'react'
 import { sectionOrder } from '@/content/shared'
 import type { CvDictionary, Locale, SectionId } from '@/content/types'
 import { LangSwitch } from '@/components/interactive/LangSwitch'
@@ -11,9 +10,10 @@ import styles from './SectionRail.module.css'
 type Props = {
   locale: Locale
   dictionary: CvDictionary
+  token?: string
 }
 
-export function SectionRail({ locale, dictionary }: Props) {
+export function SectionRail({ locale, dictionary, token }: Props) {
   return (
     <nav className={`rail-root ${styles.root}`} aria-label="Sections">
       <ul className={styles.list}>
@@ -54,9 +54,11 @@ export function SectionRail({ locale, dictionary }: Props) {
           toLightLabel={dictionary.theme.toLight}
           toDarkLabel={dictionary.theme.toDark}
         />
-        <Suspense fallback={null}>
-          <LangSwitch locale={locale} label={dictionary.palette.actions.lang} />
-        </Suspense>
+        <LangSwitch
+          locale={locale}
+          label={dictionary.palette.actions.lang}
+          token={token}
+        />
       </div>
     </nav>
   )

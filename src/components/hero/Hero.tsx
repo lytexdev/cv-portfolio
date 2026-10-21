@@ -1,6 +1,5 @@
 import { IconBrandGithub, IconBrandLinkedin, IconPrinter } from '@tabler/icons-react'
 import Image from 'next/image'
-import { projectCount } from '@/content/shared'
 import type { CvDictionary } from '@/content/types'
 import { RichText } from '@/components/content/RichText'
 import { LanguageFlags } from '@/components/hero/LanguageFlags'
@@ -82,12 +81,6 @@ export function Hero({
             <p className={styles.metricValue}>{softwareSinceYear}</p>
             <p className={styles.metricLabel}>{dictionary.hero.metricSince}</p>
           </div>
-          <div>
-            <p className={styles.metricValue}>{projectCount}</p>
-            <p className={styles.metricLabel}>
-              {dictionary.hero.metricProjects.replace('{n}', String(projectCount))}
-            </p>
-          </div>
         </div>
       </div>
 
@@ -95,6 +88,7 @@ export function Hero({
         <div className={styles.portrait} data-protect-media>
           {portraitSrc ? (
             <Image
+              key={portraitSrc}
               src={portraitSrc}
               alt={personName}
               fill

@@ -88,7 +88,7 @@ export async function processSiteImage(
     .webp({ quality: 84 })
     .toBuffer()
   writeFileSync(outPath, processed, { mode: 0o644 })
-  return `/media/site/${filename}`
+  return `/media/site/${filename}?v=${Date.now()}`
 }
 
 export async function processSitePdf(input: Buffer): Promise<string> {

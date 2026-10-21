@@ -70,6 +70,14 @@ function formString(formData: FormData, key: string): string {
   return String(formData.get(key) ?? '').trim()
 }
 
+function revalidatePublicCv() {
+  revalidatePath('/', 'layout')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  revalidatePath('/de', 'page')
+  revalidatePath('/en', 'page')
+}
+
 function formFile(formData: FormData, key: string): File | null {
   const value = formData.get(key)
   if (!value || typeof value === 'string') return null
@@ -486,9 +494,10 @@ export async function saveContentAction(formData: FormData) {
   const value = String(formData.get('value') ?? '')
   setContentString(key, locale, value)
   revalidatePath('/sudo/content')
-  revalidatePath('/de')
-  revalidatePath('/en')
-  redirect(`/sudo/content?key=${encodeURIComponent(key)}&saved=1`)
+  revalidatePublicCv()
+  redirect(
+    `/sudo/content?key=${encodeURIComponent(key)}&saved=${Date.now()}`,
+  )
 }
 
 export async function saveContentPairAction(formData: FormData) {
@@ -500,9 +509,10 @@ export async function saveContentPairAction(formData: FormData) {
   setContentString(key, 'de', valueDe)
   setContentString(key, 'en', valueEn)
   revalidatePath('/sudo/content')
-  revalidatePath('/de')
-  revalidatePath('/en')
-  redirect(`/sudo/content?key=${encodeURIComponent(key)}&saved=1`)
+  revalidatePublicCv()
+  redirect(
+    `/sudo/content?key=${encodeURIComponent(key)}&saved=${Date.now()}`,
+  )
 }
 
 export async function translateContentAction(formData: FormData) {
@@ -514,9 +524,10 @@ export async function translateContentAction(formData: FormData) {
   setContentString(key, 'de', valueDe)
   setContentString(key, 'en', translated)
   revalidatePath('/sudo/content')
-  revalidatePath('/de')
-  revalidatePath('/en')
-  redirect(`/sudo/content?key=${encodeURIComponent(key)}&translated=1`)
+  revalidatePublicCv()
+  redirect(
+    `/sudo/content?key=${encodeURIComponent(key)}&translated=${Date.now()}`,
+  )
 }
 
 export async function csrfFor(sessionId: string) {
@@ -562,8 +573,7 @@ export async function saveSiteProfileAction(formData: FormData) {
     updateBirthDate(birthDate)
   }
   revalidatePath('/sudo')
-  revalidatePath('/de')
-  revalidatePath('/en')
+  revalidatePublicCv()
   redirect('/sudo?saved=profile')
 }
 
@@ -590,8 +600,7 @@ export async function uploadSiteAssetAction(formData: FormData) {
     redirect('/sudo?error=upload')
   }
   revalidatePath('/sudo')
-  revalidatePath('/de')
-  revalidatePath('/en')
+  revalidatePublicCv()
   redirect('/sudo?saved=asset')
 }
 

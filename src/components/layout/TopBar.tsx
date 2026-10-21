@@ -1,5 +1,4 @@
 import { IconSearch, IconTerminal2 } from '@tabler/icons-react'
-import { Suspense } from 'react'
 import type { CvDictionary, Locale } from '@/content/types'
 import { LangSwitch } from '@/components/interactive/LangSwitch'
 import { ThemeToggle } from '@/components/interactive/ThemeToggle'
@@ -11,9 +10,10 @@ type Props = {
   locale: Locale
   dictionary: CvDictionary
   personName: string
+  token?: string
 }
 
-export function TopBar({ locale, dictionary, personName }: Props) {
+export function TopBar({ locale, dictionary, personName, token }: Props) {
   return (
     <header className={`topbar-root ${styles.root}`}>
       <div className={`page-shell ${styles.inner}`}>
@@ -45,9 +45,11 @@ export function TopBar({ locale, dictionary, personName }: Props) {
             toLightLabel={dictionary.theme.toLight}
             toDarkLabel={dictionary.theme.toDark}
           />
-          <Suspense fallback={null}>
-            <LangSwitch locale={locale} label={dictionary.palette.actions.lang} />
-          </Suspense>
+          <LangSwitch
+            locale={locale}
+            label={dictionary.palette.actions.lang}
+            token={token}
+          />
         </div>
       </div>
     </header>

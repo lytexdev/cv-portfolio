@@ -30,6 +30,8 @@ import { getFooterConfig, getSiteProfile } from '@/lib/server/settings'
 import { incrementTokenView } from '@/lib/server/tokens'
 import { resolveViewer } from '@/lib/server/viewer'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   params: Promise<{ lang: string }>
   searchParams: Promise<{ k?: string | string[] }>
@@ -152,6 +154,7 @@ export default async function Page({ params, searchParams }: Props) {
         footer={footer}
         version={env.version}
         buildSha={env.buildSha}
+        token={tokenQuery}
       >
         <main id="main" className="main-content">
           <PrintHeader
