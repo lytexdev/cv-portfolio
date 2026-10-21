@@ -178,6 +178,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                       className={styles.textarea}
                       name="summary_de"
                       defaultValue={editing?.summary.de ?? ''}
+                      placeholder="Supports **bold**, *italic*, `code`, <icon-github>"
                     />
                   </label>
                   <label className={styles.label}>
@@ -186,10 +187,11 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                       className={styles.input}
                       name="one_liner_de"
                       defaultValue={editing?.oneLiner.de ?? ''}
+                      placeholder="**Nuxt** site with <icon-docker>"
                     />
                   </label>
                   <label className={styles.label}>
-                    Highlights (one per line)
+                    Highlights (one per line; Markdown: **bold**, &lt;icon-github&gt;)
                     <textarea
                       className={styles.textarea}
                       name="highlights_de"
@@ -222,6 +224,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                       className={styles.textarea}
                       name="summary_en"
                       defaultValue={editing?.summary.en ?? ''}
+                      placeholder="Supports **bold**, *italic*, `code`, <icon-github>"
                     />
                   </label>
                   <label className={styles.label}>
@@ -230,10 +233,11 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                       className={styles.input}
                       name="one_liner_en"
                       defaultValue={editing?.oneLiner.en ?? ''}
+                      placeholder="**Nuxt** site with <icon-docker>"
                     />
                   </label>
                   <label className={styles.label}>
-                    Highlights (one per line)
+                    Highlights (one per line; Markdown: **bold**, &lt;icon-github&gt;)
                     <textarea
                       className={styles.textarea}
                       name="highlights_en"

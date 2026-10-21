@@ -6,6 +6,7 @@ import {
 import Image from 'next/image'
 import { projectCount } from '@/content/shared'
 import type { CvDictionary } from '@/content/types'
+import { RichText } from '@/components/content/RichText'
 import { Tooltip } from '@/components/interactive/Tooltip'
 import styles from './Hero.module.css'
 
@@ -40,8 +41,12 @@ export function Hero({
         <p className={`mono-label ${styles.prompt}`}>{dictionary.hero.prompt}</p>
 
         <h1 className={styles.name}>{personName}</h1>
-        <p className={styles.role}>{dictionary.role}</p>
-        <p className={styles.summary}>{dictionary.summary}</p>
+        <p className={styles.role}>
+          <RichText text={dictionary.role} />
+        </p>
+        <p className={styles.summary}>
+          <RichText text={dictionary.summary} />
+        </p>
 
         <div className={styles.actions}>
           <a href={`#contact`} className={styles.primary}>

@@ -44,7 +44,7 @@ export function getAskContext(locale: Locale): string {
   for (const exp of experiences) {
     const copy = dictionary.experience.entries[exp.id]
     if (!copy) continue
-    const period = exp.end ? `${exp.start}–${exp.end}` : `${exp.start}–present`
+    const period = exp.end ? `${exp.start}-${exp.end}` : `${exp.start}-present`
     const highlights = copy.highlights
       .slice(0, 3)
       .map((h) => clip(h, 100))
@@ -71,7 +71,7 @@ export function getAskContext(locale: Locale): string {
     const title = project.title[locale] || project.title.de
     const one = project.oneLiner[locale] || project.summary[locale] || ''
     lines.push(
-      `- ${project.slug}: ${clip(title, 80)}${one ? ` — ${clip(one, 140)}` : ''} [${project.stack.slice(0, 6).join(', ')}]`,
+      `- ${project.slug}: ${clip(title, 80)}${one ? ` - ${clip(one, 140)}` : ''} [${project.stack.slice(0, 6).join(', ')}]`,
     )
   }
 

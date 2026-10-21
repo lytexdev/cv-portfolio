@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { CvDictionary, ProjectSlug } from '@/content/types'
+import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { projectImageSrc } from '@/lib/server/assets'
@@ -38,7 +39,9 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
       <div>
         <p className={`mono-label ${styles.kicker}`}>{copy.kicker}</p>
         <h3 className={styles.title}>{copy.title}</h3>
-        <p className={styles.oneLiner}>{copy.oneLiner}</p>
+        <p className={styles.oneLiner}>
+          <RichText text={copy.oneLiner} />
+        </p>
         {project.stack.length > 0 ? (
           <ul className={styles.stack}>
             {project.stack.map((techId) => (

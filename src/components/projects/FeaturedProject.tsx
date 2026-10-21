@@ -1,6 +1,7 @@
 import { IconExternalLink } from '@tabler/icons-react'
 import Image from 'next/image'
 import type { CvDictionary, ProjectSlug } from '@/content/types'
+import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { projectImageSrc } from '@/lib/server/assets'
@@ -71,11 +72,15 @@ export function FeaturedProject({
       <div className={styles.body}>
         <p className={`mono-label ${styles.kicker}`}>{copy.kicker}</p>
         <h3 className={styles.title}>{copy.title}</h3>
-        <p className={styles.summary}>{copy.summary}</p>
+        <p className={styles.summary}>
+          <RichText text={copy.summary} />
+        </p>
         {copy.highlights.length > 0 ? (
           <ul className={styles.highlights}>
             {copy.highlights.map((item) => (
-              <li key={item}>{item}</li>
+              <li key={item}>
+                <RichText text={item} />
+              </li>
             ))}
           </ul>
         ) : null}

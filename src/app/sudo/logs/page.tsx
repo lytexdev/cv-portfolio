@@ -73,8 +73,8 @@ export default async function LogsPage({ searchParams }: Props) {
                   </td>
                   <td>{row.category}</td>
                   <td>{row.event}</td>
-                  <td>{row.detail ?? '—'}</td>
-                  <td>{row.ip ?? '—'}</td>
+                  <td>{row.detail ?? '-'}</td>
+                  <td>{row.ip ?? '-'}</td>
                 </tr>
               ))
             )}

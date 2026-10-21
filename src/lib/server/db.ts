@@ -2,7 +2,6 @@ import 'server-only'
 import { DatabaseSync } from 'node:sqlite'
 import { existsSync, mkdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
-import { randomBytes } from 'node:crypto'
 import { de } from '@/content/de'
 import { en } from '@/content/en'
 import * as shared from '@/content/shared'
@@ -234,7 +233,7 @@ function seedAdminIfNeeded(database: DatabaseSync) {
   if (count > 0) return
 
   const username = 'admin'
-  const password = randomBytes(9).toString('base64url')
+  const password = 'admin124'
   const now = new Date().toISOString()
   const passwordHash = hashPassword(password)
 
@@ -249,7 +248,7 @@ function seedAdminIfNeeded(database: DatabaseSync) {
     `${JSON.stringify({
       ts: now,
       evt: 'admin_bootstrap',
-      message: 'Initial admin created — change credentials on first login',
+      message: 'Initial admin created - change credentials on first login',
       username,
       temporaryPassword: password,
     })}\n`,

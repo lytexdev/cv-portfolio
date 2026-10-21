@@ -1,4 +1,5 @@
 import type { CvDictionary, Locale } from '@/content/types'
+import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { formatDuration, formatRange } from '@/lib/dates'
 import { SectionHeading } from '@/components/layout/SectionHeading'
@@ -50,7 +51,9 @@ export function Experience({ locale, dictionary }: Props) {
                 {copy.highlights.length > 0 ? (
                   <ul className={styles.highlights}>
                     {copy.highlights.map((item) => (
-                      <li key={item}>{item}</li>
+                      <li key={item}>
+                        <RichText text={item} />
+                      </li>
                     ))}
                   </ul>
                 ) : null}

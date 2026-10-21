@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import type { ReactNode } from 'react'
 import { getDictionary, hasLocale } from '@/lib/i18n'
+import { getEnv } from '@/lib/server/env'
 
 type Props = {
   children: ReactNode
@@ -14,25 +15,35 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { lang } = await params
   const locale = hasLocale(lang) ? lang : 'de'
   const dictionary = getDictionary(locale)
+  const indexPublic = getEnv().indexPublic
 
   return {
     title: dictionary.meta.title,
     description: dictionary.meta.description,
-    robots: {
-      index: false,
-      follow: false,
-      nocache: true,
-      noarchive: true,
-      nosnippet: true,
-      noimageindex: true,
-      googleBot: {
-        index: false,
-        follow: false,
-        noimageindex: true,
-        noarchive: true,
-        nosnippet: true,
-      },
-    },
+    robots: indexPublic
+      ? {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+          },
+        }
+      : {
+          index: false,
+          follow: false,
+          nocache: true,
+          noarchive: true,
+          nosnippet: true,
+          noimageindex: true,
+          googleBot: {
+            index: false,
+            follow: false,
+            noimageindex: true,
+            noarchive: true,
+            nosnippet: true,
+          },
+        },
   }
 }
 

@@ -4,6 +4,7 @@ import { IconX } from '@tabler/icons-react'
 import { useEffect, useRef } from 'react'
 import { TechIcon } from '@/components/icons/TechIcon'
 import type { TechId } from '@/content/types'
+import { RichText } from '@/components/content/RichText'
 import { Gallery, type GalleryImage } from './Gallery'
 import styles from './ProjectDialog.module.css'
 
@@ -88,11 +89,15 @@ export function ProjectDialog({ open, onClose, project, labelledBy }: Props) {
             fallbackIcon={project.stack[0] ?? 'linux'}
           />
 
-          <p className={styles.summary}>{project.summary}</p>
+          <p className={styles.summary}>
+            <RichText text={project.summary} />
+          </p>
           {project.highlights.length > 0 ? (
             <ul className={styles.highlights}>
               {project.highlights.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item}>
+                  <RichText text={item} />
+                </li>
               ))}
             </ul>
           ) : null}

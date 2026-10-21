@@ -5,12 +5,13 @@ Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo`
 ## Features
 
 - Token-gated or publicly readable CV (`CV_REQUIRE_TOKEN`)
+- Optional search indexing (`INDEX_PUBLIC`)
 - Private contact data only with a valid personal token
 - Admin CMS at `/sudo` (tokens, projects, experience, content, stack, footer, logs)
+- Lightweight Markdown in CMS text (`**bold**`, `*italic*`, `` `code` ``, `<icon-github>`)
 - Command palette, theme toggle, mini terminal, print/PDF + vCard
 - Optional DeepL (admin translate) and Mistral (`ask` in the terminal)
 - No client-side third-party requests; CSP via `proxy.ts`
-- `robots.txt` disallow all + `X-Robots-Tag: noindex`
 
 ## Requirements
 
@@ -23,7 +24,7 @@ Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo`
 ```bash
 npm ci
 cp data/private.example.json data/private.json
-cp .env.example .env.production
+cp .env.example .env
 # set SECRET_KEY and SECRET_ADMIN_PHRASE (long random values)
 npm run fonts
 npm run images
@@ -35,21 +36,23 @@ Open `http://localhost:3000/de`.
 With `CV_REQUIRE_TOKEN=true` (default), missing `?k=` shows the token gate.  
 With `CV_REQUIRE_TOKEN=false`, the CV is readable without a token; phone/address/birth date still need a valid token.
 
-On first boot SQLite is created at `data/cv.sqlite`, content is seeded, and an initial admin is logged once:
+On first boot SQLite is created at `data/cv.sqlite`, content is seeded, and an initial admin is created:
 
-```json
-{"evt":"admin_bootstrap","username":"admin","temporaryPassword":"..."}
-```
+| Field | Value |
+| --- | --- |
+| Username | `admin` |
+| Password | `admin124` |
 
-Log in at `/sudo`, change credentials, optionally enable TOTP.
+Log in at `/sudo` with those credentials plus `SECRET_ADMIN_PHRASE`. The first login forces a password change (username change optional). TOTP is optional.
 
-Create a personal token:
+### Create access tokens
+
+**Preferred: Admin UI** — open `/sudo/tokens`, create/revoke tokens in the browser (label, role, expiry). No CLI required.
+
+**Optional CLI** (useful for scripts/Docker):
 
 ```bash
 npm run token -- create --label "Testo GmbH" --role "Frontend Developer" --base-url http://localhost:3000
-```
-
-```bash
 npm run token -- list
 npm run token -- revoke <id>
 ```
@@ -72,6 +75,7 @@ See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `
 | `SECRET_KEY` | Session / crypto signing (≥16 chars) |
 | `SECRET_ADMIN_PHRASE` | Extra admin login factor |
 | `CV_REQUIRE_TOKEN` | `true` = gate without `?k=`; `false` = public CV (default `true`) |
+| `INDEX_PUBLIC` | `true` = allow indexing; `false` = noindex everywhere (default `false`) |
 | `LEGAL_*` | Imprint / privacy URLs |
 | `DEEPL_API_KEY` | Optional DeepL Free (`:fx`) for DE→EN |
 | `MISTRAL_AI_API_KEY` | Optional; powers terminal `ask` (server-side) |
@@ -87,12 +91,20 @@ See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `
 
 Media and terminal `ask` follow the same rule: public mode allows unauthenticated reads/asks (rate-limited); gated mode requires a valid token (or admin session for media).
 
+### Search indexing
+
+| `INDEX_PUBLIC` | Behavior |
+| --- | --- |
+| `false` (default) | `robots.txt` disallow all; `X-Robots-Tag` / meta noindex |
+| `true` | Public CV pages may be indexed; `/sudo`, `/admin`, `/api`, `/media` stay noindex |
+
 ## Admin (`/sudo`)
 
-- Login: username + password + `SECRET_ADMIN_PHRASE` + TOTP if enabled
-- First login: mandatory credential change; TOTP optional
+- Login: `admin` / `admin124` (bootstrap) + `SECRET_ADMIN_PHRASE` + TOTP if enabled
+- First login: mandatory password change; username change optional
 - Session cookie: httpOnly, Secure in production, SameSite=Strict, path `/`
-- CRUD: tokens, projects, experience, content, stack, footer socials
+- CRUD: **tokens** (create/revoke in UI), projects, experience, content, stack, footer socials
+- Text fields support `**bold**`, `*italic*`, `` `code` ``, and stack icons via `<icon-github>` (any tech id from the stack registry)
 - Image upload: magic-byte check → sharp → WebP → `data/uploads/`
 - DeepL translate actions (server-side only)
 - Audit log categories include `ai` for terminal asks
@@ -128,14 +140,15 @@ docker compose run --rm tokenctl list
 1. Clone on the server
 2. Create `.env.production` from `.env.example` (never commit)
 3. Create `data/private.json` (never commit)
-4. Permissions:
+4. Complete the forced credential change on first `/sudo` login
+5. Permissions:
 
 ```bash
 sudo chown -R 1000:1000 data
 chmod 700 data
 ```
 
-5. Start (external reverse proxy attaches to the container network; no host port publish in prod Compose):
+6. Start (external reverse proxy attaches to the container network; no host port publish in prod Compose):
 
 ```bash
 BUILD_SHA=$(git rev-parse --short HEAD) docker compose up -d --build
@@ -148,7 +161,7 @@ Volume: `./data:/app/data:rw` (SQLite + uploads). Root filesystem stays `read_on
 - Viewer pages stay cookieless; admin session cookie only after `/sudo` login
 - Private contact data only with a valid token (`viewer.kind === 'token'`)
 - No third-party client requests; DeepL and Mistral only from the server
-- Site is noindex by default
+- Site is noindex unless `INDEX_PUBLIC=true`
 
 ## License
 

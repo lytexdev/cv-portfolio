@@ -424,7 +424,7 @@ export const en = {
   notFound: {
     title: 'Not found',
     message: 'fish: Unknown command:',
-    back: 'Zurück zum Lebenslauf · Back to the CV',
+    back: 'Back to the CV',
   },
   error: {
     title: 'Something went wrong',
