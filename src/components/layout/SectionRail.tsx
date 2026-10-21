@@ -1,5 +1,11 @@
+import { IconCommand, IconTerminal2 } from '@tabler/icons-react'
+import { Suspense } from 'react'
 import { sectionOrder } from '@/content/shared'
 import type { CvDictionary, Locale, SectionId } from '@/content/types'
+import { LangSwitch } from '@/components/interactive/LangSwitch'
+import { ShortcutHint } from '@/components/interactive/ShortcutHint'
+import { ThemeToggle } from '@/components/interactive/ThemeToggle'
+import controlStyles from '@/components/interactive/ControlButton.module.css'
 import styles from './SectionRail.module.css'
 
 type Props = {
@@ -23,7 +29,32 @@ export function SectionRail({ locale, dictionary }: Props) {
           )
         })}
       </ul>
-      <div className={styles.actions} data-rail-actions />
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={controlStyles.button}
+          data-open-palette
+          aria-label={dictionary.palette.placeholder}
+        >
+          <IconCommand size={18} stroke={1.75} aria-hidden="true" />
+          <ShortcutHint />
+        </button>
+        <button
+          type="button"
+          className={controlStyles.button}
+          data-open-terminal
+          aria-label={dictionary.terminal.open}
+        >
+          <IconTerminal2 size={18} stroke={1.75} aria-hidden="true" />
+        </button>
+        <ThemeToggle
+          toLightLabel={dictionary.theme.toLight}
+          toDarkLabel={dictionary.theme.toDark}
+        />
+        <Suspense fallback={null}>
+          <LangSwitch locale={locale} label={dictionary.palette.actions.lang} />
+        </Suspense>
+      </div>
     </nav>
   )
 }

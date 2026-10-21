@@ -61,7 +61,7 @@ export default async function LangLayout({ children, params }: Props) {
         <a className="skip-link" href="#main">
           {dictionary.skipLink}
         </a>
-        <TopBar locale={locale} />
+        <TopBar locale={locale} dictionary={dictionary} />
         <div className="page-shell layout-with-rail">
           <SectionRail locale={locale} dictionary={dictionary} />
           <div className="main-column">

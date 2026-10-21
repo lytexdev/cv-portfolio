@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { person, projectCount } from '@/content/shared'
 import type { CvDictionary, Locale } from '@/content/types'
 import type { Viewer } from '@/lib/server/viewer'
+import { BootTerminal } from './BootTerminal'
 import styles from './Hero.module.css'
 
 type Props = {
@@ -43,7 +44,9 @@ export function Hero({
         ) : null}
 
         <p className={`mono-label ${styles.prompt}`}>{dictionary.hero.prompt}</p>
-        <div className={styles.bootSlot} data-boot-slot aria-hidden="true" />
+        <div className={styles.bootSlot} aria-hidden="true">
+          <BootTerminal />
+        </div>
 
         <h1 className={styles.name}>{person.name}</h1>
         <p className={styles.role}>{dictionary.role}</p>
