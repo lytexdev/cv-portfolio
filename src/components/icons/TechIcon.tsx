@@ -10,6 +10,7 @@ type Props = {
 
 export function TechIcon({ id, showLabel = false }: Props) {
   const def = techRegistry[id]
+  if (!def) return null
 
   return (
     <span className={styles.root}>

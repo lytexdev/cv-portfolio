@@ -55,15 +55,15 @@ function InteractiveChromeInner({
 
       const featuredCopy = dictionary.projects.featured[slug]
       const compactCopy = dictionary.projects.compact[slug]
+      const copy = payload.featured ? featuredCopy : compactCopy
+      if (!copy) return
 
       setActiveProject({
         slug,
-        kicker: payload.featured ? featuredCopy.kicker : compactCopy.kicker,
-        title: payload.featured ? featuredCopy.title : compactCopy.title,
-        summary: payload.featured ? featuredCopy.summary : compactCopy.oneLiner,
-        highlights: payload.featured
-          ? featuredCopy.highlights
-          : compactCopy.highlights,
+        kicker: copy.kicker,
+        title: copy.title,
+        summary: 'summary' in copy ? copy.summary : copy.oneLiner,
+        highlights: copy.highlights,
         stack: shared.stack,
         images: payload.images.map((image) => ({
           src: image.src,

@@ -26,9 +26,11 @@ export function About({
   softwareSinceYear,
 }: Props) {
   const section = dictionary.sections.whoami
-  const languagesLabel = dictionary.more.languages
-    .map((lang) => `${lang.name} (${lang.level})`)
-    .join(', ')
+  const languagesLabel = Array.isArray(dictionary.more.languages)
+    ? dictionary.more.languages
+        .map((lang) => `${lang.name} (${lang.level})`)
+        .join(', ')
+    : ''
 
   return (
     <section id="whoami" className="section" aria-labelledby="whoami-title">

@@ -75,7 +75,7 @@ export function FeaturedProject({
         <p className={styles.summary}>
           <RichText text={copy.summary} />
         </p>
-        {copy.highlights.length > 0 ? (
+        {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
           <ul className={styles.highlights}>
             {copy.highlights.map((item) => (
               <li key={item}>

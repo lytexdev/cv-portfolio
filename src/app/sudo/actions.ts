@@ -70,6 +70,16 @@ function formString(formData: FormData, key: string): string {
   return String(formData.get(key) ?? '').trim()
 }
 
+function formFile(formData: FormData, key: string): File | null {
+  const value = formData.get(key)
+  if (!value || typeof value === 'string') return null
+  if (typeof value.arrayBuffer !== 'function' || typeof value.size !== 'number') {
+    return null
+  }
+  if (value.size <= 0) return null
+  return value as File
+}
+
 async function assertCsrf(formData: FormData, sessionKey: string) {
   const token = formString(formData, 'csrf')
   if (!verifyCsrfToken(sessionKey, token)) {
@@ -296,19 +306,27 @@ export async function uploadProjectImageAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
   const slug = formString(formData, 'slug')
-  const file = formData.get('file')
-  if (!(file instanceof File) || !slug) {
+  const file = formFile(formData, 'file')
+  if (!file || !slug) {
     redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}&error=upload`)
   }
-  const buf = Buffer.from(await file.arrayBuffer())
-  const base = formString(formData, 'name') || `img-${Date.now()}`
-  const result = await processProjectImage(slug, base.replace(/[^a-z0-9_-]/gi, ''), buf)
-  const project = listDbProjects().find((p) => p.slug === slug)
-  if (project) {
-    if (!project.images.includes(result.filename)) {
-      project.images.push(result.filename)
+  try {
+    const buf = Buffer.from(await file.arrayBuffer())
+    const base = formString(formData, 'name') || `img-${Date.now()}`
+    const result = await processProjectImage(
+      slug,
+      base.replace(/[^a-z0-9_-]/gi, '') || `img-${Date.now()}`,
+      buf,
+    )
+    const project = listDbProjects().find((p) => p.slug === slug)
+    if (project) {
+      if (!project.images.includes(result.filename)) {
+        project.images.push(result.filename)
+      }
+      upsertProject(project)
     }
-    upsertProject(project)
+  } catch {
+    redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}&error=upload`)
   }
   revalidatePath('/sudo/projects')
   redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}&uploaded=1`)
@@ -491,23 +509,25 @@ export async function saveSiteProfileAction(formData: FormData) {
 export async function uploadSiteAssetAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
-  const kind = formString(formData, 'kind') as 'portrait' | 'logo' | 'pdf'
-  const file = formData.get('file')
-  if (!(file instanceof File)) {
+  const kind = formString(formData, 'kind')
+  const file = formFile(formData, 'file')
+  if (!file || (kind !== 'portrait' && kind !== 'logo' && kind !== 'pdf')) {
     redirect('/sudo?error=upload')
   }
-  const buf = Buffer.from(await file.arrayBuffer())
-  const profile = getSiteProfile()
-  if (kind === 'pdf') {
-    profile.cvPdfPath = await processSitePdf(buf)
-  } else if (kind === 'portrait' || kind === 'logo') {
-    const url = await processSiteImage(kind, buf)
-    if (kind === 'portrait') profile.portraitPath = url
-    else profile.logoPath = url
-  } else {
+  try {
+    const buf = Buffer.from(await file.arrayBuffer())
+    const profile = getSiteProfile()
+    if (kind === 'pdf') {
+      profile.cvPdfPath = await processSitePdf(buf)
+    } else {
+      const url = await processSiteImage(kind, buf)
+      if (kind === 'portrait') profile.portraitPath = url
+      else profile.logoPath = url
+    }
+    saveSiteProfile(profile)
+  } catch {
     redirect('/sudo?error=upload')
   }
-  saveSiteProfile(profile)
   revalidatePath('/sudo')
   revalidatePath('/de')
   revalidatePath('/en')

@@ -54,6 +54,7 @@ export function Footer({
           <ul className={styles.socials}>
             {socials.map((social) => {
               const Icon = ICONS[social.platform]
+              if (!Icon) return null
               const tip = social.label || social.platform
               return (
                 <li key={`${social.platform}-${social.url}`}>

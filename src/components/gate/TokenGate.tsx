@@ -80,7 +80,7 @@ export function TokenGate({ locale, reason, label }: Props) {
           required
           minLength={32}
           maxLength={64}
-          pattern="[A-Za-z0-9_-]{32}"
+          pattern="[A-Za-z0-9_\-]{32,64}"
         />
         <button type="submit" className={styles.button}>
           {t.submit}

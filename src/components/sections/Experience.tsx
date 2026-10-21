@@ -48,7 +48,7 @@ export function Experience({ locale, dictionary }: Props) {
                 <p className={styles.company}>
                   {copy.company} · {copy.location}
                 </p>
-                {copy.highlights.length > 0 ? (
+                {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
                   <ul className={styles.highlights}>
                     {copy.highlights.map((item) => (
                       <li key={item}>

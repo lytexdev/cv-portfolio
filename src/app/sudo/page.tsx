@@ -34,7 +34,9 @@ export default async function SudoDashboardPage({ searchParams }: Props) {
         <p className={`${styles.flash} ${styles.flashOk}`}>Saved.</p>
       ) : null}
       {query.error ? (
-        <p className={`${styles.flash} ${styles.flashError}`}>Upload failed.</p>
+        <p className={`${styles.flash} ${styles.flashError}`}>
+          Upload failed. Use JPEG, PNG or WebP up to 8 MB.
+        </p>
       ) : null}
 
       <div className={styles.stats}>
@@ -122,8 +124,14 @@ export default async function SudoDashboardPage({ searchParams }: Props) {
             <input type="hidden" name="csrf" value={csrf} />
             <input type="hidden" name="kind" value="portrait" />
             <label className={styles.label}>
-              Portrait image
-              <input className={styles.input} type="file" name="file" accept="image/*" required />
+              Portrait image (JPEG, PNG, WebP · max 8 MB)
+              <input
+                className={styles.input}
+                type="file"
+                name="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              />
             </label>
             {profile.portraitPath ? (
               <p className={styles.muted}>Current: {profile.portraitPath}</p>
@@ -140,8 +148,14 @@ export default async function SudoDashboardPage({ searchParams }: Props) {
             <input type="hidden" name="csrf" value={csrf} />
             <input type="hidden" name="kind" value="logo" />
             <label className={styles.label}>
-              Logo
-              <input className={styles.input} type="file" name="file" accept="image/*" required />
+              Logo (JPEG, PNG, WebP · max 8 MB)
+              <input
+                className={styles.input}
+                type="file"
+                name="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+              />
             </label>
             {profile.logoPath ? (
               <p className={styles.muted}>Current: {profile.logoPath}</p>

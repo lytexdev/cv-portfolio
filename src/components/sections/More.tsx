@@ -45,18 +45,21 @@ export function More({ dictionary }: Props) {
         <div className={styles.block}>
           <h3 className={styles.blockTitle}>{dictionary.more.languagesTitle}</h3>
           <ul className={styles.list}>
-            {dictionary.more.languages.map((lang) => (
-              <li key={lang.name} className={styles.item}>
-                <span className={styles.langName}>{lang.name}</span>
-                <span className={styles.langLevel}>· {lang.level}</span>
-              </li>
-            ))}
+            {(Array.isArray(dictionary.more.languages) ? dictionary.more.languages : []).map(
+              (lang) => (
+                <li key={lang.name} className={styles.item}>
+                  <span className={styles.langName}>{lang.name}</span>
+                  <span className={styles.langLevel}>· {lang.level}</span>
+                </li>
+              ),
+            )}
           </ul>
 
           <h3 className={styles.blockTitle}>{dictionary.more.interestsTitle}</h3>
           <ul className={styles.list}>
             {interestIds.map((id) => {
               const Icon = interestIcons[id]
+              if (!Icon) return null
               return (
                 <li key={id} className={styles.item}>
                   <Icon size={20} stroke={1.75} aria-hidden="true" />
@@ -70,6 +73,7 @@ export function More({ dictionary }: Props) {
           <ul className={styles.list}>
             {strengthIds.map((id) => {
               const Icon = strengthIcons[id]
+              if (!Icon) return null
               return (
                 <li key={id} className={styles.item}>
                   <Icon size={20} stroke={1.75} aria-hidden="true" />

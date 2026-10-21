@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['sharp'],
   experimental: {
     globalNotFound: true,
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
   },
   images: {
     localPatterns: [

@@ -64,6 +64,10 @@ function renderToken(token: string, key: number): ReactNode {
 }
 
 export function RichText({ text, className, as = 'span' }: Props) {
+  if (typeof text !== 'string' || text.length === 0) {
+    const Tag = as
+    return <Tag className={className ? `${styles.root} ${className}` : styles.root} />
+  }
   const parts = text.split(TOKEN).filter((part) => part.length > 0)
   const nodes = parts.map((part, index) =>
     isMarkup(part) ? renderToken(part, index) : <span key={index}>{part}</span>,
