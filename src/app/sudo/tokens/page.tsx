@@ -10,6 +10,8 @@ import {
 } from '../actions'
 import { AdminNav } from '../_components/AdminNav'
 import { ConfirmForm } from '../_components/ConfirmForm'
+import { CopyTokenButton } from '../_components/CopyTokenButton'
+import { revealTokenPlaintext } from '@/lib/server/tokens'
 import styles from '../sudo.module.css'
 
 type Props = {
@@ -81,7 +83,9 @@ export default async function TokensPage({ searchParams }: Props) {
             </tr>
           </thead>
           <tbody>
-            {tokens.map((t) => (
+            {tokens.map((t) => {
+              const plain = revealTokenPlaintext(t.id)
+              return (
               <tr key={t.id}>
                 <td>
                   <code>{t.id}</code>
@@ -112,8 +116,12 @@ export default async function TokensPage({ searchParams }: Props) {
                       <input
                         className={styles.input}
                         name="expiresAt"
-                        defaultValue={t.expiresAt ?? ''}
-                        placeholder="2027-01-01T00:00:00.000Z"
+                        type="datetime-local"
+                        defaultValue={
+                          t.expiresAt
+                            ? new Date(t.expiresAt).toISOString().slice(0, 16)
+                            : ''
+                        }
                       />
                     </label>
                     <button className={styles.button} type="submit">
@@ -124,6 +132,10 @@ export default async function TokensPage({ searchParams }: Props) {
                 <td>{t.viewCount}</td>
                 <td>
                   <div className={styles.tokenActions}>
+                    <CopyTokenButton
+                      token={plain}
+                      link={plain ? `${base}/de?k=${plain}` : null}
+                    />
                     <ConfirmForm
                       action={revokeTokenAction}
                       title="Revoke token?"
@@ -154,7 +166,8 @@ export default async function TokensPage({ searchParams }: Props) {
                   </div>
                 </td>
               </tr>
-            ))}
+              )
+            })}
           </tbody>
         </table>
       </div>

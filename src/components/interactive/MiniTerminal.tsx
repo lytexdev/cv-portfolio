@@ -19,6 +19,7 @@ type Props = {
   dictionary: CvDictionary
   age: number | null
   hasToken: boolean
+  token?: string
   phone?: string
   onOpenProject: (slug: ProjectSlug) => void
 }
@@ -40,6 +41,7 @@ const COMMAND_LIST = [
   'open',
   'skills',
   'contact',
+  'ask',
   'neofetch',
   'htop',
   'tldr',
@@ -95,6 +97,7 @@ export function MiniTerminal({
   dictionary,
   age,
   hasToken,
+  token,
   phone,
   onOpenProject,
 }: Props) {
@@ -111,6 +114,7 @@ export function MiniTerminal({
   const [cwd, setCwd] = useState('~')
   const [shell, setShell] = useState<'fish' | 'bash'>('fish')
   const [busy, setBusy] = useState(false)
+  const [maximized, setMaximized] = useState(false)
 
   const projectSlugs = useMemo(
     () => [...featuredProjectOrder, ...compactProjectOrder],
@@ -170,7 +174,7 @@ export function MiniTerminal({
         [
           'Navigation & CV',
           '  whoami · cat about.txt · ls / ls -la / la · cd · open <slug>',
-          '  skills · contact · neofetch · theme · lang',
+          '  skills · contact · ask <question> · neofetch · theme · lang',
           'Shell toys',
           '  fish · bash · htop · tldr <cmd> · ping <host>',
           '  generate_password [len] · ssh root@vserver',
@@ -272,6 +276,76 @@ export function MiniTerminal({
       return
     }
 
+    if (cmd === 'ask') {
+      const question = arg.trim()
+      if (!question) {
+        append(
+          locale === 'de'
+            ? 'Usage: ask <frage>\nBeispiel: ask Welche Stacks nutzt Immanuel?'
+            : 'Usage: ask <question>\nExample: ask What stack does Immanuel use?',
+          'info',
+        )
+        return
+      }
+      if (!token) {
+        append(
+          locale === 'de'
+            ? 'ask: gültiger Zugangstoken erforderlich.'
+            : 'ask: a valid access token is required.',
+          'err',
+        )
+        return
+      }
+
+      setBusy(true)
+      append(locale === 'de' ? 'denke nach…' : 'thinking…', 'info')
+      void (async () => {
+        try {
+          const res = await fetch('/api/ask', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ k: token, q: question, lang: locale }),
+          })
+          const data = (await res.json().catch(() => null)) as
+            | { answer?: string; error?: string; retryAfterSec?: number }
+            | null
+
+          if (res.status === 429) {
+            const wait = data?.retryAfterSec
+            append(
+              locale === 'de'
+                ? `ask: Rate-Limit erreicht${wait ? ` (warte ~${wait}s)` : ''}.`
+                : `ask: rate limit reached${wait ? ` (retry in ~${wait}s)` : ''}.`,
+              'err',
+            )
+            return
+          }
+
+          if (!res.ok || !data?.answer) {
+            append(
+              locale === 'de'
+                ? 'ask: Anfrage fehlgeschlagen.'
+                : 'ask: request failed.',
+              'err',
+            )
+            return
+          }
+
+          append(data.answer)
+        } catch {
+          append(
+            locale === 'de'
+              ? 'ask: Netzwerkfehler.'
+              : 'ask: network error.',
+            'err',
+          )
+        } finally {
+          setBusy(false)
+        }
+      })()
+      return
+    }
+
     if (cmd === 'neofetch') {
       const info = [
         'immanuel@lytex',
@@ -281,7 +355,7 @@ export function MiniTerminal({
         `Uptime: ${age ?? '?'} years`,
         `Shell: ${shell} 3.7.1`,
         'DE: KDE Plasma (Wayland)',
-        'Editor: Cursor · Claude Code',
+        'Editor: VSCodium · Cursor · Claude Code',
         'Langs: de (native), en (good)',
         'Terminal: MiniTerminal',
       ]
@@ -317,6 +391,7 @@ export function MiniTerminal({
         help: 'help\n  List available MiniTerminal commands.',
         ls: 'ls\n  List files in the virtual home or projects directory.',
         cd: 'cd\n  Change virtual directory (~, projects).',
+        ask: 'ask <question>\n  Ask a short question about this CV (AI, rate-limited).',
         neofetch: 'neofetch\n  Show a playful system summary.',
         ping: 'ping <host>\n  Fake latency lines to a host.',
         generate_password: 'generate_password [len]\n  CSPRNG password (default 24).',
@@ -439,34 +514,56 @@ export function MiniTerminal({
     append(`fish: Unknown command: ${cmd}\n${hint}`, 'err')
   }
 
-  const autocomplete = () => {
+  const suggestion = useMemo(() => {
+    const current = value
+    if (!current || current.includes(' ')) return null
+    const match = COMMAND_LIST.find((c) => c.startsWith(current) && c !== current)
+    return match ?? null
+  }, [value])
+
+  const acceptSuggestion = () => {
+    if (suggestion) {
+      setValue(suggestion)
+      return
+    }
     const current = value.trim()
     const matches = COMMAND_LIST.filter((c) => c.startsWith(current))
     if (matches.length === 1 && matches[0]) {
       setValue(matches[0])
-      return
-    }
-    if (matches.length > 1) {
-      append(matches.join('  '), 'info')
     }
   }
 
   return (
     <dialog
       ref={dialogRef}
-      className={styles.dialog}
+      className={`${styles.dialog} ${maximized ? styles.dialogMax : ''}`}
       aria-labelledby="mini-terminal-title"
       onClose={() => onOpenChange(false)}
     >
       <div className={styles.inner}>
         <div className={styles.chrome}>
-          <div className={styles.traffic} aria-hidden="true">
-            <span />
-            <span />
-            <span />
+          <div className={styles.traffic}>
+            <button
+              type="button"
+              className={`${styles.trafficBtn} ${styles.trafficClose}`}
+              aria-label="Close"
+              onClick={() => onOpenChange(false)}
+            />
+            <button
+              type="button"
+              className={`${styles.trafficBtn} ${styles.trafficMin}`}
+              aria-label="Minimize"
+              onClick={() => onOpenChange(false)}
+            />
+            <button
+              type="button"
+              className={`${styles.trafficBtn} ${styles.trafficMax}`}
+              aria-label={maximized ? 'Restore' : 'Maximize'}
+              onClick={() => setMaximized((v) => !v)}
+            />
           </div>
           <p id="mini-terminal-title" className={styles.title}>
-            {shell} — immanuel@lytex — {cwd}
+            {shell} - immanuel@lytex - {cwd}
           </p>
           <button
             type="button"
@@ -501,40 +598,52 @@ export function MiniTerminal({
           }}
         >
           <span className={styles.prompt}>{prompt}</span>
-          <input
-            ref={inputRef}
-            className={styles.input}
-            value={value}
-            onChange={(event) => setValue(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === 'ArrowUp') {
-                event.preventDefault()
-                if (history.length === 0) return
-                const nextIndex =
-                  historyIndex < 0 ? history.length - 1 : Math.max(historyIndex - 1, 0)
-                setHistoryIndex(nextIndex)
-                setValue(history[nextIndex] ?? '')
-              } else if (event.key === 'ArrowDown') {
-                event.preventDefault()
-                if (historyIndex < 0) return
-                const nextIndex = historyIndex + 1
-                if (nextIndex >= history.length) {
-                  setHistoryIndex(-1)
-                  setValue('')
-                } else {
+          <div className={styles.inputWrap}>
+            <span className={styles.ghost} aria-hidden="true">
+              <span className={styles.ghostTyped}>{value}</span>
+              <span className={styles.ghostHint}>
+                {suggestion ? suggestion.slice(value.length) : ''}
+              </span>
+            </span>
+            <input
+              ref={inputRef}
+              className={styles.input}
+              value={value}
+              onChange={(event) => setValue(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === 'ArrowUp') {
+                  event.preventDefault()
+                  if (history.length === 0) return
+                  const nextIndex =
+                    historyIndex < 0
+                      ? history.length - 1
+                      : Math.max(historyIndex - 1, 0)
                   setHistoryIndex(nextIndex)
                   setValue(history[nextIndex] ?? '')
+                } else if (event.key === 'ArrowDown') {
+                  event.preventDefault()
+                  if (historyIndex < 0) return
+                  const nextIndex = historyIndex + 1
+                  if (nextIndex >= history.length) {
+                    setHistoryIndex(-1)
+                    setValue('')
+                  } else {
+                    setHistoryIndex(nextIndex)
+                    setValue(history[nextIndex] ?? '')
+                  }
+                } else if (event.key === 'Tab' || (event.key === 'ArrowRight' && suggestion)) {
+                  if (suggestion || event.key === 'Tab') {
+                    event.preventDefault()
+                    acceptSuggestion()
+                  }
                 }
-              } else if (event.key === 'Tab') {
-                event.preventDefault()
-                autocomplete()
-              }
-            }}
-            aria-label="Terminal input"
-            autoComplete="off"
-            spellCheck={false}
-            disabled={busy}
-          />
+              }}
+              aria-label="Terminal input"
+              autoComplete="off"
+              spellCheck={false}
+              disabled={busy}
+            />
+          </div>
           <span className={styles.caret} aria-hidden="true" />
         </form>
       </div>

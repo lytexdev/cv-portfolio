@@ -2,6 +2,7 @@
 
 import { IconMoon, IconSun } from '@tabler/icons-react'
 import { useCallback, useSyncExternalStore } from 'react'
+import { Tooltip } from './Tooltip'
 import styles from './ControlButton.module.css'
 
 type Props = {
@@ -37,18 +38,22 @@ export function ThemeToggle({ toLightLabel, toDarkLabel }: Props) {
     setThemeValue(theme === 'dark' ? 'light' : 'dark')
   }, [theme])
 
+  const label = theme === 'dark' ? toLightLabel : toDarkLabel
+
   return (
-    <button
-      type="button"
-      className={styles.button}
-      onClick={toggle}
-      aria-label={theme === 'dark' ? toLightLabel : toDarkLabel}
-    >
-      {theme === 'dark' ? (
-        <IconSun size={20} stroke={1.75} aria-hidden="true" />
-      ) : (
-        <IconMoon size={20} stroke={1.75} aria-hidden="true" />
-      )}
-    </button>
+    <Tooltip label={label}>
+      <button
+        type="button"
+        className={styles.button}
+        onClick={toggle}
+        aria-label={label}
+      >
+        {theme === 'dark' ? (
+          <IconSun size={20} stroke={1.75} aria-hidden="true" />
+        ) : (
+          <IconMoon size={20} stroke={1.75} aria-hidden="true" />
+        )}
+      </button>
+    </Tooltip>
   )
 }

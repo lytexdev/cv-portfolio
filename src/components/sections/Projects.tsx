@@ -10,9 +10,10 @@ import styles from './Projects.module.css'
 
 type Props = {
   dictionary: CvDictionary
+  accessToken: string
 }
 
-export function Projects({ dictionary }: Props) {
+export function Projects({ dictionary, accessToken }: Props) {
   const section = dictionary.sections.projects
   const featuredProjectOrder = getRuntimeFeaturedOrder()
   const compactProjectOrder = getRuntimeCompactOrder()
@@ -31,13 +32,19 @@ export function Projects({ dictionary }: Props) {
             key={slug}
             slug={slug}
             dictionary={dictionary}
+            accessToken={accessToken}
             alternate={index % 2 === 1}
           />
         ))}
       </div>
       <div className={styles.compact}>
         {compactProjectOrder.map((slug) => (
-          <ProjectRow key={slug} slug={slug} dictionary={dictionary} />
+          <ProjectRow
+            key={slug}
+            slug={slug}
+            dictionary={dictionary}
+            accessToken={accessToken}
+          />
         ))}
       </div>
     </section>

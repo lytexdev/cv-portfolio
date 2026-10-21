@@ -372,6 +372,7 @@ export const de = {
       security: 'Cybersecurity',
       linux: 'Linux & Server',
       biology: 'Biologie & Pharmakologie',
+      crypto: 'Krypto',
     },
     strengthsTitle: 'Stärken',
     strengths: {
@@ -384,7 +385,7 @@ export const de = {
     dailyDriverTagline: 'I use Arch btw',
   },
   contact: {
-    headline: 'Sprechen wir.',
+    headline: '',
     publicHint:
       'Telefonnummer und Anschrift stehen in der persönlichen Version meiner Bewerbung. Am schnellsten erreichbar bin ich per E-Mail.',
     expiredHint:
@@ -432,7 +433,7 @@ export const de = {
     retry: 'Erneut versuchen',
   },
   footer: {
-    tagline: 'Self-hosted · Next.js · keine Cookies, keine Analytics, keine Drittanbieter',
+    tagline: 'Self-hosted · Next.js',
     imprint: 'Impressum',
     privacy: 'Datenschutz',
     source: 'Quellcode',

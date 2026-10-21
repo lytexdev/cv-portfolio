@@ -1,7 +1,7 @@
-import { moreSkills, stackGroups } from '@/content/shared'
 import type { CvDictionary, StackGroupId } from '@/content/types'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { SectionHeading } from '@/components/layout/SectionHeading'
+import { getStackConfig } from '@/lib/server/settings'
 import styles from './Stack.module.css'
 
 const groupOrder: StackGroupId[] = [
@@ -19,6 +19,7 @@ type Props = {
 
 export function Stack({ dictionary }: Props) {
   const section = dictionary.sections.stack
+  const { groups, moreSkills } = getStackConfig()
 
   return (
     <section id="stack" className="section" aria-labelledby="stack-title" data-reveal>
@@ -30,7 +31,7 @@ export function Stack({ dictionary }: Props) {
               {dictionary.stack.groups[groupId]}
             </p>
             <ul className={styles.chips}>
-              {stackGroups[groupId].map((techId) => (
+              {(groups[groupId] ?? []).map((techId) => (
                 <li key={techId} className={styles.chip}>
                   <TechIcon id={techId} showLabel />
                 </li>

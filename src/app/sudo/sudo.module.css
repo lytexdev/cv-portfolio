@@ -53,6 +53,11 @@
   font-size: 1.35rem;
 }
 
+.subtitle {
+  margin: 1.25rem 0 0.5rem;
+  font-size: 1.05rem;
+}
+
 .grid {
   display: grid;
   gap: 0.75rem;

@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
   experimental: {
     globalNotFound: true,
   },
+  images: {
+    localPatterns: [
+      {
+        pathname: '/media/**',
+      },
+    ],
+  },
   outputFileTracingExcludes: {
     '/*': ['./data/**/*'],
   },

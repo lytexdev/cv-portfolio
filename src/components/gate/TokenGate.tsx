@@ -1,4 +1,9 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { Locale } from '@/content/types'
+import { storeToken, readStoredToken } from '@/components/interactive/TokenPersist'
 import styles from './TokenGate.module.css'
 
 type Props = {
@@ -32,10 +37,17 @@ const copy = {
 
 export function TokenGate({ locale, reason, label }: Props) {
   const t = copy[locale]
+  const router = useRouter()
+  const [value, setValue] = useState('')
   const message =
-    reason === 'expired' && label
-      ? `${t.expired} (${label})`
-      : t[reason]
+    reason === 'expired' && label ? `${t.expired} (${label})` : t[reason]
+
+  useEffect(() => {
+    if (reason !== 'missing') return
+    const stored = readStoredToken()
+    if (!stored) return
+    router.replace(`/${locale}?k=${encodeURIComponent(stored)}`)
+  }, [locale, reason, router])
 
   return (
     <main className={styles.root} id="main">
@@ -43,7 +55,16 @@ export function TokenGate({ locale, reason, label }: Props) {
       <h1 className={styles.title}>{t.title}</h1>
       <p className={styles.message}>{message}</p>
       <p className={styles.hint}>{t.hint}</p>
-      <form className={styles.form} method="get" action={`/${locale}`}>
+      <form
+        className={styles.form}
+        onSubmit={(event) => {
+          event.preventDefault()
+          const token = value.trim()
+          if (!token) return
+          storeToken(token)
+          router.push(`/${locale}?k=${encodeURIComponent(token)}`)
+        }}
+      >
         <label className={styles.label} htmlFor="token-input">
           {t.label}
         </label>
@@ -52,6 +73,8 @@ export function TokenGate({ locale, reason, label }: Props) {
           className={styles.input}
           name="k"
           type="text"
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
           autoComplete="off"
           spellCheck={false}
           required

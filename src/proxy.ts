@@ -10,8 +10,6 @@ const passthroughRoots = new Set([
   'errors',
   'healthz',
   'api',
-  'projects',
-  'portrait.webp',
   'favicon.ico',
   'icon.svg',
   'robots.txt',
@@ -43,9 +41,33 @@ function buildCsp(nonce: string): string {
   return csp.replace(/\s{2,}/g, ' ').trim()
 }
 
+function withSecurityHeaders(response: NextResponse, csp: string) {
+  response.headers.set('Content-Security-Policy', csp)
+  response.headers.set(
+    'X-Robots-Tag',
+    'noindex, nofollow, noarchive, nosnippet, noimageindex',
+  )
+  return response
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
   const firstSegment = pathname.split('/')[1] ?? ''
+
+  if (pathname === '/portrait.webp' || pathname.startsWith('/projects/')) {
+    const url = request.nextUrl.clone()
+    url.pathname =
+      pathname === '/portrait.webp' ? '/media/portrait' : `/media${pathname}`
+    const nonce = Buffer.from(crypto.randomUUID()).toString('base64')
+    const csp = buildCsp(nonce)
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-nonce', nonce)
+    requestHeaders.set('Content-Security-Policy', csp)
+    return withSecurityHeaders(
+      NextResponse.rewrite(url, { request: { headers: requestHeaders } }),
+      csp,
+    )
+  }
 
   if (
     firstSegment &&
@@ -69,16 +91,15 @@ export function proxy(request: NextRequest) {
       headers: requestHeaders,
     },
   })
-  response.headers.set('Content-Security-Policy', csp)
 
-  return response
+  return withSecurityHeaders(response, csp)
 }
 
 export const config = {
   matcher: [
     {
       source:
-        '/((?!_next|api|healthz|projects|media|favicon.ico|icon.svg|robots.txt|portrait.webp|errors).*)',
+        '/((?!_next|api|healthz|favicon.ico|icon.svg|robots.txt|errors).*)',
       missing: [
         { type: 'header', key: 'next-router-prefetch' },
         { type: 'header', key: 'purpose', value: 'prefetch' },

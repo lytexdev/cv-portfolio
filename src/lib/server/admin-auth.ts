@@ -1,4 +1,5 @@
 import 'server-only'
+import { writeAudit } from './audit'
 import { getDb, nowIso } from './db'
 import { getEnv } from './env'
 import { hashPassword, safeEqualString, verifyPassword } from './password'
@@ -48,6 +49,12 @@ export function attemptLogin(input: {
     15 * 60 * 1000,
   )
   if (!rate.allowed) {
+    writeAudit({
+      category: 'security',
+      event: 'login_rate_limited',
+      detail: input.username,
+      ip: input.ip,
+    })
     return { ok: false, error: 'Too many attempts. Try again later.', status: 429 }
   }
 
@@ -56,6 +63,12 @@ export function attemptLogin(input: {
   const admin = getAdminByUsername(input.username)
 
   if (!admin || !phraseOk) {
+    writeAudit({
+      category: 'auth',
+      event: 'login_failed',
+      detail: input.username,
+      ip: input.ip,
+    })
     return { ok: false, error: 'Invalid credentials.', status: 401 }
   }
 
@@ -88,6 +101,12 @@ export function attemptLogin(input: {
     )
     .run(nowIso(), admin.id)
 
+  writeAudit({
+    category: 'auth',
+    event: 'login_ok',
+    detail: admin.username,
+    ip: input.ip,
+  })
   return { ok: true, admin }
 }
 

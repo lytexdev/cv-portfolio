@@ -1,6 +1,4 @@
 import {
-  IconBrandGithub,
-  IconBrandLinkedin,
   IconCalendar,
   IconMail,
   IconMapPin,
@@ -43,7 +41,6 @@ export function Contact({
       data-reveal
     >
       <SectionHeading id="contact" rail={section.rail} title={section.title} />
-      <h3 className={styles.headline}>{dictionary.contact.headline}</h3>
 
       {viewer.kind === 'expired' ? (
         <p className={styles.banner}>{dictionary.contact.expiredHint}</p>
@@ -76,31 +73,6 @@ export function Contact({
               </a>
             ) : null}
           </div>
-
-          {!isToken ? (
-            <div className={styles.social}>
-              <a
-                href={person.github}
-                className={styles.linkButton}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <IconBrandGithub size={18} stroke={1.75} aria-hidden="true" />
-                GitHub
-                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
-              </a>
-              <a
-                href={person.linkedin}
-                className={styles.linkButton}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <IconBrandLinkedin size={18} stroke={1.75} aria-hidden="true" />
-                LinkedIn
-                <span className="visually-hidden"> {dictionary.externalNewTab}</span>
-              </a>
-            </div>
-          ) : null}
         </div>
 
         <div className={styles.details}>

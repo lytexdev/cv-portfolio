@@ -1,6 +1,7 @@
 import 'server-only'
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import { getDb, nowIso } from './db'
+import { sealSecret, unsealSecret } from './seal'
 
 export const TOKEN_REGEX = /^[A-Za-z0-9_-]{32}$/
 
@@ -9,6 +10,7 @@ export type TokenEntry = {
   label: string
   role?: string
   hash: string
+  sealed: string | null
   createdAt: string
   expiresAt: string | null
   revoked: boolean
@@ -33,6 +35,7 @@ function rowToEntry(row: Record<string, unknown>): TokenEntry {
     label: String(row.label),
     role: row.role ? String(row.role) : undefined,
     hash: String(row.hash),
+    sealed: row.sealed ? String(row.sealed) : null,
     createdAt: String(row.created_at),
     expiresAt: row.expires_at ? String(row.expires_at) : null,
     revoked: Boolean(row.revoked),
@@ -44,10 +47,16 @@ export function listTokens(): TokenEntry[] {
   const db = getDb()
   const rows = db
     .prepare(
-      'SELECT id, label, role, hash, created_at, expires_at, revoked, view_count FROM tokens ORDER BY created_at DESC',
+      'SELECT id, label, role, hash, sealed, created_at, expires_at, revoked, view_count FROM tokens ORDER BY created_at DESC',
     )
     .all() as Record<string, unknown>[]
   return rows.map(rowToEntry)
+}
+
+export function revealTokenPlaintext(id: string): string | null {
+  const entry = findTokenById(id)
+  if (!entry?.sealed) return null
+  return unsealSecret(entry.sealed)
 }
 
 export function findTokenByPlaintext(token: string): TokenEntry | null {
@@ -78,7 +87,7 @@ export function findTokenById(id: string): TokenEntry | null {
   const db = getDb()
   const row = db
     .prepare(
-      'SELECT id, label, role, hash, created_at, expires_at, revoked, view_count FROM tokens WHERE id = ?',
+      'SELECT id, label, role, hash, sealed, created_at, expires_at, revoked, view_count FROM tokens WHERE id = ?',
     )
     .get(id) as Record<string, unknown> | undefined
   return row ? rowToEntry(row) : null
@@ -91,6 +100,7 @@ export function createToken(input: {
 }): { entry: TokenEntry; plaintext: string } {
   const db = getDb()
   const plaintext = generatePlainToken()
+  const sealed = sealSecret(plaintext)
   const id = slugify(input.label) || `token-${Date.now()}`
   const createdAt = nowIso()
   let finalId = id
@@ -100,13 +110,14 @@ export function createToken(input: {
   }
 
   db.prepare(
-    `INSERT INTO tokens (id, label, role, hash, created_at, expires_at, revoked, view_count)
-     VALUES (?, ?, ?, ?, ?, ?, 0, 0)`,
+    `INSERT INTO tokens (id, label, role, hash, sealed, created_at, expires_at, revoked, view_count)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0)`,
   ).run(
     finalId,
     input.label,
     input.role ?? null,
     hashToken(plaintext),
+    sealed,
     createdAt,
     input.expiresAt ?? null,
   )
@@ -118,6 +129,7 @@ export function createToken(input: {
       label: input.label,
       role: input.role,
       hash: hashToken(plaintext),
+      sealed,
       createdAt,
       expiresAt: input.expiresAt ?? null,
       revoked: false,

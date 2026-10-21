@@ -16,10 +16,40 @@
   letter-spacing: 0.04em;
 }
 
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.socialLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding-inline: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.socialLink:hover {
+  color: var(--ok);
+  border-color: color-mix(in srgb, var(--ok) 45%, var(--border));
+}
+
 .links {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
 
 .links a {

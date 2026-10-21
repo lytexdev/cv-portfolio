@@ -1,5 +1,6 @@
 'use client'
 
+import { IconX } from '@tabler/icons-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { sectionOrder } from '@/content/shared'
 import type { CvDictionary, Locale, SectionId } from '@/content/types'
@@ -57,6 +58,7 @@ export function CommandPalette({
   const listId = useId()
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
+  const closeLabel = locale === 'de' ? 'Suche schließen' : 'Close search'
 
   const items = useMemo<Item[]>(() => {
     const navigation: Item[] = sectionOrder.map((id: SectionId) => ({
@@ -212,35 +214,53 @@ export function CommandPalette({
         event.preventDefault()
         onOpenChange(false)
       }}
+      onClick={(event) => {
+        if (event.target === dialogRef.current) {
+          onOpenChange(false)
+        }
+      }}
       aria-label={dictionary.palette.placeholder}
     >
       <div className={styles.form}>
-        <input
-          ref={inputRef}
-          className={styles.input}
-          role="combobox"
-          aria-expanded={open}
-          aria-controls={listId}
-          aria-activedescendant={
-            filtered[activeIndex] ? `${listId}-${filtered[activeIndex].id}` : undefined
-          }
-          aria-autocomplete="list"
-          placeholder={dictionary.palette.placeholder}
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onKeyDown={(event) => {
-            if (event.key === 'ArrowDown') {
-              event.preventDefault()
-              setActiveIndex((i) => Math.min(i + 1, Math.max(filtered.length - 1, 0)))
-            } else if (event.key === 'ArrowUp') {
-              event.preventDefault()
-              setActiveIndex((i) => Math.max(i - 1, 0))
-            } else if (event.key === 'Enter') {
-              event.preventDefault()
-              runActive()
+        <div className={styles.header}>
+          <input
+            ref={inputRef}
+            className={styles.input}
+            role="combobox"
+            aria-expanded={open}
+            aria-controls={listId}
+            aria-activedescendant={
+              filtered[activeIndex] ? `${listId}-${filtered[activeIndex].id}` : undefined
             }
-          }}
-        />
+            aria-autocomplete="list"
+            placeholder={dictionary.palette.placeholder}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'ArrowDown') {
+                event.preventDefault()
+                setActiveIndex((i) => Math.min(i + 1, Math.max(filtered.length - 1, 0)))
+              } else if (event.key === 'ArrowUp') {
+                event.preventDefault()
+                setActiveIndex((i) => Math.max(i - 1, 0))
+              } else if (event.key === 'Enter') {
+                event.preventDefault()
+                runActive()
+              } else if (event.key === 'Escape') {
+                event.preventDefault()
+                onOpenChange(false)
+              }
+            }}
+          />
+          <button
+            type="button"
+            className={styles.close}
+            aria-label={closeLabel}
+            onClick={() => onOpenChange(false)}
+          >
+            <IconX size={18} stroke={1.75} aria-hidden="true" />
+          </button>
+        </div>
         <div className={styles.list} role="listbox" id={listId}>
           {groups.map((group) => {
             const groupItems = filtered.filter((item) => item.group === group)

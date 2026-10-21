@@ -39,16 +39,48 @@ export function portraitExists(): boolean {
   return publicExists('portrait.webp')
 }
 
-export function projectImageSrc(slug: string, filename: string): string | null {
-  if (uploadExists(slug, filename)) {
-    return `/media/projects/${slug}/${filename}`
-  }
-  if (publicExists(path.join('projects', slug, filename))) {
-    return `/projects/${slug}/${filename}`
+export function withAccessToken(src: string, token?: string): string {
+  if (!token) return src
+  const join = src.includes('?') ? '&' : '?'
+  return `${src}${join}k=${encodeURIComponent(token)}`
+}
+
+export function projectImageSrc(
+  slug: string,
+  filename: string,
+  token?: string,
+): string | null {
+  if (uploadExists(slug, filename) || publicExists(path.join('projects', slug, filename))) {
+    return withAccessToken(`/media/projects/${slug}/${filename}`, token)
   }
   return null
 }
 
-export function portraitSrc(): string | null {
-  return portraitExists() ? '/portrait.webp' : null
+export function portraitSrc(token?: string): string | null {
+  if (!portraitExists()) return null
+  return withAccessToken('/media/portrait', token)
+}
+
+export function resolveProjectImagePath(
+  slug: string,
+  filename: string,
+): { absolute: string; contentType: string } | null {
+  const uploadPath = path.join(getDataDir(), 'uploads', 'projects', slug, filename)
+  const publicPath = path.join(process.cwd(), 'public', 'projects', slug, filename)
+  const absolute = existsSync(uploadPath)
+    ? uploadPath
+    : existsSync(publicPath)
+      ? publicPath
+      : null
+  if (!absolute) return null
+  const ext = path.extname(filename).toLowerCase()
+  const contentType =
+    ext === '.webp'
+      ? 'image/webp'
+      : ext === '.png'
+        ? 'image/png'
+        : ext === '.jpg' || ext === '.jpeg'
+          ? 'image/jpeg'
+          : 'application/octet-stream'
+  return { absolute, contentType }
 }

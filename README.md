@@ -60,7 +60,7 @@ See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `
 | `SECRET_ADMIN_PHRASE` | Extra admin login factor |
 | `LEGAL_*` | Imprint / privacy URLs |
 | `DEEPL_API_KEY` | Optional DeepL Free (`:fx`) for DE→EN |
-| `MISTRAL_AI_API_KEY` | Reserved, unused |
+| `MISTRAL_AI_API_KEY` | Optional; powers terminal `ask` (server-side) |
 
 ## Token gate
 

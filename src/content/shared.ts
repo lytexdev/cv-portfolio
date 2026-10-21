@@ -71,8 +71,8 @@ export const moreSkills: TechId[] = ['raspberrypi', 'image-editing', 'office']
 
 export const dailyDriver: TechId[] = [
   'archlinux',
-  'kde',
-  'fish',
+  'ubuntu',
+  'vscodium',
   'cursor',
   'claudecode',
 ]
@@ -233,6 +233,7 @@ export const interestIcons: Record<InterestId, string> = {
   security: 'shield',
   linux: 'server',
   biology: 'dna',
+  crypto: 'bitcoin',
 }
 
 export const strengthIcons: Record<StrengthId, string> = {

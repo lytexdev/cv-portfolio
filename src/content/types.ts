@@ -90,7 +90,7 @@ export type ProjectSlug =
   | 'med-tracker'
   | 'resilient-shop'
 
-export type InterestId = 'webdev' | 'security' | 'linux' | 'biology'
+export type InterestId = 'webdev' | 'security' | 'linux' | 'biology' | 'crypto'
 export type StrengthId = 'analytical' | 'helpful' | 'goalOriented'
 
 export type CvDictionary = {

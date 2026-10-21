@@ -1,5 +1,5 @@
 import 'server-only'
-import { readFileSync, statSync } from 'node:fs'
+import { mkdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs'
 import path from 'node:path'
 import { z } from 'zod'
 import { calculateAge } from '@/lib/dates'
@@ -92,4 +92,23 @@ export function getPublicAge(): number | null {
     return null
   }
   return calculateAge(data.birthDate)
+}
+
+export function updateBirthDate(birthDate: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+    return false
+  }
+  const current = getPrivateData()
+  if (!current) {
+    return false
+  }
+  const next = { ...current, birthDate }
+  const dir = getDataDir()
+  mkdirSync(dir, { recursive: true })
+  const filePath = privatePath()
+  const tempPath = path.join(dir, `.private.${process.pid}.${Date.now()}.tmp`)
+  writeFileSync(tempPath, `${JSON.stringify(next, null, 2)}\n`, { mode: 0o600 })
+  renameSync(tempPath, filePath)
+  cache = { data: next, mtimeMs: Date.now(), checkedAt: Date.now() }
+  return true
 }

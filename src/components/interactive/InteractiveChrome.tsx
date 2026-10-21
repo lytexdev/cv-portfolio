@@ -165,6 +165,7 @@ function InteractiveChromeInner({
         dictionary={dictionary}
         age={age}
         hasToken={Boolean(token)}
+        token={token}
         phone={phone}
         onOpenProject={openProject}
       />

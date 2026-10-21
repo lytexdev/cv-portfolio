@@ -1,16 +1,17 @@
 import {
   IconChartDots3,
   IconCode,
+  IconCurrencyBitcoin,
   IconDna,
   IconHeartHandshake,
   IconServer,
   IconShieldLock,
   IconTarget,
 } from '@tabler/icons-react'
-import { dailyDriver, moreSkills } from '@/content/shared'
 import type { CvDictionary, InterestId, StrengthId } from '@/content/types'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { SectionHeading } from '@/components/layout/SectionHeading'
+import { getStackConfig } from '@/lib/server/settings'
 import styles from './More.module.css'
 
 const interestIcons: Record<InterestId, typeof IconCode> = {
@@ -18,6 +19,7 @@ const interestIcons: Record<InterestId, typeof IconCode> = {
   security: IconShieldLock,
   linux: IconServer,
   biology: IconDna,
+  crypto: IconCurrencyBitcoin,
 }
 
 const strengthIcons: Record<StrengthId, typeof IconCode> = {
@@ -34,6 +36,7 @@ export function More({ dictionary }: Props) {
   const section = dictionary.sections.more
   const interestIds = Object.keys(dictionary.more.interests) as InterestId[]
   const strengthIds = Object.keys(dictionary.more.strengths) as StrengthId[]
+  const { moreSkills, dailyDriver } = getStackConfig()
 
   return (
     <section id="more" className="section" aria-labelledby="more-title" data-reveal>
@@ -88,7 +91,6 @@ export function More({ dictionary }: Props) {
           </ul>
 
           <div className={styles.daily}>
-            <p className={styles.dailyPrompt}>immanuel@lytex ~&gt; neofetch</p>
             <p className={`mono-label ${styles.blockTitle}`}>
               {dictionary.more.dailyDriverTitle}
             </p>

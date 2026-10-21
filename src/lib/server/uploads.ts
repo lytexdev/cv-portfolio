@@ -65,3 +65,42 @@ export async function processProjectImage(
 export function uploadedProjectImagePath(slug: string, filename: string): string {
   return path.join(getDataDir(), 'uploads', 'projects', slug, filename)
 }
+
+export async function processSiteImage(
+  name: 'portrait' | 'logo',
+  input: Buffer,
+): Promise<string> {
+  if (input.length > MAX_BYTES) {
+    throw new Error('File too large')
+  }
+  const matched = MAGIC.find((m) => m.test(input))
+  if (!matched) {
+    throw new Error('Unsupported image type')
+  }
+  const outDir = path.join(getDataDir(), 'uploads', 'site')
+  mkdirSync(outDir, { recursive: true })
+  const filename = `${name}.webp`
+  const outPath = path.join(outDir, filename)
+  const width = name === 'logo' ? 512 : 1200
+  const processed = await sharp(input)
+    .rotate()
+    .resize({ width, withoutEnlargement: true })
+    .webp({ quality: 84 })
+    .toBuffer()
+  writeFileSync(outPath, processed, { mode: 0o644 })
+  return `/media/site/${filename}`
+}
+
+export async function processSitePdf(input: Buffer): Promise<string> {
+  if (input.length > 12 * 1024 * 1024) {
+    throw new Error('File too large')
+  }
+  if (input.slice(0, 4).toString('utf8') !== '%PDF') {
+    throw new Error('Invalid PDF')
+  }
+  const outDir = path.join(getDataDir(), 'uploads', 'site')
+  mkdirSync(outDir, { recursive: true })
+  const filename = 'cv.pdf'
+  writeFileSync(path.join(outDir, filename), input, { mode: 0o644 })
+  return `/media/site/${filename}`
+}

@@ -9,14 +9,15 @@ import styles from './ProjectRow.module.css'
 type Props = {
   slug: ProjectSlug
   dictionary: CvDictionary
+  accessToken: string
 }
 
-export function ProjectRow({ slug, dictionary }: Props) {
+export function ProjectRow({ slug, dictionary, accessToken }: Props) {
   const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.compact[slug]
   if (!project || !copy) return null
   const filename = project.images[0]
-  const src = filename ? projectImageSrc(slug, filename) : null
+  const src = filename ? projectImageSrc(slug, filename, accessToken) : null
 
   return (
     <article className={styles.root} data-project-slug={slug}>
@@ -28,6 +29,7 @@ export function ProjectRow({ slug, dictionary }: Props) {
             fill
             sizes="88px"
             className={styles.img}
+            unoptimized
           />
         ) : (
           <ImagePlaceholder slug={slug} icon={project.stack[0] ?? 'linux'} />

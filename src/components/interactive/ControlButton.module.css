@@ -15,8 +15,8 @@
 }
 
 .button:hover {
-  border-color: var(--accent);
-  color: var(--accent-strong);
+  border-color: var(--ok);
+  color: var(--ok);
 }
 
 @media (max-width: 420px) {

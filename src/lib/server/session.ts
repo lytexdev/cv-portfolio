@@ -72,7 +72,7 @@ export async function setAdminSessionCookie(token: string) {
     httpOnly: true,
     secure: getEnv().isProduction,
     sameSite: 'strict',
-    path: '/sudo',
+    path: '/',
     maxAge: ABSOLUTE_MS / 1000,
   })
 }

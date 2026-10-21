@@ -37,10 +37,20 @@ CREATE TABLE IF NOT EXISTS tokens (
   label TEXT NOT NULL,
   role TEXT,
   hash TEXT NOT NULL UNIQUE,
+  sealed TEXT,
   created_at TEXT NOT NULL,
   expires_at TEXT,
   revoked INTEGER NOT NULL DEFAULT 0,
   view_count INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  category TEXT NOT NULL,
+  event TEXT NOT NULL,
+  detail TEXT,
+  ip TEXT,
+  created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS token_views (
@@ -112,6 +122,8 @@ CREATE INDEX IF NOT EXISTS idx_tokens_hash ON tokens(hash);
 CREATE INDEX IF NOT EXISTS idx_token_views_token ON token_views(token_id);
 CREATE INDEX IF NOT EXISTS idx_projects_sort ON projects(sort_order);
 CREATE INDEX IF NOT EXISTS idx_experience_sort ON experience(sort_order);
+CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);
+CREATE INDEX IF NOT EXISTS idx_audit_category ON audit_logs(category);
 `
 
 export function getDb(): DatabaseSync {
@@ -131,8 +143,18 @@ export function getDb(): DatabaseSync {
   db.exec('PRAGMA journal_mode = WAL;')
   db.exec('PRAGMA foreign_keys = ON;')
   db.exec(SCHEMA)
+  migrateSchema(db)
   ensureSeed(db)
   return db
+}
+
+function migrateSchema(database: DatabaseSync) {
+  const tokenCols = database
+    .prepare("PRAGMA table_info('tokens')")
+    .all() as Array<{ name: string }>
+  if (!tokenCols.some((col) => col.name === 'sealed')) {
+    database.exec('ALTER TABLE tokens ADD COLUMN sealed TEXT')
+  }
 }
 
 function metaGet(database: DatabaseSync, key: string): string | null {

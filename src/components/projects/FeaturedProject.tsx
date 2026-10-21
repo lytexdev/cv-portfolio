@@ -10,15 +10,21 @@ import styles from './FeaturedProject.module.css'
 type Props = {
   slug: ProjectSlug
   dictionary: CvDictionary
+  accessToken: string
   alternate?: boolean
 }
 
-export function FeaturedProject({ slug, dictionary, alternate = false }: Props) {
+export function FeaturedProject({
+  slug,
+  dictionary,
+  accessToken,
+  alternate = false,
+}: Props) {
   const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.featured[slug]
   if (!project || !copy) return null
   const mainImage = project.images[0]
-  const mainSrc = mainImage ? projectImageSrc(slug, mainImage) : null
+  const mainSrc = mainImage ? projectImageSrc(slug, mainImage, accessToken) : null
 
   return (
     <article className={`${styles.root} ${alternate ? styles.rootAlt : ''}`}>
@@ -31,6 +37,7 @@ export function FeaturedProject({ slug, dictionary, alternate = false }: Props) 
               fill
               sizes="(max-width: 1023px) 100vw, 55vw"
               className={styles.img}
+              unoptimized
             />
           ) : (
             <ImagePlaceholder slug={slug} icon={project.stack[0] ?? 'linux'} />
@@ -39,7 +46,7 @@ export function FeaturedProject({ slug, dictionary, alternate = false }: Props) 
         {project.images.length > 1 ? (
           <ul className={styles.thumbs}>
             {project.images.slice(1).map((filename) => {
-              const src = projectImageSrc(slug, filename)
+              const src = projectImageSrc(slug, filename, accessToken)
               return (
                 <li key={filename} className={styles.thumb}>
                   {src ? (
@@ -49,6 +56,7 @@ export function FeaturedProject({ slug, dictionary, alternate = false }: Props) 
                       fill
                       sizes="72px"
                       className={styles.img}
+                      unoptimized
                     />
                   ) : (
                     <ImagePlaceholder slug={slug} icon={project.stack[0] ?? 'linux'} />

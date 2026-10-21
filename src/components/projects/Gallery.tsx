@@ -42,6 +42,7 @@ export function Gallery({ images, slug, fallbackIcon = 'linux' }: Props) {
             fill
             sizes="(max-width: 768px) 100vw, 720px"
             className={styles.img}
+            unoptimized
           />
         ) : (
           <ImagePlaceholder slug={slug} icon={fallbackIcon} />
@@ -56,10 +57,17 @@ export function Gallery({ images, slug, fallbackIcon = 'linux' }: Props) {
               type="button"
               className={`${styles.thumb} ${i === index ? styles.thumbActive : ''}`}
               onClick={() => setIndex(i)}
-              aria-label={`${i + 1} / ${images.length}`}
+              aria-label={`${image.alt} (${i + 1} / ${images.length})`}
             >
               {image.src ? (
-                <Image src={image.src} alt="" fill sizes="68px" className={styles.img} />
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  sizes="68px"
+                  className={styles.img}
+                  unoptimized
+                />
               ) : (
                 <ImagePlaceholder slug={slug} icon={fallbackIcon} />
               )}

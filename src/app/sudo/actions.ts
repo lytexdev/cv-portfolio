@@ -23,7 +23,25 @@ import {
 import { createCsrfToken, verifyCsrfToken } from '@/lib/server/csrf'
 import { translateDeToEn } from '@/lib/server/deepl'
 import { logEvent } from '@/lib/server/log'
-import { processProjectImage } from '@/lib/server/uploads'
+import { updateBirthDate } from '@/lib/server/private-data'
+import {
+  SOCIAL_PLATFORMS,
+  getSiteProfile,
+  getStackConfig,
+  saveFooterConfig,
+  saveSiteProfile,
+  saveStackConfig,
+  type FooterConfig,
+  type SiteProfile,
+  type SocialLink,
+  type SocialPlatform,
+  type StackConfig,
+} from '@/lib/server/settings'
+import {
+  processProjectImage,
+  processSiteImage,
+  processSitePdf,
+} from '@/lib/server/uploads'
 import {
   clearAdminSessionCookie,
   createSessionToken,
@@ -33,11 +51,12 @@ import {
 import {
   createToken,
   deleteToken,
+  revealTokenPlaintext,
   revokeToken,
   updateToken,
 } from '@/lib/server/tokens'
 import { createTotpUri, generateBase32Secret, verifyTotp } from '@/lib/server/totp'
-import type { Locale, TechId } from '@/content/types'
+import type { Locale, StackGroupId, TechId } from '@/content/types'
 
 async function requireSession() {
   const session = await getAdminSession()
@@ -172,10 +191,16 @@ export async function deleteTokenAction(formData: FormData) {
 export async function updateTokenAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
+  const expiresRaw = formString(formData, 'expiresAt')
+  let expiresAt: string | null = null
+  if (expiresRaw) {
+    const parsed = Date.parse(expiresRaw)
+    expiresAt = Number.isNaN(parsed) ? null : new Date(parsed).toISOString()
+  }
   updateToken(formString(formData, 'id'), {
     label: formString(formData, 'label'),
     role: formString(formData, 'role') || null,
-    expiresAt: formString(formData, 'expiresAt') || null,
+    expiresAt,
   })
   revalidatePath('/sudo/tokens')
   redirect('/sudo/tokens')
@@ -434,4 +459,121 @@ export async function ensureAdminOrRedirect() {
     redirect('/sudo/login')
   }
   return session
+}
+
+export async function saveSiteProfileAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const current = getSiteProfile()
+  const next: SiteProfile = {
+    ...current,
+    name: formString(formData, 'name') || current.name,
+    email: formString(formData, 'email') || current.email,
+    github: formString(formData, 'github') || current.github,
+    linkedin: formString(formData, 'linkedin') || current.linkedin,
+    city: formString(formData, 'city') || current.city,
+    monogram: formString(formData, 'monogram') || current.monogram,
+    softwareSinceYear:
+      Number(formString(formData, 'softwareSinceYear')) ||
+      current.softwareSinceYear,
+  }
+  saveSiteProfile(next)
+  const birthDate = formString(formData, 'birthDate')
+  if (birthDate) {
+    updateBirthDate(birthDate)
+  }
+  revalidatePath('/sudo')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  redirect('/sudo?saved=profile')
+}
+
+export async function uploadSiteAssetAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const kind = formString(formData, 'kind') as 'portrait' | 'logo' | 'pdf'
+  const file = formData.get('file')
+  if (!(file instanceof File)) {
+    redirect('/sudo?error=upload')
+  }
+  const buf = Buffer.from(await file.arrayBuffer())
+  const profile = getSiteProfile()
+  if (kind === 'pdf') {
+    profile.cvPdfPath = await processSitePdf(buf)
+  } else if (kind === 'portrait' || kind === 'logo') {
+    const url = await processSiteImage(kind, buf)
+    if (kind === 'portrait') profile.portraitPath = url
+    else profile.logoPath = url
+  } else {
+    redirect('/sudo?error=upload')
+  }
+  saveSiteProfile(profile)
+  revalidatePath('/sudo')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  redirect('/sudo?saved=asset')
+}
+
+export async function saveStackConfigAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const current = getStackConfig()
+  const parseList = (key: string): TechId[] =>
+    formString(formData, key)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean) as TechId[]
+
+  const groups = { ...current.groups }
+  for (const group of Object.keys(groups) as StackGroupId[]) {
+    groups[group] = parseList(`group_${group}`)
+  }
+  const next: StackConfig = {
+    groups,
+    moreSkills: parseList('moreSkills'),
+    dailyDriver: parseList('dailyDriver'),
+  }
+  saveStackConfig(next)
+  revalidatePath('/sudo/stack')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  redirect('/sudo/stack?saved=1')
+}
+
+export async function saveFooterConfigAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+
+  const platforms = formData.getAll('socialPlatform').map(String)
+  const urls = formData.getAll('socialUrl').map(String)
+  const labels = formData.getAll('socialLabel').map(String)
+  const socials: SocialLink[] = []
+
+  for (let i = 0; i < platforms.length; i += 1) {
+    const platform = platforms[i] as SocialPlatform | undefined
+    const url = (urls[i] ?? '').trim()
+    const label = (labels[i] ?? '').trim()
+    if (!platform || !SOCIAL_PLATFORMS.includes(platform) || !url) continue
+    socials.push({ platform, url, label: label || platform })
+  }
+
+  const next: FooterConfig = {
+    taglineDe: formString(formData, 'taglineDe'),
+    taglineEn: formString(formData, 'taglineEn'),
+    imprintUrl: formString(formData, 'imprintUrl'),
+    privacyUrl: formString(formData, 'privacyUrl'),
+    showVersion: formData.get('showVersion') === 'on',
+    socials,
+  }
+  saveFooterConfig(next)
+  revalidatePath('/sudo/footer')
+  revalidatePath('/de')
+  revalidatePath('/en')
+  redirect('/sudo/footer?saved=1')
+}
+
+export async function getTokenPlaintextAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  return revealTokenPlaintext(formString(formData, 'id'))
 }
