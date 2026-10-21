@@ -1,0 +1,14 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
+.rail {
+  margin: 0;
+}
+
+.title {
+  max-width: var(--prose-max);
+}
