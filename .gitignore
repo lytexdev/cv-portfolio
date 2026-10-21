@@ -1,10 +1,12 @@
+node_modules/
+.next/
+next-env.d.ts
+tsconfig.tsbuildinfo
 .env
-!.env.example
+assets/raw/
+data/*
+!data/*.example.json
 .DS_Store
 .cursor
 .claude
 .vscode
-.next
-node_modules
-dist
-build

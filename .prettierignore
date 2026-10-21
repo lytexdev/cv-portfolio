@@ -1,0 +1,6 @@
+tsconfig.json
+.next
+public/projects
+src/fonts
+node_modules
+package-lock.json
