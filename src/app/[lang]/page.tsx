@@ -174,7 +174,6 @@ export default async function Page({ params, searchParams }: Props) {
             personName={profile.name}
             personCity={profile.city}
             personMonogram={profile.monogram}
-            softwareSinceYear={profile.softwareSinceYear}
             github={profile.github}
             linkedin={profile.linkedin}
           />

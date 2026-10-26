@@ -23,8 +23,6 @@ export const en = {
     prompt: 'immanuel@lytex ~> whoami',
     ctaContact: 'Get in touch',
     ctaPrint: 'Save as PDF',
-    metricSince: 'Building software since 2022',
-    metricProjects: '{n} projects',
     tokenBadge: 'Personal version for {label}',
     tokenRole: 'Application for {role}',
     tokenDismiss: 'Dismiss notice',

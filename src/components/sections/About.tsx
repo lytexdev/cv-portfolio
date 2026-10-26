@@ -12,7 +12,6 @@ type Props = {
   personName: string
   personCity: string
   personMonogram: string
-  softwareSinceYear: number
   github?: string
   linkedin?: string
 }
@@ -25,7 +24,6 @@ export function About({
   personName,
   personCity,
   personMonogram,
-  softwareSinceYear,
   github,
   linkedin,
 }: Props) {
@@ -52,7 +50,6 @@ export function About({
         personName={personName}
         personCity={personCity}
         personMonogram={personMonogram}
-        softwareSinceYear={softwareSinceYear}
         github={github}
         linkedin={linkedin}
       />

@@ -563,9 +563,6 @@ export async function saveSiteProfileAction(formData: FormData) {
     linkedin: formString(formData, 'linkedin') || current.linkedin,
     city: formString(formData, 'city') || current.city,
     monogram: formString(formData, 'monogram') || current.monogram,
-    softwareSinceYear:
-      Number(formString(formData, 'softwareSinceYear')) ||
-      current.softwareSinceYear,
   }
   saveSiteProfile(next)
   const birthDate = formString(formData, 'birthDate')

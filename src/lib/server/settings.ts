@@ -16,7 +16,6 @@ export type SiteProfile = {
   linkedin: string
   city: string
   monogram: string
-  softwareSinceYear: number
   portraitPath: string | null
   logoPath: string | null
   cvPdfPath: string | null
@@ -99,7 +98,6 @@ function defaultProfile(): SiteProfile {
     linkedin: seedPerson.linkedin,
     city: seedPerson.city,
     monogram: seedPerson.monogram,
-    softwareSinceYear: seedPerson.softwareSinceYear,
     portraitPath: null,
     logoPath: null,
     cvPdfPath: null,

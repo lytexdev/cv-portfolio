@@ -14,7 +14,6 @@ export const person = {
   linkedin: 'https://www.linkedin.com/in/immanuel-mruk-775958372/',
   city: 'Wittlich',
   monogram: 'IM',
-  softwareSinceYear: 2022,
 } as const
 
 export const sectionOrder = [

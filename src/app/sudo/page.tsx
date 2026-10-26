@@ -91,15 +91,6 @@ export default async function SudoDashboardPage({ searchParams }: Props) {
             <input className={styles.input} name="linkedin" defaultValue={profile.linkedin} />
           </label>
           <label className={styles.label}>
-            Software since (year)
-            <input
-              className={styles.input}
-              name="softwareSinceYear"
-              type="number"
-              defaultValue={profile.softwareSinceYear}
-            />
-          </label>
-          <label className={styles.label}>
             Birth date (age)
             <input
               className={styles.input}

@@ -249,6 +249,10 @@ ol {
   scroll-margin-top: 5rem;
 }
 
+#whoami + #experience {
+  margin-top: calc(clamp(2.5rem, 4vw, 4rem) - var(--section-gap));
+}
+
 html.js:not([data-reduced-motion='true']) [data-reveal] {
   opacity: 0;
   transform: translateY(12px);

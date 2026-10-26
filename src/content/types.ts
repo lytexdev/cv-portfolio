@@ -129,8 +129,6 @@ export type CvDictionary = {
     prompt: string
     ctaContact: string
     ctaPrint: string
-    metricSince: string
-    metricProjects: string
     tokenBadge: string
     tokenRole: string
     tokenDismiss: string

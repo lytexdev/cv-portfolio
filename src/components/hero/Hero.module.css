@@ -90,29 +90,6 @@
   background: color-mix(in srgb, var(--ok) 12%, transparent);
 }
 
-.metrics {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-4);
-  padding-top: var(--space-6);
-  border-top: 1px solid var(--border);
-  max-width: 16rem;
-}
-
-.metricValue {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 0.8125rem;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  margin: 0 0 var(--space-2);
-  text-transform: uppercase;
-}
-
-.metricLabel {
-  margin: 0;
-  font-weight: 600;
-}
-
 .aside {
   display: flex;
   flex-direction: column;

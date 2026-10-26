@@ -14,7 +14,6 @@ type Props = {
   personName: string
   personCity: string
   personMonogram: string
-  softwareSinceYear: number
   github?: string
   linkedin?: string
 }
@@ -27,7 +26,6 @@ export function Hero({
   personName,
   personCity,
   personMonogram,
-  softwareSinceYear,
   github = 'https://github.com/lytexdev',
   linkedin = 'https://www.linkedin.com/in/immanuel-mruk-775958372/',
 }: Props) {
@@ -74,13 +72,6 @@ export function Hero({
               <IconBrandLinkedin size={20} stroke={1.75} aria-hidden="true" />
             </a>
           </Tooltip>
-        </div>
-
-        <div className={styles.metrics}>
-          <div>
-            <p className={styles.metricValue}>{softwareSinceYear}</p>
-            <p className={styles.metricLabel}>{dictionary.hero.metricSince}</p>
-          </div>
         </div>
       </div>
 
