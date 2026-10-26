@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Lightbox, type ViewableImage } from '@/components/projects/Lightbox'
 import { ProjectDialog, type ProjectDialogData } from '@/components/projects/ProjectDialog'
 import { projects } from '@/content/shared'
 import type { CvDictionary, Locale, ProjectSlug } from '@/content/types'
@@ -49,6 +50,11 @@ function InteractiveChromeInner({
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [projectOpen, setProjectOpen] = useState(false)
   const [activeProject, setActiveProject] = useState<ProjectDialogData | null>(null)
+  const [lightbox, setLightbox] = useState<{
+    key: string
+    images: ViewableImage[]
+    startIndex: number
+  } | null>(null)
 
   const payloadsBySlug = useMemo(() => {
     const map = new Map<ProjectSlug, ProjectPayload>()
@@ -87,6 +93,20 @@ function InteractiveChromeInner({
     },
     [dictionary, payloadsBySlug],
   )
+
+  const openImage = useCallback(
+    (slug: ProjectSlug, filename: string) => {
+      const images = (payloadsBySlug.get(slug)?.images ?? []).filter(
+        (image): image is ViewableImage => image.src !== null,
+      )
+      const startIndex = images.findIndex((image) => image.filename === filename)
+      if (startIndex < 0) return
+      setLightbox({ key: `${slug}/${filename}/${Date.now()}`, images, startIndex })
+    },
+    [payloadsBySlug],
+  )
+
+  const closeLightbox = useCallback(() => setLightbox(null), [])
 
   const copyEmail = useCallback(async () => {
     try {
@@ -139,6 +159,17 @@ function InteractiveChromeInner({
         return
       }
 
+      const imageTrigger = target.closest('[data-project-image]')
+      if (imageTrigger) {
+        const slug = imageTrigger.getAttribute('data-project-image') as ProjectSlug | null
+        const filename = imageTrigger.getAttribute('data-image-file')
+        if (slug && filename) {
+          event.preventDefault()
+          openImage(slug, filename)
+        }
+        return
+      }
+
       const details = target.closest('[data-project-details]')
       if (details) {
         const slug = details.getAttribute('data-project-details') as ProjectSlug | null
@@ -148,7 +179,7 @@ function InteractiveChromeInner({
 
     document.addEventListener('click', onClick)
     return () => document.removeEventListener('click', onClick)
-  }, [copyEmail, onPrint, openProject])
+  }, [copyEmail, onPrint, openImage, openProject])
 
   return (
     <>
@@ -191,7 +222,21 @@ function InteractiveChromeInner({
         onClose={() => setProjectOpen(false)}
         project={activeProject}
         labelledBy="project-dialog-title"
+        openImageLabel={dictionary.projects.gallery.open}
+        onOpenImage={(filename) => {
+          if (activeProject) openImage(activeProject.slug as ProjectSlug, filename)
+        }}
       />
+
+      {lightbox ? (
+        <Lightbox
+          key={lightbox.key}
+          images={lightbox.images}
+          startIndex={lightbox.startIndex}
+          labels={dictionary.projects.gallery}
+          onClose={closeLightbox}
+        />
+      ) : null}
     </>
   )
 }

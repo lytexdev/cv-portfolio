@@ -188,6 +188,12 @@ export type CvDictionary = {
     >
     details: string
     viewProject: string
+    gallery: {
+      open: string
+      close: string
+      previous: string
+      next: string
+    }
   }
   more: {
     languagesTitle: string

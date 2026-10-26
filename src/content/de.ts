@@ -358,6 +358,12 @@ export const de = {
     },
     details: 'Details',
     viewProject: 'Projekt ansehen',
+    gallery: {
+      open: 'Bild vergrößern',
+      close: 'Galerie schließen',
+      previous: 'Vorheriges Bild',
+      next: 'Nächstes Bild',
+    },
   },
   more: {
     languagesTitle: 'Sprachen',

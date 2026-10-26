@@ -18,9 +18,11 @@ type Props = {
   images: GalleryImage[]
   slug: string
   fallbackIcon?: TechId
+  openLabel: string
+  onOpenImage: (filename: string) => void
 }
 
-export function Gallery({ images, slug, fallbackIcon = 'linux' }: Props) {
+export function Gallery({ images, slug, fallbackIcon = 'linux', openLabel, onOpenImage }: Props) {
   const [index, setIndex] = useState(0)
   const current = images[index] ?? images[0]
 
@@ -36,14 +38,21 @@ export function Gallery({ images, slug, fallbackIcon = 'linux' }: Props) {
     <div>
       <div className={styles.main}>
         {current.src ? (
-          <Image
-            src={current.src}
-            alt={current.alt}
-            fill
-            sizes="(max-width: 768px) 100vw, 720px"
-            className={styles.img}
-            unoptimized
-          />
+          <button
+            type="button"
+            className={styles.zoom}
+            onClick={() => onOpenImage(current.filename)}
+            aria-label={`${openLabel}: ${current.alt}`}
+          >
+            <Image
+              src={current.src}
+              alt={current.alt}
+              fill
+              sizes="(max-width: 768px) 100vw, 720px"
+              className={styles.img}
+              unoptimized
+            />
+          </button>
         ) : (
           <ImagePlaceholder slug={slug} icon={fallbackIcon} />
         )}

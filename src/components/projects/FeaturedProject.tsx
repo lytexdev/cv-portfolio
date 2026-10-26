@@ -4,6 +4,7 @@ import type { CvDictionary, ProjectSlug } from '@/content/types'
 import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
+import { ImageZoomTrigger } from './ImageZoomTrigger'
 import { projectImageSrc } from '@/lib/server/assets'
 import { getRuntimeProjects } from '@/lib/server/content-db'
 import styles from './FeaturedProject.module.css'
@@ -32,14 +33,20 @@ export function FeaturedProject({
       <div className={styles.media}>
         <div className={styles.mainImage}>
           {mainSrc && mainImage ? (
-            <Image
-              src={mainSrc}
-              alt={copy.images[mainImage]?.alt ?? copy.title}
-              fill
-              sizes="(max-width: 1023px) 100vw, 55vw"
-              className={styles.img}
-              unoptimized
-            />
+            <ImageZoomTrigger
+              slug={slug}
+              filename={mainImage}
+              label={`${dictionary.projects.gallery.open}: ${copy.images[mainImage]?.alt ?? copy.title}`}
+            >
+              <Image
+                src={mainSrc}
+                alt={copy.images[mainImage]?.alt ?? copy.title}
+                fill
+                sizes="(max-width: 1023px) 100vw, 55vw"
+                className={styles.img}
+                unoptimized
+              />
+            </ImageZoomTrigger>
           ) : (
             <ImagePlaceholder slug={slug} icon={project.stack[0] ?? 'linux'} />
           )}
@@ -51,14 +58,20 @@ export function FeaturedProject({
               return (
                 <li key={filename} className={styles.thumb}>
                   {src ? (
-                    <Image
-                      src={src}
-                      alt={copy.images[filename]?.alt ?? copy.title}
-                      fill
-                      sizes="72px"
-                      className={styles.img}
-                      unoptimized
-                    />
+                    <ImageZoomTrigger
+                      slug={slug}
+                      filename={filename}
+                      label={`${dictionary.projects.gallery.open}: ${copy.images[filename]?.alt ?? copy.title}`}
+                    >
+                      <Image
+                        src={src}
+                        alt={copy.images[filename]?.alt ?? copy.title}
+                        fill
+                        sizes="72px"
+                        className={styles.img}
+                        unoptimized
+                      />
+                    </ImageZoomTrigger>
                   ) : (
                     <ImagePlaceholder slug={slug} icon={project.stack[0] ?? 'linux'} />
                   )}

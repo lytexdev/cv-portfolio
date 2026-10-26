@@ -23,9 +23,18 @@ type Props = {
   onClose: () => void
   project: ProjectDialogData | null
   labelledBy: string
+  openImageLabel: string
+  onOpenImage: (filename: string) => void
 }
 
-export function ProjectDialog({ open, onClose, project, labelledBy }: Props) {
+export function ProjectDialog({
+  open,
+  onClose,
+  project,
+  labelledBy,
+  openImageLabel,
+  onOpenImage,
+}: Props) {
   const ref = useRef<HTMLDialogElement>(null)
   const returnFocus = useRef<Element | null>(null)
 
@@ -87,6 +96,8 @@ export function ProjectDialog({ open, onClose, project, labelledBy }: Props) {
             images={project.images}
             slug={project.slug}
             fallbackIcon={project.stack[0] ?? 'linux'}
+            openLabel={openImageLabel}
+            onOpenImage={onOpenImage}
           />
 
           <p className={styles.summary}>

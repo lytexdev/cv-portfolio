@@ -1,0 +1,120 @@
+.dialog {
+  width: min(100% - 1rem, 90rem);
+  max-width: none;
+  height: min(100dvh - 1rem, 60rem);
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.dialog::backdrop {
+  background: color-mix(in srgb, #000 80%, transparent);
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  height: 100%;
+  padding: var(--space-3);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.counter {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+  touch-action: pan-y;
+  user-select: none;
+}
+
+.img {
+  object-fit: contain;
+}
+
+.control {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.control:hover {
+  border-color: var(--accent);
+}
+
+.prev,
+.next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.prev {
+  left: var(--space-2);
+}
+
+.next {
+  right: var(--space-2);
+}
+
+.caption {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+
+.thumbs {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 0 var(--space-1);
+  list-style: none;
+  overflow-x: auto;
+}
+
+.thumb {
+  position: relative;
+  display: block;
+  width: 5rem;
+  aspect-ratio: 16 / 10;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  opacity: 0.65;
+}
+
+.thumbActive {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+.thumbImg {
+  object-fit: cover;
+}

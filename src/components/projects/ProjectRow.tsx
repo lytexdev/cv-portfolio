@@ -3,6 +3,7 @@ import type { CvDictionary, ProjectSlug } from '@/content/types'
 import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
+import { ImageZoomTrigger } from './ImageZoomTrigger'
 import { projectImageSrc } from '@/lib/server/assets'
 import { getRuntimeProjects } from '@/lib/server/content-db'
 import styles from './ProjectRow.module.css'
@@ -24,14 +25,20 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
     <article className={styles.root} data-project-slug={slug}>
       <div className={styles.thumb}>
         {src && filename ? (
-          <Image
-            src={src}
-            alt={copy.images[filename]?.alt ?? copy.title}
-            fill
-            sizes="88px"
-            className={styles.img}
-            unoptimized
-          />
+          <ImageZoomTrigger
+            slug={slug}
+            filename={filename}
+            label={`${dictionary.projects.gallery.open}: ${copy.images[filename]?.alt ?? copy.title}`}
+          >
+            <Image
+              src={src}
+              alt={copy.images[filename]?.alt ?? copy.title}
+              fill
+              sizes="88px"
+              className={styles.img}
+              unoptimized
+            />
+          </ImageZoomTrigger>
         ) : (
           <ImagePlaceholder slug={slug} icon={project.stack[0] ?? 'linux'} />
         )}

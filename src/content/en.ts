@@ -357,6 +357,12 @@ export const en = {
     },
     details: 'Details',
     viewProject: 'View project',
+    gallery: {
+      open: 'Enlarge image',
+      close: 'Close gallery',
+      previous: 'Previous image',
+      next: 'Next image',
+    },
   },
   more: {
     languagesTitle: 'Languages',
