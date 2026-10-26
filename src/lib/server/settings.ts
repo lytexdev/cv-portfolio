@@ -3,11 +3,14 @@ import { getDb } from './db'
 import { getEnv } from './env'
 import {
   dailyDriver as seedDaily,
+  languageLevels,
   moreSkills as seedMore,
   person as seedPerson,
+  spokenLanguageCodes,
+  spokenLanguages as seedLanguages,
   stackGroups as seedStack,
 } from '@/content/shared'
-import type { StackGroupId, TechId } from '@/content/types'
+import type { SpokenLanguage, StackGroupId, TechId } from '@/content/types'
 
 export type SiteProfile = {
   name: string
@@ -135,6 +138,36 @@ export function getStackConfig(): StackConfig {
 
 export function saveStackConfig(config: StackConfig) {
   setSetting('stack_config', JSON.stringify(config))
+}
+
+export function normalizeSpokenLanguages(entries: unknown): SpokenLanguage[] {
+  if (!Array.isArray(entries)) return []
+  const seen = new Set<string>()
+  const out: SpokenLanguage[] = []
+  for (const entry of entries) {
+    if (!entry || typeof entry !== 'object') continue
+    const { code, level } = entry as Record<string, unknown>
+    const knownCode = spokenLanguageCodes.find((c) => c === code)
+    const knownLevel = languageLevels.find((l) => l === level)
+    if (!knownCode || !knownLevel || seen.has(knownCode)) continue
+    seen.add(knownCode)
+    out.push({ code: knownCode, level: knownLevel })
+  }
+  return out
+}
+
+export function getSpokenLanguages(): SpokenLanguage[] {
+  const raw = getSetting('spoken_languages')
+  if (!raw) return [...seedLanguages]
+  try {
+    return normalizeSpokenLanguages(JSON.parse(raw))
+  } catch {
+    return [...seedLanguages]
+  }
+}
+
+export function saveSpokenLanguages(languages: SpokenLanguage[]) {
+  setSetting('spoken_languages', JSON.stringify(languages))
 }
 
 export function getFooterConfig(): FooterConfig {

@@ -102,7 +102,7 @@ Media follows the same rule: public mode allows unauthenticated reads; gated mod
 - Login: `admin` / `admin124` (bootstrap) + `SECRET_ADMIN_PHRASE` + TOTP if enabled
 - First login: mandatory password change; username change optional
 - Session cookie: httpOnly, Secure in production, SameSite=Strict, path `/`
-- CRUD: **tokens** (create/revoke in UI), projects, experience, content, stack, footer socials
+- CRUD: **tokens** (create/revoke in UI), projects, experience, content, stack, spoken languages, footer socials
 - Text fields support `**bold**`, `*italic*`, `` `code` ``, and stack icons via `<icon-github>` (any tech id from the stack registry)
 - Image upload: magic-byte check → sharp → WebP → `data/uploads/`
 - DeepL translate actions (server-side only)

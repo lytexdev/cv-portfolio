@@ -10,6 +10,7 @@ export function AdminNav() {
       <Link href="/sudo/projects">Projects</Link>
       <Link href="/sudo/experience">Experience</Link>
       <Link href="/sudo/stack">Stack</Link>
+      <Link href="/sudo/languages">Languages</Link>
       <Link href="/sudo/footer">Footer</Link>
       <Link href="/sudo/content">Content</Link>
       <Link href="/sudo/logs">Logs</Link>

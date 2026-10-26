@@ -2,7 +2,7 @@ import { IconBrandGithub, IconBrandLinkedin, IconPrinter } from '@tabler/icons-r
 import Image from 'next/image'
 import type { CvDictionary } from '@/content/types'
 import { RichText } from '@/components/content/RichText'
-import { LanguageFlags } from '@/components/hero/LanguageFlags'
+import { LanguageFlags, type DisplayLanguage } from '@/components/hero/LanguageFlags'
 import { Tooltip } from '@/components/interactive/Tooltip'
 import styles from './Hero.module.css'
 
@@ -10,7 +10,7 @@ type Props = {
   dictionary: CvDictionary
   age: number | null
   portraitSrc: string | null
-  languages: Array<{ name: string; level: string; code?: 'de' | 'en' }>
+  languages: DisplayLanguage[]
   personName: string
   personCity: string
   personMonogram: string
@@ -108,12 +108,14 @@ export function Hero({
               </dd>
             </div>
           ) : null}
-          <div className={styles.metaRow}>
-            <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaLanguages}</dt>
-            <dd className={styles.metaValue}>
-              <LanguageFlags languages={languages} />
-            </dd>
-          </div>
+          {languages.length > 0 ? (
+            <div className={styles.metaRow}>
+              <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaLanguages}</dt>
+              <dd className={styles.metaValue}>
+                <LanguageFlags languages={languages} />
+              </dd>
+            </div>
+          ) : null}
           {dictionary.availability ? (
             <div className={styles.metaRow}>
               <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaAvailability}</dt>

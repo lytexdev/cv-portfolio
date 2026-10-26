@@ -367,10 +367,23 @@ export const de = {
   },
   more: {
     languagesTitle: 'Sprachen',
-    languages: [
-      { name: 'Deutsch', level: 'Muttersprache', code: 'de' },
-      { name: 'Englisch', level: 'gut in Wort und Schrift', code: 'en' },
-    ],
+    languageNames: {
+      de: 'Deutsch',
+      en: 'Englisch',
+      ru: 'Russisch',
+      es: 'Spanisch',
+      fr: 'Französisch',
+      tr: 'Türkisch',
+      it: 'Italienisch',
+      pl: 'Polnisch',
+    },
+    languageLevels: {
+      native: 'Muttersprache',
+      fluent: 'fließend',
+      advanced: 'sehr gut',
+      good: 'gut in Wort und Schrift',
+      basic: 'Grundkenntnisse',
+    },
     interestsTitle: 'Interessen',
     interests: {
       webdev: 'Webentwicklung',

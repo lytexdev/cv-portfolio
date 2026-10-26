@@ -28,8 +28,10 @@ import {
   SOCIAL_PLATFORMS,
   getSiteProfile,
   getStackConfig,
+  normalizeSpokenLanguages,
   saveFooterConfig,
   saveSiteProfile,
+  saveSpokenLanguages,
   saveStackConfig,
   type FooterConfig,
   type SiteProfile,
@@ -616,6 +618,19 @@ export async function saveStackConfigAction(formData: FormData) {
   revalidatePath('/de')
   revalidatePath('/en')
   redirect('/sudo/stack?saved=1')
+}
+
+export async function saveSpokenLanguagesAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const codes = formData.getAll('languageCode').map(String)
+  const levels = formData.getAll('languageLevel').map(String)
+  saveSpokenLanguages(
+    normalizeSpokenLanguages(codes.map((code, index) => ({ code, level: levels[index] }))),
+  )
+  revalidatePath('/sudo/languages')
+  revalidatePublicCv()
+  redirect('/sudo/languages?saved=1')
 }
 
 export async function saveFooterConfigAction(formData: FormData) {

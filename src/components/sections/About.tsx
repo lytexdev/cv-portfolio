@@ -2,6 +2,7 @@ import type { CvDictionary } from '@/content/types'
 import { Hero } from '@/components/hero/Hero'
 import { TokenBanner } from '@/components/hero/TokenBanner'
 import { SectionHeading } from '@/components/layout/SectionHeading'
+import { getSpokenLanguages } from '@/lib/server/settings'
 import type { Viewer } from '@/lib/server/viewer'
 
 type Props = {
@@ -28,7 +29,11 @@ export function About({
   linkedin,
 }: Props) {
   const section = dictionary.sections.whoami
-  const languages = Array.isArray(dictionary.more.languages) ? dictionary.more.languages : []
+  const languages = getSpokenLanguages().map(({ code, level }) => ({
+    code,
+    name: dictionary.more.languageNames[code],
+    level: dictionary.more.languageLevels[level],
+  }))
 
   return (
     <section id="whoami" className="section" aria-labelledby="whoami-title">

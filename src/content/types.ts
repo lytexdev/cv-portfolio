@@ -98,6 +98,15 @@ export type TechId =
   | 'encryption'
   | 'cli'
 
+export type SpokenLanguageCode = 'de' | 'en' | 'ru' | 'es' | 'fr' | 'tr' | 'it' | 'pl'
+
+export type LanguageLevel = 'native' | 'fluent' | 'advanced' | 'good' | 'basic'
+
+export type SpokenLanguage = {
+  code: SpokenLanguageCode
+  level: LanguageLevel
+}
+
 export type StackGroupId = 'languages' | 'frontend' | 'backend' | 'infra' | 'security' | 'tools'
 
 export type ExperienceId = 'freelance' | 'qiky' | 'apprenticeship'
@@ -197,7 +206,8 @@ export type CvDictionary = {
   }
   more: {
     languagesTitle: string
-    languages: { name: string; level: string; code: 'de' | 'en' }[]
+    languageNames: Record<SpokenLanguageCode, string>
+    languageLevels: Record<LanguageLevel, string>
     interestsTitle: string
     interests: Record<InterestId, string>
     strengthsTitle: string

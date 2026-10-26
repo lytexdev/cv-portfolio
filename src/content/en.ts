@@ -366,10 +366,23 @@ export const en = {
   },
   more: {
     languagesTitle: 'Languages',
-    languages: [
-      { name: 'German', level: 'native', code: 'de' },
-      { name: 'English', level: 'good, written and spoken', code: 'en' },
-    ],
+    languageNames: {
+      de: 'German',
+      en: 'English',
+      ru: 'Russian',
+      es: 'Spanish',
+      fr: 'French',
+      tr: 'Turkish',
+      it: 'Italian',
+      pl: 'Polish',
+    },
+    languageLevels: {
+      native: 'native',
+      fluent: 'fluent',
+      advanced: 'very good',
+      good: 'good, written and spoken',
+      basic: 'basic knowledge',
+    },
     interestsTitle: 'Interests',
     interests: {
       webdev: 'Web development',

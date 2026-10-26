@@ -1,7 +1,10 @@
 import type {
   ExperienceId,
   InterestId,
+  LanguageLevel,
   ProjectSlug,
+  SpokenLanguage,
+  SpokenLanguageCode,
   StackGroupId,
   StrengthId,
   TechId,
@@ -65,6 +68,24 @@ export const stackGroups: Record<StackGroupId, TechId[]> = {
   security: ['hardening', 'ssh', 'gnupg', 'luks', 'restic'],
   tools: ['cursor', 'claudecode', 'vscodium', 'fish', 'bash'],
 }
+
+export const spokenLanguageCodes: SpokenLanguageCode[] = [
+  'de',
+  'en',
+  'ru',
+  'es',
+  'fr',
+  'tr',
+  'it',
+  'pl',
+]
+
+export const languageLevels: LanguageLevel[] = ['native', 'fluent', 'advanced', 'good', 'basic']
+
+export const spokenLanguages: SpokenLanguage[] = [
+  { code: 'de', level: 'native' },
+  { code: 'en', level: 'good' },
+]
 
 export const moreSkills: TechId[] = ['raspberrypi', 'image-editing', 'office']
 
