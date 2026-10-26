@@ -18,7 +18,6 @@ type Props = {
   dictionary: CvDictionary
   age: number | null
   hasToken: boolean
-  token?: string
   phone?: string
   email: string
   github: string
@@ -45,7 +44,6 @@ const COMMAND_LIST = [
   'open',
   'skills',
   'contact',
-  'ask',
   'neofetch',
   'htop',
   'tldr',
@@ -101,7 +99,6 @@ export function MiniTerminal({
   dictionary,
   age,
   hasToken,
-  token,
   phone,
   email,
   github,
@@ -183,7 +180,7 @@ export function MiniTerminal({
         [
           'Navigation & CV',
           '  whoami · cat about.txt · ls / ls -la / la · cd · open <slug>',
-          '  skills · contact · ask <question> · neofetch · theme · lang',
+          '  skills · contact · neofetch · theme · lang',
           'Shell toys',
           '  fish · bash · htop · tldr <cmd> · ping <host>',
           '  generate_password [len] · ssh root@vserver',
@@ -285,70 +282,6 @@ export function MiniTerminal({
       return
     }
 
-    if (cmd === 'ask') {
-      const question = arg.trim()
-      if (!question) {
-        append(
-          locale === 'de'
-            ? 'Usage: ask <frage>\nBeispiel: ask Welche Stacks nutzt Immanuel?'
-            : 'Usage: ask <question>\nExample: ask What stack does Immanuel use?',
-          'info',
-        )
-        return
-      }
-      setBusy(true)
-      append(locale === 'de' ? 'denke nach…' : 'thinking…', 'info')
-      void (async () => {
-        try {
-          const res = await fetch('/api/ask', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              ...(token ? { k: token } : {}),
-              q: question,
-              lang: locale,
-            }),
-          })
-          const data = (await res.json().catch(() => null)) as
-            | { answer?: string; error?: string; retryAfterSec?: number }
-            | null
-
-          if (res.status === 429) {
-            const wait = data?.retryAfterSec
-            append(
-              locale === 'de'
-                ? `ask: Rate-Limit erreicht${wait ? ` (warte ~${wait}s)` : ''}.`
-                : `ask: rate limit reached${wait ? ` (retry in ~${wait}s)` : ''}.`,
-              'err',
-            )
-            return
-          }
-
-          if (!res.ok || !data?.answer) {
-            append(
-              locale === 'de'
-                ? 'ask: Anfrage fehlgeschlagen.'
-                : 'ask: request failed.',
-              'err',
-            )
-            return
-          }
-
-          append(data.answer)
-        } catch {
-          append(
-            locale === 'de'
-              ? 'ask: Netzwerkfehler.'
-              : 'ask: network error.',
-            'err',
-          )
-        } finally {
-          setBusy(false)
-        }
-      })()
-      return
-    }
-
     if (cmd === 'neofetch') {
       const info = [
         'immanuel@lytex',
@@ -394,7 +327,6 @@ export function MiniTerminal({
         help: 'help\n  List available MiniTerminal commands.',
         ls: 'ls\n  List files in the virtual home or projects directory.',
         cd: 'cd\n  Change virtual directory (~, projects).',
-        ask: 'ask <question>\n  Ask a short question about this CV (AI, rate-limited).',
         neofetch: 'neofetch\n  Show a playful system summary.',
         ping: 'ping <host>\n  Fake latency lines to a host.',
         generate_password: 'generate_password [len]\n  CSPRNG password (default 24).',

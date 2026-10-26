@@ -19,7 +19,6 @@ const envSchema = z.object({
   LEGAL_IMPRINT_URL: z.string().url().optional().or(z.literal('')),
   LEGAL_PRIVACY_URL: z.string().url().optional().or(z.literal('')),
   DEEPL_API_KEY: z.string().optional().or(z.literal('')),
-  MISTRAL_AI_API_KEY: z.string().optional().or(z.literal('')),
   CV_REQUIRE_TOKEN: z.string().optional().or(z.literal('')),
   INDEX_PUBLIC: z.string().optional().or(z.literal('')),
   BUILD_SHA: z.string().optional(),
@@ -35,7 +34,6 @@ export type AppEnv = {
   legalImprintUrl?: string
   legalPrivacyUrl?: string
   deeplApiKey?: string
-  mistralApiKey?: string
   requireToken: boolean
   indexPublic: boolean
   buildSha?: string
@@ -58,7 +56,6 @@ export function getEnv(): AppEnv {
     LEGAL_IMPRINT_URL: process.env.LEGAL_IMPRINT_URL,
     LEGAL_PRIVACY_URL: process.env.LEGAL_PRIVACY_URL,
     DEEPL_API_KEY: process.env.DEEPL_API_KEY,
-    MISTRAL_AI_API_KEY: process.env.MISTRAL_AI_API_KEY,
     CV_REQUIRE_TOKEN: process.env.CV_REQUIRE_TOKEN,
     INDEX_PUBLIC: process.env.INDEX_PUBLIC,
     BUILD_SHA: process.env.BUILD_SHA,
@@ -88,7 +85,6 @@ export function getEnv(): AppEnv {
       legalImprintUrl: process.env.LEGAL_IMPRINT_URL || undefined,
       legalPrivacyUrl: process.env.LEGAL_PRIVACY_URL || undefined,
       deeplApiKey: process.env.DEEPL_API_KEY || undefined,
-      mistralApiKey: process.env.MISTRAL_AI_API_KEY || undefined,
       requireToken: parseBool(process.env.CV_REQUIRE_TOKEN, true),
       indexPublic: parseBool(process.env.INDEX_PUBLIC, false),
       buildSha: process.env.BUILD_SHA || undefined,
@@ -115,7 +111,6 @@ export function getEnv(): AppEnv {
     legalImprintUrl: imprint || undefined,
     legalPrivacyUrl: privacy || undefined,
     deeplApiKey: data.DEEPL_API_KEY || undefined,
-    mistralApiKey: data.MISTRAL_AI_API_KEY || undefined,
     requireToken: parseBool(data.CV_REQUIRE_TOKEN, true),
     indexPublic: parseBool(data.INDEX_PUBLIC, false),
     buildSha: data.BUILD_SHA || undefined,

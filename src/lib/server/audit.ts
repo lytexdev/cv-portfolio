@@ -7,7 +7,6 @@ export type AuditCategory =
   | 'auth'
   | 'admin'
   | 'viewer'
-  | 'ai'
 
 export type AuditRow = {
   id: number

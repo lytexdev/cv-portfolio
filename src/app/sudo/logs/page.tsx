@@ -14,7 +14,6 @@ const CATEGORIES: Array<AuditCategory | 'all'> = [
   'auth',
   'admin',
   'viewer',
-  'ai',
 ]
 
 export default async function LogsPage({ searchParams }: Props) {
@@ -34,7 +33,7 @@ export default async function LogsPage({ searchParams }: Props) {
       <AdminNav />
       <h1 className={styles.title}>Logs</h1>
       <p className={styles.muted}>
-        Security, honeypot, auth, admin, viewer and AI ask events stored in SQLite.
+        Security, honeypot, auth, admin, and viewer events stored in SQLite.
       </p>
       <div className={styles.buttonRow} style={{ marginBottom: '1rem' }}>
         {CATEGORIES.map((item) => (

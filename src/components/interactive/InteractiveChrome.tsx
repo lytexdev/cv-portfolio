@@ -177,7 +177,6 @@ function InteractiveChromeInner({
         dictionary={dictionary}
         age={age}
         hasToken={Boolean(token)}
-        token={token}
         phone={phone}
         email={email}
         github={github}

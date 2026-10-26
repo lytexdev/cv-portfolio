@@ -1,6 +1,6 @@
 # CV / Portfolio
 
-Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo` admin CMS, fish-style mini terminal (including AI `ask`), DE/EN i18n and Docker deployment.
+Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo` admin CMS, fish-style mini terminal, DE/EN i18n and Docker deployment.
 
 ## Features
 
@@ -10,7 +10,7 @@ Interactive CV and portfolio built with Next.js 16. Optional token gate, `/sudo`
 - Admin CMS at `/sudo` (tokens, projects, experience, content, stack, footer, logs)
 - Lightweight Markdown in CMS text (`**bold**`, `*italic*`, `` `code` ``, `<icon-github>`)
 - Command palette, theme toggle, mini terminal, print/PDF + vCard
-- Optional DeepL (admin translate) and Mistral (`ask` in the terminal)
+- Optional DeepL (admin translate)
 - No client-side third-party requests; CSP via `proxy.ts`
 
 ## Requirements
@@ -78,7 +78,6 @@ See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `
 | `INDEX_PUBLIC` | `true` = allow indexing; `false` = noindex everywhere (default `false`) |
 | `LEGAL_*` | Imprint / privacy URLs |
 | `DEEPL_API_KEY` | Optional DeepL Free (`:fx`) for DE→EN |
-| `MISTRAL_AI_API_KEY` | Optional; powers terminal `ask` (server-side) |
 
 **Never commit:** `.env`, `.env.production`, `data/private.json`, `data/cv.sqlite`, or `data/uploads/`.
 
@@ -89,7 +88,7 @@ See [`.env.example`](.env.example). Local uses `.env`; production Compose uses `
 | Gated (default) | `CV_REQUIRE_TOKEN=true` | Token gate | Full CV + private PII |
 | Public | `CV_REQUIRE_TOKEN=false` | CV without private PII | CV + private PII |
 
-Media and terminal `ask` follow the same rule: public mode allows unauthenticated reads/asks (rate-limited); gated mode requires a valid token (or admin session for media).
+Media follows the same rule: public mode allows unauthenticated reads; gated mode requires a valid token (or admin session for media).
 
 ### Search indexing
 
@@ -107,17 +106,8 @@ Media and terminal `ask` follow the same rule: public mode allows unauthenticate
 - Text fields support `**bold**`, `*italic*`, `` `code` ``, and stack icons via `<icon-github>` (any tech id from the stack registry)
 - Image upload: magic-byte check → sharp → WebP → `data/uploads/`
 - DeepL translate actions (server-side only)
-- Audit log categories include `ai` for terminal asks
 
 Honeypots (fake login, never real auth): `/admin`, `/wp-admin` — rate-limited, `honeypot_hit` logged.
-
-## Terminal `ask`
-
-```text
-ask <question>
-```
-
-Server-side Mistral call with a compact public CV context (no phone/address/birth date). Rate-limited and audited under `/sudo/logs?category=ai`.
 
 ## Docker (local)
 
@@ -160,7 +150,7 @@ Volume: `./data:/app/data:rw` (SQLite + uploads). Root filesystem stays `read_on
 
 - Viewer pages stay cookieless; admin session cookie only after `/sudo` login
 - Private contact data only with a valid token (`viewer.kind === 'token'`)
-- No third-party client requests; DeepL and Mistral only from the server
+- No third-party client requests; DeepL only from the server
 - Site is noindex unless `INDEX_PUBLIC=true`
 
 ## License
