@@ -87,6 +87,16 @@ export type TechId =
   | 'restapi'
   | 'openai-codex'
   | 'microsoft-copilot'
+  | 'react-native'
+  | 'expo'
+  | 'vuetify'
+  | 'esp32'
+  | 'arduino'
+  | 'openai'
+  | 'apache'
+  | 'caddy'
+  | 'encryption'
+  | 'cli'
 
 export type StackGroupId = 'languages' | 'frontend' | 'backend' | 'infra' | 'security' | 'tools'
 

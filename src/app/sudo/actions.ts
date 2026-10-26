@@ -56,6 +56,7 @@ import {
   updateToken,
 } from '@/lib/server/tokens'
 import { createTotpUri, generateBase32Secret, verifyTotp } from '@/lib/server/totp'
+import { parseTechIds } from '@/components/icons/registry'
 import type { Locale, StackGroupId, TechId } from '@/content/types'
 
 async function requireSession() {
@@ -234,10 +235,7 @@ export async function saveProjectAction(formData: FormData) {
     slug,
     featured: formString(formData, 'featured') === '1',
     sortOrder: Number(formString(formData, 'sortOrder') || '0'),
-    stack: formString(formData, 'stack')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean) as TechId[],
+    stack: parseTechIds(formString(formData, 'stack')),
     images: formString(formData, 'images')
       .split(',')
       .map((s) => s.trim())
@@ -367,10 +365,7 @@ export async function saveExperienceAction(formData: FormData) {
     sortOrder: Number(formString(formData, 'sortOrder') || '0'),
     start: formString(formData, 'start'),
     end: formString(formData, 'end') || null,
-    stack: formString(formData, 'stack')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean) as TechId[],
+    stack: parseTechIds(formString(formData, 'stack')),
     projectLinks,
     companyUrl: formString(formData, 'companyUrl') || undefined,
     role: {
@@ -605,11 +600,7 @@ export async function saveStackConfigAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
   const current = getStackConfig()
-  const parseList = (key: string): TechId[] =>
-    formString(formData, key)
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean) as TechId[]
+  const parseList = (key: string): TechId[] => parseTechIds(formString(formData, key))
 
   const groups = { ...current.groups }
   for (const group of Object.keys(groups) as StackGroupId[]) {

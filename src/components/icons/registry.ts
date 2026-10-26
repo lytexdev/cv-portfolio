@@ -28,6 +28,7 @@ import {
   IconBrandPhp,
   IconBrandPython,
   IconBrandReact,
+  IconBrandReactNative,
   IconBrandRust,
   IconBrandSass,
   IconBrandSvelte,
@@ -43,20 +44,26 @@ import {
   IconCloudLock,
   IconKey,
   IconLock,
+  IconLockPassword,
   IconMail,
   IconMarkdown,
   IconPhoto,
   IconShieldLock,
-  IconSparkles,
+  IconTerminal2,
   type Icon as TablerIcon,
 } from '@tabler/icons-react'
 import {
+  siApache,
   siArchlinux,
+  siArduino,
   siBitcoin,
+  siCaddy,
   siCelery,
   siClaudecode,
   siCursor,
   siEclipsemosquitto,
+  siEspressif,
+  siExpo,
   siFastapi,
   siFishshell,
   siFlask,
@@ -84,13 +91,16 @@ import {
   siShopware,
   siSqlite,
   siVscodium,
+  siVuetify,
   type SimpleIcon,
 } from 'simple-icons'
 import type { TechId } from '@/content/types'
+import { ciMicrosoftCopilot, type CustomIcon } from './custom-icons'
 
 export type TechDef =
   | { label: string; source: 'tabler'; icon: TablerIcon }
   | { label: string; source: 'simple'; icon: SimpleIcon }
+  | { label: string; source: 'custom'; icon: CustomIcon }
 
 export const techRegistry: Record<TechId, TechDef> = {
   typescript: { label: 'TypeScript', source: 'tabler', icon: IconBrandTypescript },
@@ -164,7 +174,7 @@ export const techRegistry: Record<TechId, TechDef> = {
   bitcoin: { label: 'Bitcoin', source: 'simple', icon: siBitcoin },
   monero: { label: 'Monero', source: 'simple', icon: siMonero },
   kotlin: { label: 'Kotlin', source: 'tabler', icon: IconBrandKotlin },
-  windows: { label: 'Windows', source: 'tabler', icon: IconBrandWindows },
+  windows: { label: 'Windows 10/11', source: 'tabler', icon: IconBrandWindows },
   macos: { label: 'macOS', source: 'tabler', icon: IconBrandApple },
   android: { label: 'Android', source: 'tabler', icon: IconBrandAndroid },
   rabbitmq: { label: 'RabbitMQ', source: 'simple', icon: siRabbitmq },
@@ -176,5 +186,25 @@ export const techRegistry: Record<TechId, TechDef> = {
   amplify: { label: 'AWS Amplify', source: 'tabler', icon: IconBrandAws },
   restapi: { label: 'REST API', source: 'tabler', icon: IconApi },
   'openai-codex': { label: 'OpenAI Codex', source: 'tabler', icon: IconBrandOpenai },
-  'microsoft-copilot': { label: 'Microsoft Copilot', source: 'tabler', icon: IconSparkles },
+  'microsoft-copilot': { label: 'Microsoft Copilot', source: 'custom', icon: ciMicrosoftCopilot },
+  'react-native': { label: 'React Native', source: 'tabler', icon: IconBrandReactNative },
+  expo: { label: 'Expo', source: 'simple', icon: siExpo },
+  vuetify: { label: 'Vuetify', source: 'simple', icon: siVuetify },
+  esp32: { label: 'ESP32', source: 'simple', icon: siEspressif },
+  arduino: { label: 'Arduino', source: 'simple', icon: siArduino },
+  openai: { label: 'OpenAI API', source: 'tabler', icon: IconBrandOpenai },
+  apache: { label: 'Apache', source: 'simple', icon: siApache },
+  caddy: { label: 'Caddy', source: 'simple', icon: siCaddy },
+  encryption: { label: 'Kryptografie & Verschlüsselung', source: 'tabler', icon: IconLockPassword },
+  cli: { label: 'CLI', source: 'tabler', icon: IconTerminal2 },
+}
+
+export const techIds = Object.keys(techRegistry) as TechId[]
+
+export function isTechId(value: string): value is TechId {
+  return Object.prototype.hasOwnProperty.call(techRegistry, value)
+}
+
+export function parseTechIds(raw: string): TechId[] {
+  return [...new Set(raw.split(',').map((part) => part.trim()))].filter(isTechId)
 }

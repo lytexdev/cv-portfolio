@@ -2,6 +2,7 @@ import { createCsrfToken } from '@/lib/server/csrf'
 import { getStackConfig } from '@/lib/server/settings'
 import { ensureAdminOrRedirect, saveStackConfigAction } from '../actions'
 import { AdminNav } from '../_components/AdminNav'
+import { TechIdReference } from '../_components/TechIdReference'
 import styles from '../sudo.module.css'
 
 type Props = {
@@ -20,7 +21,7 @@ export default async function StackAdminPage({ searchParams }: Props) {
       <h1 className={styles.title}>Tech stack</h1>
       <p className={styles.muted}>
         Comma-separated tech IDs (e.g. typescript, react, docker). Used by the Stack and More
-        sections.
+        sections. Unknown IDs are dropped on save.
       </p>
       {query.saved ? (
         <p className={`${styles.flash} ${styles.flashOk}`}>Stack saved.</p>
@@ -62,6 +63,7 @@ export default async function StackAdminPage({ searchParams }: Props) {
           </button>
         </div>
       </form>
+      <TechIdReference />
     </div>
   )
 }

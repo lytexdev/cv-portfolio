@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
-import type { TechId } from '@/content/types'
 import { TechIcon } from '@/components/icons/TechIcon'
-import { techRegistry } from '@/components/icons/registry'
+import { isTechId } from '@/components/icons/registry'
 import styles from './RichText.module.css'
 
 type Props = {
@@ -12,10 +11,6 @@ type Props = {
 
 const TOKEN =
   /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|<icon-[a-z0-9-]+\s*\/?>)/gi
-
-function isTechId(value: string): value is TechId {
-  return Object.prototype.hasOwnProperty.call(techRegistry, value)
-}
 
 function isMarkup(token: string): boolean {
   return (

@@ -10,6 +10,7 @@ import {
   translateExperienceAction,
 } from '../actions'
 import { AdminNav } from '../_components/AdminNav'
+import { TechIdReference } from '../_components/TechIdReference'
 import { ConfirmForm } from '../_components/ConfirmForm'
 import { LocaleTabs } from '../_components/LocaleTabs'
 import styles from '../sudo.module.css'
@@ -291,6 +292,7 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
           ) : null}
         </div>
       </div>
+      <TechIdReference />
     </div>
   )
 }

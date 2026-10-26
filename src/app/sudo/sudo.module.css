@@ -568,3 +568,24 @@
   font-family: var(--font-mono, ui-monospace), monospace;
   word-break: break-all;
 }
+
+.techList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.techItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.techItem code {
+  color: #9aa3b5;
+}

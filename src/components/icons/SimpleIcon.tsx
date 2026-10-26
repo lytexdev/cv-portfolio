@@ -1,8 +1,7 @@
-import type { SimpleIcon as SimpleIconType } from 'simple-icons'
 import styles from './TechIcon.module.css'
 
 type Props = {
-  icon: SimpleIconType
+  icon: { path: string; fillRule?: 'evenodd' | 'nonzero' }
   title?: string
 }
 
@@ -15,7 +14,7 @@ export function SimpleIcon({ icon, title }: Props) {
       role={title ? 'img' : undefined}
     >
       {title ? <title>{title}</title> : null}
-      <path d={icon.path} fill="currentColor" />
+      <path d={icon.path} fill="currentColor" fillRule={icon.fillRule} />
     </svg>
   )
 }
