@@ -7,6 +7,7 @@ import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { ImageZoomTrigger } from './ImageZoomTrigger'
 import { projectImageSrc } from '@/lib/server/assets'
 import { getRuntimeProjects } from '@/lib/server/content-db'
+import { plainText } from '@/lib/rich-text'
 import styles from './FeaturedProject.module.css'
 
 type Props = {
@@ -25,6 +26,7 @@ export function FeaturedProject({
   const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.featured[slug]
   if (!project || !copy) return null
+  const altFor = (filename: string) => plainText(copy.images[filename]?.alt ?? copy.title)
   const mainImage = project.images[0]
   const mainSrc = mainImage ? projectImageSrc(slug, mainImage, accessToken) : null
 
@@ -36,11 +38,11 @@ export function FeaturedProject({
             <ImageZoomTrigger
               slug={slug}
               filename={mainImage}
-              label={`${dictionary.projects.gallery.open}: ${copy.images[mainImage]?.alt ?? copy.title}`}
+              label={`${dictionary.projects.gallery.open}: ${altFor(mainImage)}`}
             >
               <Image
                 src={mainSrc}
-                alt={copy.images[mainImage]?.alt ?? copy.title}
+                alt={altFor(mainImage)}
                 fill
                 sizes="(max-width: 1023px) 100vw, 55vw"
                 className={styles.img}
@@ -61,11 +63,11 @@ export function FeaturedProject({
                     <ImageZoomTrigger
                       slug={slug}
                       filename={filename}
-                      label={`${dictionary.projects.gallery.open}: ${copy.images[filename]?.alt ?? copy.title}`}
+                      label={`${dictionary.projects.gallery.open}: ${altFor(filename)}`}
                     >
                       <Image
                         src={src}
-                        alt={copy.images[filename]?.alt ?? copy.title}
+                        alt={altFor(filename)}
                         fill
                         sizes="72px"
                         className={styles.img}
@@ -83,8 +85,12 @@ export function FeaturedProject({
       </div>
 
       <div className={styles.body}>
-        <p className={`mono-label ${styles.kicker}`}>{copy.kicker}</p>
-        <h3 className={styles.title}>{copy.title}</h3>
+        <p className={`mono-label ${styles.kicker}`}>
+          <RichText text={copy.kicker} />
+        </p>
+        <h3 className={styles.title}>
+          <RichText text={copy.title} />
+        </h3>
         <p className={styles.summary}>
           <RichText text={copy.summary} />
         </p>

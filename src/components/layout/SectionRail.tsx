@@ -5,6 +5,7 @@ import { LangSwitch } from '@/components/interactive/LangSwitch'
 import { ThemeToggle } from '@/components/interactive/ThemeToggle'
 import { Tooltip } from '@/components/interactive/Tooltip'
 import controlStyles from '@/components/interactive/ControlButton.module.css'
+import { plainText } from '@/lib/rich-text'
 import styles from './SectionRail.module.css'
 
 type Props = {
@@ -23,7 +24,7 @@ export function SectionRail({ locale, dictionary, token }: Props) {
             <li key={id}>
               <a href={`#${id}`} className={styles.link} data-section-link={id}>
                 <span className={`mono-label ${styles.index}`}>{section.rail}</span>
-                <span className={styles.label}>{section.title}</span>
+                <span className={styles.label}>{plainText(section.title)}</span>
               </a>
             </li>
           )

@@ -44,7 +44,9 @@ export function Experience({ locale, dictionary }: Props) {
                 </p>
               </div>
               <div>
-                <h3>{copy.role}</h3>
+                <h3>
+                  <RichText text={copy.role} />
+                </h3>
                 <p className={styles.company}>
                   {entry.companyUrl ? (
                     <a
@@ -53,14 +55,14 @@ export function Experience({ locale, dictionary }: Props) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {copy.company}
+                      <RichText text={copy.company} />
                       <span className="visually-hidden"> {dictionary.externalNewTab}</span>
                     </a>
                   ) : (
-                    copy.company
+                    <RichText text={copy.company} />
                   )}
                   {' · '}
-                  {copy.location}
+                  <RichText text={copy.location} />
                 </p>
                 {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
                   <ul className={styles.highlights}>

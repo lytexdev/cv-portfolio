@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { isTechId } from '@/components/icons/registry'
+import { LINE_BREAK } from '@/lib/rich-text'
 import styles from './RichText.module.css'
 
 type Props = {
@@ -10,18 +11,27 @@ type Props = {
 }
 
 const TOKEN =
-  /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|<icon-[a-z0-9-]+\s*\/?>)/gi
+  /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|<icon-[a-z0-9-]+\s*\/?>|<br\s*\/?>)/gi
+
+function isLineBreak(token: string): boolean {
+  return LINE_BREAK.test(token)
+}
 
 function isMarkup(token: string): boolean {
   return (
     (token.startsWith('**') && token.endsWith('**') && token.length > 4) ||
     (token.startsWith('*') && token.endsWith('*') && token.length > 2 && !token.startsWith('**')) ||
     (token.startsWith('`') && token.endsWith('`') && token.length > 2) ||
-    /^<icon-[a-z0-9-]+\s*\/?>$/i.test(token)
+    /^<icon-[a-z0-9-]+\s*\/?>$/i.test(token) ||
+    isLineBreak(token)
   )
 }
 
 function renderToken(token: string, key: number): ReactNode {
+  if (isLineBreak(token)) {
+    return <br key={key} />
+  }
+
   if (token.startsWith('**') && token.endsWith('**') && token.length > 4) {
     return (
       <strong key={key} className={styles.bold}>

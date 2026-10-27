@@ -1,6 +1,7 @@
 import type { CvDictionary } from '@/content/types'
 import type { PrivateData } from '@/lib/server/private-data'
 import type { Viewer } from '@/lib/server/viewer'
+import { RichText } from '@/components/content/RichText'
 import { PrintQr } from './PrintQr'
 import styles from './PrintHeader.module.css'
 
@@ -36,7 +37,9 @@ export async function PrintHeader({
     <header className={`print-only ${styles.root}`}>
       <div>
         <p className={styles.name}>{personName}</p>
-        <p className={styles.role}>{dictionary.role}</p>
+        <p className={styles.role}>
+          <RichText text={dictionary.role} />
+        </p>
         <p className={styles.contact}>{contactParts.join(' · ')}</p>
         <p className={styles.url}>{pageUrl}</p>
       </div>

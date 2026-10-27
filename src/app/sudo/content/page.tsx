@@ -43,8 +43,8 @@ export default async function ContentAdminPage({ searchParams }: Props) {
       <AdminNav />
       <h1 className={styles.title}>Content strings</h1>
       <p className={styles.muted}>
-        Inline Markdown supported in rendered copy: **bold**, *italic*, `code`, and
-        stack icons like &lt;icon-github&gt;.
+        Inline Markdown supported in rendered copy: **bold**, *italic*, `code`, line breaks
+        with &lt;br&gt; and stack icons like &lt;icon-github&gt;.
       </p>
       {query.saved ? (
         <p className={`${styles.flash} ${styles.flashOk}`}>Saved.</p>

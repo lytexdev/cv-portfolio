@@ -182,7 +182,7 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
                     />
                   </label>
                   <label className={styles.label}>
-                    Highlights (one per line; **bold**, *italic*, &lt;icon-github&gt;)
+                    Highlights (one per line; **bold**, *italic*, &lt;icon-github&gt;, &lt;br&gt;)
                     <textarea
                       className={styles.textarea}
                       name="highlights_de"
@@ -218,7 +218,7 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
                     />
                   </label>
                   <label className={styles.label}>
-                    Highlights (one per line; **bold**, *italic*, &lt;icon-github&gt;)
+                    Highlights (one per line; **bold**, *italic*, &lt;icon-github&gt;, &lt;br&gt;)
                     <textarea
                       className={styles.textarea}
                       name="highlights_en"

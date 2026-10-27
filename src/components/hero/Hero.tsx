@@ -116,7 +116,9 @@ export function Hero({
           {dictionary.availability ? (
             <div className={styles.metaRow}>
               <dt className={`mono-label ${styles.metaKey}`}>{dictionary.hero.metaAvailability}</dt>
-              <dd className={styles.metaValue}>{dictionary.availability}</dd>
+              <dd className={styles.metaValue}>
+                <RichText text={dictionary.availability} />
+              </dd>
             </div>
           ) : null}
         </dl>

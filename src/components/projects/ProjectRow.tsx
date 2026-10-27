@@ -6,6 +6,7 @@ import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { ImageZoomTrigger } from './ImageZoomTrigger'
 import { projectImageSrc } from '@/lib/server/assets'
 import { getRuntimeProjects } from '@/lib/server/content-db'
+import { plainText } from '@/lib/rich-text'
 import styles from './ProjectRow.module.css'
 
 type Props = {
@@ -18,6 +19,7 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
   const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.compact[slug]
   if (!project || !copy) return null
+  const titleText = plainText(copy.title)
   const filename = project.images[0]
   const src = filename ? projectImageSrc(slug, filename, accessToken) : null
 
@@ -28,11 +30,11 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
           <ImageZoomTrigger
             slug={slug}
             filename={filename}
-            label={`${dictionary.projects.gallery.open}: ${copy.images[filename]?.alt ?? copy.title}`}
+            label={`${dictionary.projects.gallery.open}: ${plainText(copy.images[filename]?.alt ?? copy.title)}`}
           >
             <Image
               src={src}
-              alt={copy.images[filename]?.alt ?? copy.title}
+              alt={plainText(copy.images[filename]?.alt ?? copy.title)}
               fill
               sizes="88px"
               className={styles.img}
@@ -44,8 +46,12 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
         )}
       </div>
       <div>
-        <p className={`mono-label ${styles.kicker}`}>{copy.kicker}</p>
-        <h3 className={styles.title}>{copy.title}</h3>
+        <p className={`mono-label ${styles.kicker}`}>
+          <RichText text={copy.kicker} />
+        </p>
+        <h3 className={styles.title}>
+          <RichText text={copy.title} />
+        </h3>
         <p className={styles.oneLiner}>
           <RichText text={copy.oneLiner} />
         </p>
@@ -63,7 +69,7 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
         type="button"
         className={styles.details}
         data-project-details={slug}
-        aria-label={`${dictionary.projects.details}: ${copy.title}`}
+        aria-label={`${dictionary.projects.details}: ${titleText}`}
       >
         {dictionary.projects.details}
       </button>

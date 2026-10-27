@@ -88,8 +88,12 @@ export function ProjectDialog({
         <div className={styles.inner}>
           <div className={styles.header}>
             <div>
-              <p className={`mono-label ${styles.kicker}`}>{project.kicker}</p>
-              <h2 id={labelledBy}>{project.title}</h2>
+              <p className={`mono-label ${styles.kicker}`}>
+                <RichText text={project.kicker} />
+              </p>
+              <h2 id={labelledBy}>
+                <RichText text={project.title} />
+              </h2>
             </div>
             <button type="button" className={styles.close} onClick={onClose} aria-label="Close">
               <IconX size={18} stroke={1.75} aria-hidden="true" />

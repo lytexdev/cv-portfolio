@@ -1,3 +1,4 @@
+import { RichText } from '@/components/content/RichText'
 import styles from './SectionHeading.module.css'
 
 type Props = {
@@ -13,7 +14,7 @@ export function SectionHeading({ id, rail, title }: Props) {
         {rail}
       </p>
       <h2 id={`${id}-title`} className={styles.title}>
-        {title}
+        <RichText text={title} />
       </h2>
     </div>
   )

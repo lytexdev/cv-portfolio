@@ -5,6 +5,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { sectionOrder } from '@/content/shared'
 import type { CvDictionary, Locale, SectionId } from '@/content/types'
 import { useHotkey } from '@/hooks/useHotkey'
+import { plainText } from '@/lib/rich-text'
 import { setThemeValue } from './ThemeToggle'
 import styles from './CommandPalette.module.css'
 
@@ -64,7 +65,7 @@ export function CommandPalette({
     const navigation: Item[] = sectionOrder.map((id: SectionId) => ({
       id: `nav-${id}`,
       group: 'navigation',
-      label: dictionary.sections[id].title,
+      label: plainText(dictionary.sections[id].title),
       keywords: `${dictionary.sections[id].rail} ${id}`,
       run: () => {
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })

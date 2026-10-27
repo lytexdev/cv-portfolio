@@ -10,6 +10,7 @@ import {
 import type { CvDictionary, Locale } from '@/content/types'
 import { Tooltip } from '@/components/interactive/Tooltip'
 import type { FooterConfig, SocialPlatform } from '@/lib/server/settings'
+import { RichText } from '@/components/content/RichText'
 import styles from './Footer.module.css'
 
 type Props = {
@@ -51,7 +52,7 @@ export function Footer({
       <div className={styles.inner}>
         {tagline || repoUrl ? (
           <p className={`mono-label ${styles.tagline}`}>
-            {tagline || null}
+            {tagline ? <RichText text={tagline} /> : null}
             {tagline && repoUrl ? ' · ' : null}
             {repoUrl ? (
               <a

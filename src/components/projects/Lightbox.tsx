@@ -3,6 +3,7 @@
 import { IconChevronLeft, IconChevronRight, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react'
+import { RichText } from '@/components/content/RichText'
 import type { CvDictionary } from '@/content/types'
 import type { GalleryImage } from './Gallery'
 import styles from './Lightbox.module.css'
@@ -129,7 +130,11 @@ export function Lightbox({ images, startIndex, labels, onClose }: Props) {
           ) : null}
         </div>
 
-        {current.caption ? <p className={styles.caption}>{current.caption}</p> : null}
+        {current.caption ? (
+          <p className={styles.caption}>
+            <RichText text={current.caption} />
+          </p>
+        ) : null}
 
         {hasMany ? (
           <ul className={styles.thumbs}>

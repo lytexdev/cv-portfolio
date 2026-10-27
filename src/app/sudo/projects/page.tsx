@@ -172,7 +172,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                       className={styles.textarea}
                       name="summary_de"
                       defaultValue={editing?.summary.de ?? ''}
-                      placeholder="Supports **bold**, *italic*, `code`, <icon-github>"
+                      placeholder="Supports **bold**, *italic*, `code`, <icon-github>, <br>"
                     />
                   </label>
                   <label className={styles.label}>
@@ -185,7 +185,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                     />
                   </label>
                   <label className={styles.label}>
-                    Highlights (one per line; Markdown: **bold**, &lt;icon-github&gt;)
+                    Highlights (one per line; **bold**, &lt;icon-github&gt;, &lt;br&gt;)
                     <textarea
                       className={styles.textarea}
                       name="highlights_de"
@@ -218,7 +218,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                       className={styles.textarea}
                       name="summary_en"
                       defaultValue={editing?.summary.en ?? ''}
-                      placeholder="Supports **bold**, *italic*, `code`, <icon-github>"
+                      placeholder="Supports **bold**, *italic*, `code`, <icon-github>, <br>"
                     />
                   </label>
                   <label className={styles.label}>
@@ -231,7 +231,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                     />
                   </label>
                   <label className={styles.label}>
-                    Highlights (one per line; Markdown: **bold**, &lt;icon-github&gt;)
+                    Highlights (one per line; **bold**, &lt;icon-github&gt;, &lt;br&gt;)
                     <textarea
                       className={styles.textarea}
                       name="highlights_en"

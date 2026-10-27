@@ -5,6 +5,7 @@ import { Tooltip } from '@/components/interactive/Tooltip'
 import { formatBirthDate } from '@/lib/dates'
 import type { Locale } from '@/content/types'
 import type { PrivateData } from '@/lib/server/private-data'
+import { RichText } from '@/components/content/RichText'
 import type { Viewer } from '@/lib/server/viewer'
 import styles from './Contact.module.css'
 
@@ -39,7 +40,9 @@ export function Contact({
       <SectionHeading id="contact" rail={section.rail} title={section.title} />
 
       {viewer.kind === 'expired' ? (
-        <p className={styles.banner}>{dictionary.contact.expiredHint}</p>
+        <p className={styles.banner}>
+          <RichText text={dictionary.contact.expiredHint} />
+        </p>
       ) : null}
 
       <div className={styles.grid}>
@@ -118,7 +121,9 @@ export function Contact({
                 <IconMapPin size={18} stroke={1.75} aria-hidden="true" />
                 <p className={styles.detailValue}>{city}</p>
               </div>
-              <p className={styles.hint}>{dictionary.contact.publicHint}</p>
+              <p className={styles.hint}>
+                <RichText text={dictionary.contact.publicHint} />
+              </p>
             </>
           )}
         </div>

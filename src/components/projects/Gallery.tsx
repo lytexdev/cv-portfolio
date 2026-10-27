@@ -4,6 +4,7 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
+import { RichText } from '@/components/content/RichText'
 import type { TechId } from '@/content/types'
 import styles from './Gallery.module.css'
 
@@ -86,7 +87,9 @@ export function Gallery({ images, slug, fallbackIcon = 'linux', openLabel, onOpe
       ) : null}
 
       <div className={styles.nav}>
-        <p className={styles.caption}>{current.caption}</p>
+        <p className={styles.caption}>
+          <RichText text={current.caption} />
+        </p>
         <div className={styles.navButtons}>
           <span className={styles.counter}>
             {index + 1} / {images.length}

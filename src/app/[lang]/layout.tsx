@@ -3,6 +3,7 @@ import { connection } from 'next/server'
 import { headers } from 'next/headers'
 import type { ReactNode } from 'react'
 import { hasLocale } from '@/lib/i18n'
+import { plainText } from '@/lib/rich-text'
 import { getRuntimeDictionary } from '@/lib/server/content-db'
 import { getEnv } from '@/lib/server/env'
 
@@ -21,8 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const indexPublic = getEnv().indexPublic
 
   return {
-    title: dictionary.meta.title,
-    description: dictionary.meta.description,
+    title: plainText(dictionary.meta.title),
+    description: plainText(dictionary.meta.description),
     robots: indexPublic
       ? {
           index: true,
