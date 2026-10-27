@@ -3,7 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Lightbox, type ViewableImage } from '@/components/projects/Lightbox'
 import { ProjectDialog, type ProjectDialogData } from '@/components/projects/ProjectDialog'
-import type { CvDictionary, Locale, ProjectSlug, TechId } from '@/content/types'
+import type {
+  CvDictionary,
+  Locale,
+  ProjectSlug,
+  SpokenLanguage,
+  StackGroupId,
+  TechId,
+} from '@/content/types'
 import { ActiveSection } from './ActiveSection'
 import { CommandPalette } from './CommandPalette'
 import { MediaProtect } from './MediaProtect'
@@ -31,6 +38,8 @@ type Props = {
   personName: string
   personCity: string
   projectPayloads: ProjectPayload[]
+  stackGroups: Record<StackGroupId, TechId[]>
+  spokenLanguages: SpokenLanguage[]
 }
 
 function InteractiveChromeInner({
@@ -45,6 +54,8 @@ function InteractiveChromeInner({
   personName,
   personCity,
   projectPayloads,
+  stackGroups,
+  spokenLanguages,
 }: Props) {
   const { showToast } = useToast()
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -64,6 +75,11 @@ function InteractiveChromeInner({
     }
     return map
   }, [projectPayloads])
+
+  const projectSlugs = useMemo(
+    () => projectPayloads.map((payload) => payload.slug),
+    [projectPayloads],
+  )
 
   const openProject = useCallback(
     (slug: ProjectSlug) => {
@@ -216,6 +232,9 @@ function InteractiveChromeInner({
         linkedin={linkedin}
         personName={personName}
         personCity={personCity}
+        projectSlugs={projectSlugs}
+        stackGroups={stackGroups}
+        spokenLanguages={spokenLanguages}
         onOpenProject={openProject}
       />
 

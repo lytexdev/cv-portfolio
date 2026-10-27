@@ -27,7 +27,12 @@ import {
 import { getEnv } from '@/lib/server/env'
 import { detectAgent, logEvent } from '@/lib/server/log'
 import { getPrivateData, getPublicAge } from '@/lib/server/private-data'
-import { getFooterConfig, getSiteProfile } from '@/lib/server/settings'
+import {
+  getFooterConfig,
+  getSiteProfile,
+  getSpokenLanguages,
+  getStackConfig,
+} from '@/lib/server/settings'
 import { incrementTokenView } from '@/lib/server/tokens'
 import { resolveViewer } from '@/lib/server/viewer'
 
@@ -149,6 +154,8 @@ export default async function Page({ params, searchParams }: Props) {
         personName={profile.name}
         personCity={profile.city}
         projectPayloads={buildProjectPayloads(dictionary, tokenQuery)}
+        stackGroups={getStackConfig().groups}
+        spokenLanguages={getSpokenLanguages()}
       />
       <CvShell
         locale={lang}

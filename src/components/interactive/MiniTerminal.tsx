@@ -1,13 +1,17 @@
 'use client'
 
 import { IconX } from '@tabler/icons-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import {
-  compactProjectOrder,
-  featuredProjectOrder,
-  stackGroups,
-} from '@/content/shared'
-import type { CvDictionary, Locale, ProjectSlug } from '@/content/types'
+import { useEffect, useRef, useState } from 'react'
+import { techRegistry } from '@/components/icons/registry'
+import type {
+  CvDictionary,
+  Locale,
+  ProjectSlug,
+  SpokenLanguage,
+  StackGroupId,
+  TechId,
+} from '@/content/types'
+import { plainText } from '@/lib/rich-text'
 import { setThemeValue } from './ThemeToggle'
 import styles from './MiniTerminal.module.css'
 
@@ -24,43 +28,54 @@ type Props = {
   linkedin: string
   personName: string
   personCity: string
+  projectSlugs: ProjectSlug[]
+  stackGroups: Record<StackGroupId, TechId[]>
+  spokenLanguages: SpokenLanguage[]
   onOpenProject: (slug: ProjectSlug) => void
 }
 
 type Line = { text: string; tone?: 'out' | 'err' | 'info' | 'cmd' }
 
-const COMMAND_LIST = [
-  'help',
-  'h',
-  'fish',
-  'bash',
-  'whoami',
-  'cat about.txt',
-  'ls',
-  'ls -la',
-  'la',
-  'ls projects',
-  'cd',
-  'open',
-  'skills',
-  'contact',
-  'neofetch',
-  'htop',
-  'tldr',
-  'ping',
-  'generate_password',
-  'ssh',
-  'sudo',
-  'theme',
-  'lang',
-  'clear',
-  'exit',
-] as const
+const COMMANDS = {
+  help: { usage: 'help', about: 'List available commands. Alias: h' },
+  whoami: { usage: 'whoami', about: 'Print name, role and city' },
+  pwd: { usage: 'pwd', about: 'Print the current directory' },
+  ls: { usage: 'ls [-la] [dir]', about: 'List files in ~ or ~/projects. Alias: la' },
+  cd: { usage: 'cd [~|projects|..]', about: 'Change the current directory' },
+  cat: { usage: 'cat <file>', about: 'Print about.txt, contact.txt, skills.md or a project' },
+  open: { usage: 'open <slug>', about: 'Open a project in the details dialog' },
+  skills: { usage: 'skills', about: 'Print the tech stack by group' },
+  contact: { usage: 'contact', about: 'Print e-mail and profile links' },
+  neofetch: { usage: 'neofetch', about: 'Show a system summary' },
+  htop: { usage: 'htop', about: 'Show a process snapshot' },
+  tldr: { usage: 'tldr <command>', about: 'Show a short help page for a command' },
+  ping: { usage: 'ping [host]', about: 'Send four simulated pings (default lytex.dev)' },
+  generate_password: {
+    usage: 'generate_password [length]',
+    about: 'Generate a random password, 8 to 128 characters (default 24)',
+  },
+  ssh: { usage: 'ssh [user@host]', about: 'Try to connect to a server' },
+  sudo: { usage: 'sudo [-i|pacman -Syu|apt update]', about: 'Run a command as root' },
+  theme: { usage: 'theme dark|light', about: 'Switch the color theme' },
+  lang: { usage: 'lang de|en', about: 'Switch the page language' },
+  echo: { usage: 'echo <text>', about: 'Print text' },
+  history: { usage: 'history', about: 'List previously entered commands' },
+  fish: { usage: 'fish', about: 'Switch to the fish shell' },
+  bash: { usage: 'bash', about: 'Switch to the bash shell' },
+  clear: { usage: 'clear', about: 'Clear the terminal' },
+  exit: { usage: 'exit', about: 'Close the terminal' },
+} as const
 
-const VFS: Record<string, string[]> = {
-  '~': ['about.txt', 'projects', 'contact.txt', 'skills.md'],
-  '~/projects': [...featuredProjectOrder, ...compactProjectOrder],
+type CommandName = keyof typeof COMMANDS
+
+const COMMAND_NAMES = Object.keys(COMMANDS) as CommandName[]
+const ALIASES: Record<string, CommandName> = { h: 'help', la: 'ls' }
+
+function isCommand(name: string): name is CommandName {
+  return COMMAND_NAMES.some((command) => command === name)
 }
+const HOME_FILES = ['about.txt', 'contact.txt', 'skills.md']
+const HOME_DIRS = ['projects']
 
 const ARCH_ART = [
   '                   -`',
@@ -105,6 +120,9 @@ export function MiniTerminal({
   linkedin,
   personName,
   personCity,
+  projectSlugs,
+  stackGroups,
+  spokenLanguages,
   onOpenProject,
 }: Props) {
   const dialogRef = useRef<HTMLDialogElement>(null)
@@ -122,12 +140,8 @@ export function MiniTerminal({
   const [busy, setBusy] = useState(false)
   const [maximized, setMaximized] = useState(false)
 
-  const projectSlugs = useMemo(
-    () => [...featuredProjectOrder, ...compactProjectOrder],
-    [],
-  )
-
   const prompt = `immanuel@lytex ${cwd}>`
+  const hint = locale === 'de' ? 'Hinweis: help' : 'Hint: help'
 
   useEffect(() => {
     const dialog = dialogRef.current
@@ -139,6 +153,10 @@ export function MiniTerminal({
       dialog.close()
     }
   }, [open])
+
+  useEffect(() => {
+    if (open && !busy) inputRef.current?.focus()
+  }, [busy, open])
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight })
@@ -153,7 +171,94 @@ export function MiniTerminal({
     setLines((prev) => [...prev, ...items])
   }
 
-  const hint = locale === 'de' ? 'Hinweis: help' : 'Hint: help'
+  const isProject = (name: string): name is ProjectSlug =>
+    projectSlugs.some((slug) => slug === name)
+
+  const resolvePath = (raw: string): string => {
+    const target = raw.replace(/\/+$/, '')
+    if (!target || target === '~' || target === '/' || target === '~/') return '~'
+    if (target === '..') return '~'
+    if (target === '.') return cwd
+    const absolute = target.startsWith('~/')
+      ? target
+      : target.startsWith('./')
+        ? `${cwd}/${target.slice(2)}`
+        : `${cwd}/${target}`
+    return absolute.replace('~/projects/..', '~')
+  }
+
+  const projectText = (slug: ProjectSlug): string => {
+    const featured = dictionary.projects.featured[slug]
+    const compact = dictionary.projects.compact[slug]
+    const copy = featured ?? compact
+    if (!copy) return slug
+    const body = featured ? featured.summary : (compact?.oneLiner ?? '')
+    const highlights = Array.isArray(copy.highlights)
+      ? copy.highlights.map((item) => `- ${plainText(item)}`)
+      : []
+    return [`# ${plainText(copy.title)}`, plainText(body, '\n'), ...highlights]
+      .filter(Boolean)
+      .join('\n')
+  }
+
+  const contactLines = (): string[] => {
+    const parts: string[] = [email, linkedin, github]
+    if (hasToken && phone) parts.push(phone)
+    return parts
+  }
+
+  const skillLines = (markdown: boolean): string[] =>
+    (Object.keys(stackGroups) as StackGroupId[]).map((group) => {
+      const title = dictionary.stack.groups[group]
+      const labels = (stackGroups[group] ?? []).map((id) => techRegistry[id]?.label ?? id)
+      return markdown ? `## ${title}\n${labels.map((l) => `- ${l}`).join('\n')}` : `${title}: ${labels.join(', ')}`
+    })
+
+  const readFile = (path: string): string | null => {
+    if (path === '~/about.txt') return plainText(dictionary.summary, '\n')
+    if (path === '~/contact.txt') return contactLines().join('\n')
+    if (path === '~/skills.md') return skillLines(true).join('\n\n')
+    const slug = path.startsWith('~/projects/') ? path.slice('~/projects/'.length) : ''
+    if (isProject(slug)) return projectText(slug)
+    return null
+  }
+
+  const listDir = (path: string): { name: string; dir: boolean }[] | null => {
+    if (path === '~') {
+      return [
+        ...HOME_FILES.map((name) => ({ name, dir: false })),
+        ...HOME_DIRS.map((name) => ({ name, dir: true })),
+      ]
+    }
+    if (path === '~/projects') return projectSlugs.map((name) => ({ name, dir: false }))
+    return null
+  }
+
+  const argumentCandidates = (cmd: string): string[] => {
+    const here = (listDir(cwd) ?? []).map((entry) => (entry.dir ? `${entry.name}/` : entry.name))
+    switch (cmd) {
+      case 'open':
+        return projectSlugs
+      case 'cat':
+        return cwd === '~'
+          ? [...HOME_FILES, ...projectSlugs.map((slug) => `projects/${slug}`)]
+          : here
+      case 'cd':
+        return cwd === '~' ? ['projects', '~'] : ['..', '~']
+      case 'ls':
+        return cwd === '~' ? ['-la', 'projects'] : ['-la', '..']
+      case 'tldr':
+        return COMMAND_NAMES
+      case 'theme':
+        return ['dark', 'light']
+      case 'lang':
+        return ['de', 'en']
+      case 'sudo':
+        return ['-i', 'pacman -Syu', 'apt update']
+      default:
+        return []
+    }
+  }
 
   const run = (raw: string) => {
     if (busy) return
@@ -165,7 +270,7 @@ export function MiniTerminal({
     setHistoryIndex(-1)
 
     const parts = input.split(/\s+/)
-    let cmd = parts[0]
+    let cmd = parts[0] ?? ''
     let rest = parts.slice(1)
     if (cmd === 'h') cmd = 'help'
     if (cmd === 'la') {
@@ -179,13 +284,14 @@ export function MiniTerminal({
       append(
         [
           'Navigation & CV',
-          '  whoami · cat about.txt · ls / ls -la / la · cd · open <slug>',
-          '  skills · contact · neofetch · theme · lang',
-          'Shell toys',
-          '  fish · bash · htop · tldr <cmd> · ping <host>',
-          '  generate_password [len] · ssh root@vserver',
+          '  whoami · pwd · ls [-la] · cd <dir> · cat <file> · open <slug>',
+          '  skills · contact · neofetch · theme dark|light · lang de|en',
+          'Shell',
+          '  fish · bash · echo <text> · history · htop · ping [host]',
+          '  generate_password [len] · ssh [user@host]',
           '  sudo [-i|pacman -Syu|apt update]',
-          '  clear · exit · h (alias help)',
+          '  tldr <command> · clear · exit · h (alias help)',
+          'Tab completes commands, files and project slugs.',
         ].join('\n'),
         'info',
       )
@@ -195,10 +301,9 @@ export function MiniTerminal({
     if (cmd === 'fish') {
       setShell('fish')
       append(
-        [
-          'Welcome to fish, the friendly interactive shell',
-          'Type help for a list of commands.',
-        ].join('\n'),
+        ['Welcome to fish, the friendly interactive shell', 'Type help for a list of commands.'].join(
+          '\n',
+        ),
         'info',
       )
       return
@@ -211,88 +316,124 @@ export function MiniTerminal({
     }
 
     if (cmd === 'whoami') {
-      append(`${personName}\n${dictionary.role}\n${personCity}`)
+      append(`${personName}\n${plainText(dictionary.role, '\n')}\n${personCity}`)
       return
     }
 
-    if (cmd === 'cat' && (arg === 'about.txt' || (cwd === '~' && arg === 'about.txt'))) {
-      append(dictionary.summary)
+    if (cmd === 'pwd') {
+      append(cwd.replace('~', '/home/immanuel'))
+      return
+    }
+
+    if (cmd === 'echo') {
+      append(arg)
+      return
+    }
+
+    if (cmd === 'history') {
+      append(
+        [...history, input].map((entry, index) => `${String(index + 1).padStart(4)}  ${entry}`),
+      )
+      return
+    }
+
+    if (cmd === 'cat') {
+      if (!arg) {
+        append(`usage: ${COMMANDS.cat.usage}`, 'err')
+        return
+      }
+      for (const name of rest) {
+        const path = resolvePath(name)
+        if (listDir(path)) {
+          append(`cat: ${name}: Is a directory`, 'err')
+          continue
+        }
+        const content = readFile(path)
+        append(content ?? `cat: ${name}: No such file or directory`, content ? 'out' : 'err')
+      }
       return
     }
 
     if (cmd === 'ls') {
-      const long = rest.includes('-la') || rest.includes('-l') || rest.includes('-a')
-      const target = rest.find((r) => !r.startsWith('-')) || ''
-      if (target === 'projects' || (cwd === '~/projects' && !target)) {
-        append(long ? projectSlugs.map((s) => `-rw-r--r-- 1 immanuel users 4K ${s}`).join('\n') : projectSlugs.join('\n'))
+      const long = rest.some((r) => r.startsWith('-') && /[la]/.test(r))
+      const target = rest.find((r) => !r.startsWith('-'))
+      const path = target ? resolvePath(target) : cwd
+      const entries = listDir(path)
+      if (!entries) {
+        const file = readFile(path)
+        append(
+          file ? (target ?? '') : `ls: cannot access '${target}': No such file or directory`,
+          file ? 'out' : 'err',
+        )
         return
       }
-      const listing = VFS[cwd] ?? VFS['~'] ?? []
       append(
         long
-          ? listing.map((name) => `drwxr-xr-x 1 immanuel users 4K ${name}`).join('\n')
-          : listing.join('  '),
+          ? entries
+              .map(({ name, dir }) =>
+                dir
+                  ? `drwxr-xr-x 1 immanuel users 4.0K ${name}`
+                  : `-rw-r--r-- 1 immanuel users 1.2K ${name}`,
+              )
+              .join('\n')
+          : entries.map(({ name, dir }) => (dir ? `${name}/` : name)).join('  '),
       )
       return
     }
 
     if (cmd === 'cd') {
-      const dest = arg || '~'
-      if (dest === '~' || dest === '/') {
-        setCwd('~')
+      const path = resolvePath(arg)
+      if (listDir(path)) {
+        setCwd(path)
         return
       }
-      if (dest === 'projects' || dest === '~/projects' || dest === './projects') {
-        setCwd('~/projects')
-        return
-      }
-      if (dest === '..') {
-        setCwd(cwd.includes('/') ? cwd.replace(/\/[^/]+$/, '') || '~' : '~')
-        return
-      }
-      append(`cd: The directory '${dest}' does not exist`, 'err')
+      append(
+        readFile(path)
+          ? `cd: '${arg}' is not a directory`
+          : `cd: The directory '${arg}' does not exist`,
+        'err',
+      )
       return
     }
 
     if (cmd === 'open') {
-      const slug = arg as ProjectSlug
-      if (projectSlugs.includes(slug)) {
+      const slug = arg.replace(/^(~\/)?projects\//, '')
+      if (isProject(slug)) {
         onOpenChange(false)
         onOpenProject(slug)
-      } else {
-        append(`fish: Unknown command: open ${arg}\n${hint}`, 'err')
+        return
       }
+      append(
+        arg
+          ? `open: no project named '${arg}'\n${projectSlugs.join('  ')}`
+          : `usage: ${COMMANDS.open.usage}\n${projectSlugs.join('  ')}`,
+        'err',
+      )
       return
     }
 
     if (cmd === 'skills') {
-      const groups = Object.entries(stackGroups).map(([group, ids]) => {
-        const title =
-          dictionary.stack.groups[group as keyof typeof dictionary.stack.groups]
-        return `${title}: ${ids.join(', ')}`
-      })
-      append(groups.join('\n'))
+      append(skillLines(false).join('\n'))
       return
     }
 
     if (cmd === 'contact') {
-      const parts: string[] = [email, linkedin, github]
-      if (hasToken && phone) parts.push(phone)
-      append(parts.join('\n'))
+      append(contactLines().join('\n'))
       return
     }
 
     if (cmd === 'neofetch') {
+      const langs = spokenLanguages.map(({ code, level }) => `${code} (${level})`).join(', ')
       const info = [
         'immanuel@lytex',
         '-------------',
         'OS: Arch Linux x86_64',
-        'Host: Wittlich, DE',
+        `Host: ${personCity}`,
         `Uptime: ${age ?? '?'} years`,
-        `Shell: ${shell} 3.7.1`,
+        `Shell: ${shell === 'fish' ? 'fish 3.7.1' : 'bash 5.2.37'}`,
         'DE: KDE Plasma (Wayland)',
         'Editor: VSCodium · Cursor · Claude Code',
-        'Langs: de (native), en (good)',
+        `Langs: ${langs || '-'}`,
         'Terminal: MiniTerminal',
       ]
       const maxArt = Math.max(ARCH_ART.length, info.length)
@@ -322,16 +463,13 @@ export function MiniTerminal({
     }
 
     if (cmd === 'tldr') {
-      const topic = rest[0] || 'help'
-      const pages: Record<string, string> = {
-        help: 'help\n  List available MiniTerminal commands.',
-        ls: 'ls\n  List files in the virtual home or projects directory.',
-        cd: 'cd\n  Change virtual directory (~, projects).',
-        neofetch: 'neofetch\n  Show a playful system summary.',
-        ping: 'ping <host>\n  Fake latency lines to a host.',
-        generate_password: 'generate_password [len]\n  CSPRNG password (default 24).',
-      }
-      append(pages[topic] ?? `tldr: no page for '${topic}'`, pages[topic] ? 'info' : 'err')
+      const requested = rest[0] || 'tldr'
+      const topic = ALIASES[requested] ?? requested
+      const page = isCommand(topic) ? COMMANDS[topic] : null
+      append(
+        page ? `${topic}\n  ${page.about}\n\n  ${page.usage}` : `tldr: no page for '${topic}'\n${hint}`,
+        page ? 'info' : 'err',
+      )
       return
     }
 
@@ -347,7 +485,10 @@ export function MiniTerminal({
         if (n < 4) {
           window.setTimeout(tick, 350)
         } else {
-          append(`--- ${host} ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss`, 'info')
+          append(
+            `--- ${host} ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss`,
+            'info',
+          )
           setBusy(false)
         }
       }
@@ -366,18 +507,14 @@ export function MiniTerminal({
       setBusy(true)
       append(`Connecting to ${target}...`, 'info')
       window.setTimeout(() => {
-        append('nahhh… permission denied (publickey).', 'err')
+        append(`${target}: Permission denied (publickey).`, 'err')
         setBusy(false)
       }, 900)
       return
     }
 
     if (cmd === 'sudo') {
-      if (arg === '-i') {
-        append('immanuel is not in the sudoers file. This incident will be reported.', 'err')
-        return
-      }
-      if (arg === 'pacman -Syu' || (rest[0] === 'pacman' && rest[1] === '-Syu')) {
+      if (rest[0] === 'pacman' && rest[1] === '-Syu') {
         append(
           [
             ':: Synchronizing package databases...',
@@ -389,7 +526,7 @@ export function MiniTerminal({
         )
         return
       }
-      if (arg === 'apt update' || (rest[0] === 'apt' && rest[1] === 'update')) {
+      if (rest[0] === 'apt' && rest[1] === 'update') {
         append(
           [
             'Hit:1 http://deb.debian.org/debian stable InRelease',
@@ -409,7 +546,7 @@ export function MiniTerminal({
         setThemeValue(arg)
         append(`theme set to ${arg}`)
       } else {
-        append('usage: theme dark|light', 'err')
+        append(`usage: ${COMMANDS.theme.usage}`, 'err')
       }
       return
     }
@@ -420,7 +557,7 @@ export function MiniTerminal({
         url.pathname = `/${arg}`
         window.location.assign(url.toString())
       } else {
-        append('usage: lang de|en', 'err')
+        append(`usage: ${COMMANDS.lang.usage}`, 'err')
       }
       return
     }
@@ -437,10 +574,9 @@ export function MiniTerminal({
 
     if (cmd === 'rm' && arg === '-rf /') {
       append(
-        [
-          "rm: cannot remove '/': Read-only file system",
-          dictionary.terminal.readOnlyNote,
-        ].join('\n'),
+        ["rm: cannot remove '/': Read-only file system", dictionary.terminal.readOnlyNote].join(
+          '\n',
+        ),
         'err',
       )
       return
@@ -449,23 +585,37 @@ export function MiniTerminal({
     append(`fish: Unknown command: ${cmd}\n${hint}`, 'err')
   }
 
-  const suggestion = useMemo(() => {
-    const current = value
-    if (!current || current.includes(' ')) return null
-    const match = COMMAND_LIST.find((c) => c.startsWith(current) && c !== current)
-    return match ?? null
-  }, [value])
+  const matchesFor = (input: string): string[] => {
+    const space = input.indexOf(' ')
+    if (space < 0) {
+      return COMMAND_NAMES.filter((name) => name.startsWith(input))
+    }
+    const cmd = input.slice(0, space)
+    const partial = input.slice(space + 1).trimStart()
+    return argumentCandidates(cmd)
+      .filter((candidate) => candidate.startsWith(partial))
+      .map((candidate) => `${cmd} ${candidate}`)
+  }
+
+  const suggestion = value ? (matchesFor(value).find((match) => match !== value) ?? null) : null
 
   const acceptSuggestion = () => {
-    if (suggestion) {
-      setValue(suggestion)
-      return
-    }
-    const current = value.trim()
-    const matches = COMMAND_LIST.filter((c) => c.startsWith(current))
+    const matches = matchesFor(value).filter((match) => match !== value)
+    if (matches.length === 0) return
     if (matches.length === 1 && matches[0]) {
       setValue(matches[0])
+      return
     }
+    let prefix = matches[0] ?? value
+    for (const match of matches) {
+      while (!match.startsWith(prefix)) prefix = prefix.slice(0, -1)
+    }
+    if (prefix.length > value.length) {
+      setValue(prefix)
+      return
+    }
+    append({ text: `${prompt} ${value}`, tone: 'cmd' })
+    append(matches.map((match) => match.slice(match.lastIndexOf(' ') + 1)).join('  '), 'info')
   }
 
   return (
