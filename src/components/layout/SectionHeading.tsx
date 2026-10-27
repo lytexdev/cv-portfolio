@@ -5,15 +5,16 @@ type Props = {
   id: string
   rail: string
   title: string
+  hideTitle?: boolean
 }
 
-export function SectionHeading({ id, rail, title }: Props) {
+export function SectionHeading({ id, rail, title, hideTitle = false }: Props) {
   return (
     <div className={styles.root}>
       <p className={`mono-label ${styles.rail}`} id={`${id}-label`}>
         {rail}
       </p>
-      <h2 id={`${id}-title`} className={styles.title}>
+      <h2 id={`${id}-title`} className={hideTitle ? 'visually-hidden' : styles.title}>
         <RichText text={title} />
       </h2>
     </div>
