@@ -1,11 +1,10 @@
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import Link from 'next/link'
 import { createCsrfToken } from '@/lib/server/csrf'
 import { listDbExperiences, listDbProjects } from '@/lib/server/content-db'
 import {
   deleteExperienceAction,
   ensureAdminOrRedirect,
-  moveExperienceAction,
+  reorderExperienceAction,
   saveExperienceAction,
   translateExperienceAction,
 } from '../actions'
@@ -13,6 +12,7 @@ import { AdminNav } from '../_components/AdminNav'
 import { TechIdReference } from '../_components/TechIdReference'
 import { ConfirmForm } from '../_components/ConfirmForm'
 import { LocaleTabs } from '../_components/LocaleTabs'
+import { SortableList } from '../_components/SortableList'
 import styles from '../sudo.module.css'
 
 type Props = {
@@ -50,44 +50,24 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
 
       <div className={styles.split}>
         <aside className={styles.sideList}>
-          {items.map((e, index) => {
-            const active = !creating && editing?.id === e.id
-            return (
-              <div key={e.id} className={styles.sideItemRow}>
+          <SortableList
+            key={items.map((e) => e.id).join('|')}
+            action={reorderExperienceAction}
+            csrf={csrf}
+            items={items.map((e) => ({
+              id: e.id,
+              label: e.role.de || e.id,
+              content: (
                 <Link
                   href={`/sudo/experience?edited=${encodeURIComponent(e.id)}`}
-                  className={`${styles.sideItem} ${active ? styles.sideItemActive : ''}`}
+                  className={`${styles.sideItem} ${!creating && editing?.id === e.id ? styles.sideItemActive : ''}`}
                 >
                   <span className={styles.sideItemTitle}>{e.role.de || e.id}</span>
-                  <span className={styles.muted}>
-                    {e.company.de} · sort {e.sortOrder}
-                  </span>
+                  <span className={styles.muted}>{e.company.de}</span>
                 </Link>
-                <div className={styles.sideSort}>
-                  <form action={moveExperienceAction}>
-                    <input type="hidden" name="csrf" value={csrf} />
-                    <input type="hidden" name="id" value={e.id} />
-                    <input type="hidden" name="direction" value="up" />
-                    <button type="submit" disabled={index === 0} aria-label="Move up">
-                      <IconChevronUp size={16} stroke={1.75} aria-hidden="true" />
-                    </button>
-                  </form>
-                  <form action={moveExperienceAction}>
-                    <input type="hidden" name="csrf" value={csrf} />
-                    <input type="hidden" name="id" value={e.id} />
-                    <input type="hidden" name="direction" value="down" />
-                    <button
-                      type="submit"
-                      disabled={index === items.length - 1}
-                      aria-label="Move down"
-                    >
-                      <IconChevronDown size={16} stroke={1.75} aria-hidden="true" />
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )
-          })}
+              ),
+            }))}
+          />
         </aside>
 
         <div className={styles.editorPane} key={creating ? 'new' : (editing?.id ?? 'empty')}>
@@ -106,15 +86,6 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
                   required
                   defaultValue={editing?.id ?? ''}
                   readOnly={Boolean(editing)}
-                />
-              </label>
-              <label className={styles.label}>
-                Sort
-                <input
-                  className={styles.input}
-                  name="sortOrder"
-                  type="number"
-                  defaultValue={editing?.sortOrder ?? items.length}
                 />
               </label>
               <label className={styles.label}>

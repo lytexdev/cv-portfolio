@@ -1,4 +1,3 @@
-import { IconChevronDown, IconChevronUp } from '@tabler/icons-react'
 import Link from 'next/link'
 import { createCsrfToken } from '@/lib/server/csrf'
 import { listDbProjects } from '@/lib/server/content-db'
@@ -6,8 +5,9 @@ import { projectImageSrc } from '@/lib/server/assets'
 import {
   deleteProjectAction,
   ensureAdminOrRedirect,
-  moveProjectAction,
   removeProjectImageAction,
+  reorderProjectImagesAction,
+  reorderProjectsAction,
   saveProjectAction,
   translateProjectAction,
   uploadProjectImageAction,
@@ -17,6 +17,7 @@ import { TechIdReference } from '../_components/TechIdReference'
 import { ConfirmForm } from '../_components/ConfirmForm'
 import { ImageUploader } from '../_components/ImageUploader'
 import { LocaleTabs } from '../_components/LocaleTabs'
+import { SortableList } from '../_components/SortableList'
 import styles from '../sudo.module.css'
 
 type Props = {
@@ -68,44 +69,26 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
 
       <div className={styles.split}>
         <aside className={styles.sideList}>
-          {projects.map((p, index) => {
-            const active = !creating && editing?.slug === p.slug
-            return (
-              <div key={p.slug} className={styles.sideItemRow}>
+          <SortableList
+            key={projects.map((p) => p.slug).join('|')}
+            action={reorderProjectsAction}
+            csrf={csrf}
+            items={projects.map((p) => ({
+              id: p.slug,
+              label: p.title.de || p.slug,
+              content: (
                 <Link
                   href={`/sudo/projects?edited=${encodeURIComponent(p.slug)}`}
-                  className={`${styles.sideItem} ${active ? styles.sideItemActive : ''}`}
+                  className={`${styles.sideItem} ${!creating && editing?.slug === p.slug ? styles.sideItemActive : ''}`}
                 >
                   <span className={styles.sideItemTitle}>{p.title.de || p.slug}</span>
                   <span className={styles.muted}>
-                    {p.slug} · {p.featured ? 'featured' : 'compact'} · sort {p.sortOrder}
+                    {p.slug} · {p.featured ? 'featured' : 'compact'}
                   </span>
                 </Link>
-                <div className={styles.sideSort}>
-                  <form action={moveProjectAction}>
-                    <input type="hidden" name="csrf" value={csrf} />
-                    <input type="hidden" name="slug" value={p.slug} />
-                    <input type="hidden" name="direction" value="up" />
-                    <button type="submit" disabled={index === 0} aria-label="Move up">
-                      <IconChevronUp size={16} stroke={1.75} aria-hidden="true" />
-                    </button>
-                  </form>
-                  <form action={moveProjectAction}>
-                    <input type="hidden" name="csrf" value={csrf} />
-                    <input type="hidden" name="slug" value={p.slug} />
-                    <input type="hidden" name="direction" value="down" />
-                    <button
-                      type="submit"
-                      disabled={index === projects.length - 1}
-                      aria-label="Move down"
-                    >
-                      <IconChevronDown size={16} stroke={1.75} aria-hidden="true" />
-                    </button>
-                  </form>
-                </div>
-              </div>
-            )
-          })}
+              ),
+            }))}
+          />
         </aside>
 
         <div
@@ -143,15 +126,6 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                 </select>
               </label>
               <label className={styles.label}>
-                Sort order
-                <input
-                  className={styles.input}
-                  name="sortOrder"
-                  type="number"
-                  defaultValue={editing?.sortOrder ?? projects.length}
-                />
-              </label>
-              <label className={styles.label}>
                 External URL
                 <input
                   className={styles.input}
@@ -167,15 +141,6 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                   name="stack"
                   defaultValue={editing?.stack.join(', ') ?? ''}
                   placeholder="nuxt, vue, docker"
-                />
-              </label>
-              <label className={styles.label}>
-                Image filenames
-                <input
-                  className={styles.input}
-                  name="images"
-                  defaultValue={editing?.images.join(', ') ?? ''}
-                  placeholder="managed via gallery below"
                 />
               </label>
             </div>
@@ -297,41 +262,54 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
           {editing ? (
             <>
               <p className={styles.sectionLabel}>Images</p>
+              <p className={styles.muted}>
+                Drag images or use the arrows to change the order. The first image is the cover.
+              </p>
               {editing.images.length > 0 ? (
-                <div className={styles.imageGrid}>
-                  {editing.images.map((filename) => {
+                <SortableList
+                  key={editing.images.join('|')}
+                  layout="grid"
+                  action={reorderProjectImagesAction}
+                  csrf={csrf}
+                  fields={{ slug: editing.slug }}
+                  items={editing.images.map((filename) => {
                     const src = projectImageSrc(editing.slug, filename)
-                    return (
-                      <article key={filename} className={styles.imageCard}>
-                        {src ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={src} alt="" className={styles.imageThumb} />
-                        ) : (
-                          <div className={styles.imageThumb} />
-                        )}
-                        <div className={styles.imageMeta}>
-                          <code>{filename}</code>
-                          <ConfirmForm
-                            action={removeProjectImageAction}
-                            title="Remove image?"
-                            message={`Remove "${filename}" from this project? The file stays on disk.`}
-                            confirmLabel="Remove"
-                          >
-                            <input type="hidden" name="csrf" value={csrf} />
-                            <input type="hidden" name="slug" value={editing.slug} />
-                            <input type="hidden" name="filename" value={filename} />
-                            <button
-                              className={`${styles.button} ${styles.buttonDanger}`}
-                              type="submit"
+                    return {
+                      id: filename,
+                      label: filename,
+                      content: (
+                        <article className={styles.imageCard}>
+                          {src ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={src} alt="" className={styles.imageThumb} draggable={false} />
+                          ) : (
+                            <div className={styles.imageThumb} />
+                          )}
+                          <div className={styles.imageMeta}>
+                            <span className={styles.coverBadge}>Cover</span>
+                            <code>{filename}</code>
+                            <ConfirmForm
+                              action={removeProjectImageAction}
+                              title="Remove image?"
+                              message={`Remove "${filename}" from this project? The file stays on disk.`}
+                              confirmLabel="Remove"
                             >
-                              Remove
-                            </button>
-                          </ConfirmForm>
-                        </div>
-                      </article>
-                    )
+                              <input type="hidden" name="csrf" value={csrf} />
+                              <input type="hidden" name="slug" value={editing.slug} />
+                              <input type="hidden" name="filename" value={filename} />
+                              <button
+                                className={`${styles.button} ${styles.buttonDanger}`}
+                                type="submit"
+                              >
+                                Remove
+                              </button>
+                            </ConfirmForm>
+                          </div>
+                        </article>
+                      ),
+                    }
                   })}
-                </div>
+                />
               ) : (
                 <p className={styles.muted}>No images yet.</p>
               )}

@@ -589,3 +589,111 @@
 .techItem code {
   color: #9aa3b5;
 }
+
+.sortable {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sortableGrid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.sortableItem {
+  display: flex;
+  align-items: stretch;
+  gap: 0.35rem;
+  border-radius: 6px;
+}
+
+.sortableGrid .sortableItem {
+  flex-direction: column-reverse;
+  border: 1px solid #2a3140;
+  background: #0b0e14;
+  overflow: hidden;
+}
+
+.sortableDragging {
+  opacity: 0.45;
+  outline: 1px dashed #3ddc97;
+}
+
+.sortableControls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.sortableGrid .sortableControls {
+  flex-direction: row;
+  padding: 0 0.5rem 0.5rem;
+}
+
+.sortableGrip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  color: #9aa3b5;
+  cursor: grab;
+}
+
+.sortableItem[draggable='true']:active .sortableGrip {
+  cursor: grabbing;
+}
+
+.sortableControls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #2a3140;
+  border-radius: 4px;
+  background: #0b0e14;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sortableControls button:hover:not(:disabled) {
+  border-color: #3ddc97;
+  color: #3ddc97;
+}
+
+.sortableControls button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.sortableContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.sortableContent .sideItem {
+  height: 100%;
+}
+
+.coverBadge {
+  justify-self: start;
+  padding: 0.1rem 0.4rem;
+  border: 1px solid #3ddc97;
+  border-radius: 4px;
+  color: #3ddc97;
+  font-size: 0.7rem;
+  font-family: var(--font-mono, ui-monospace), monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sortableItem:not(:first-child) .coverBadge {
+  display: none;
+}

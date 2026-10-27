@@ -232,16 +232,14 @@ export async function saveProjectAction(formData: FormData) {
   await assertCsrf(formData, String(session.adminId))
 
   const slug = formString(formData, 'slug')
-  const existing = listDbProjects().find((p) => p.slug === slug)
+  const projects = listDbProjects()
+  const existing = projects.find((p) => p.slug === slug)
   const project: DbProject = {
     slug,
     featured: formString(formData, 'featured') === '1',
-    sortOrder: Number(formString(formData, 'sortOrder') || '0'),
+    sortOrder: existing?.sortOrder ?? projects.length,
     stack: parseTechIds(formString(formData, 'stack')),
-    images: formString(formData, 'images')
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean),
+    images: existing?.images ?? [],
     href: formString(formData, 'href') || undefined,
     title: {
       de: formString(formData, 'title_de'),
@@ -362,9 +360,11 @@ export async function saveExperienceAction(formData: FormData) {
     .map(String)
     .map((s) => s.trim())
     .filter(Boolean) as DbExperience['projectLinks']
+  const id = formString(formData, 'id')
+  const items = listDbExperiences()
   const exp: DbExperience = {
-    id: formString(formData, 'id'),
-    sortOrder: Number(formString(formData, 'sortOrder') || '0'),
+    id,
+    sortOrder: items.find((e) => e.id === id)?.sortOrder ?? items.length,
     start: formString(formData, 'start'),
     end: formString(formData, 'end') || null,
     stack: parseTechIds(formString(formData, 'stack')),
@@ -400,62 +400,56 @@ export async function saveExperienceAction(formData: FormData) {
   redirect(`/sudo/experience?edited=${encodeURIComponent(exp.id)}&saved=1`)
 }
 
-export async function moveExperienceAction(formData: FormData) {
-  const session = await requireSession()
-  await assertCsrf(formData, String(session.adminId))
-  const id = formString(formData, 'id')
-  const direction = formString(formData, 'direction')
-  const items = listDbExperiences()
-  const index = items.findIndex((item) => item.id === id)
-  if (index < 0) redirect('/sudo/experience')
-  const swapIndex = direction === 'up' ? index - 1 : index + 1
-  if (swapIndex < 0 || swapIndex >= items.length) {
-    redirect(`/sudo/experience?edited=${encodeURIComponent(id)}`)
-  }
-  const current = items[index]!
-  const neighbor = items[swapIndex]!
-  const currentOrder = current.sortOrder
-  current.sortOrder = neighbor.sortOrder
-  neighbor.sortOrder = currentOrder
-  if (current.sortOrder === neighbor.sortOrder) {
-    current.sortOrder = swapIndex
-    neighbor.sortOrder = index
-  }
-  upsertExperience(current)
-  upsertExperience(neighbor)
-  revalidatePath('/sudo/experience')
-  revalidatePath('/de')
-  revalidatePath('/en')
-  redirect(`/sudo/experience?edited=${encodeURIComponent(id)}`)
+function orderedIds(formData: FormData, existing: string[]): string[] {
+  const known = new Set(existing)
+  const requested = [...new Set(formData.getAll('order').map(String))].filter((id) =>
+    known.has(id),
+  )
+  return [...requested, ...existing.filter((id) => !requested.includes(id))]
 }
 
-export async function moveProjectAction(formData: FormData) {
+export async function reorderProjectsAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const projects = listDbProjects()
+  const order = orderedIds(
+    formData,
+    projects.map((p) => p.slug),
+  )
+  for (const project of projects) {
+    project.sortOrder = order.indexOf(project.slug)
+    upsertProject(project)
+  }
+  revalidatePath('/sudo/projects')
+  revalidatePublicCv()
+}
+
+export async function reorderExperienceAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const items = listDbExperiences()
+  const order = orderedIds(
+    formData,
+    items.map((e) => e.id),
+  )
+  for (const item of items) {
+    item.sortOrder = order.indexOf(item.id)
+    upsertExperience(item)
+  }
+  revalidatePath('/sudo/experience')
+  revalidatePublicCv()
+}
+
+export async function reorderProjectImagesAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
   const slug = formString(formData, 'slug')
-  const direction = formString(formData, 'direction')
-  const items = listDbProjects()
-  const index = items.findIndex((item) => item.slug === slug)
-  if (index < 0) redirect('/sudo/projects')
-  const swapIndex = direction === 'up' ? index - 1 : index + 1
-  if (swapIndex < 0 || swapIndex >= items.length) {
-    redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}`)
-  }
-  const current = items[index]!
-  const neighbor = items[swapIndex]!
-  const currentOrder = current.sortOrder
-  current.sortOrder = neighbor.sortOrder
-  neighbor.sortOrder = currentOrder
-  if (current.sortOrder === neighbor.sortOrder) {
-    current.sortOrder = swapIndex
-    neighbor.sortOrder = index
-  }
-  upsertProject(current)
-  upsertProject(neighbor)
+  const project = listDbProjects().find((p) => p.slug === slug)
+  if (!project) return
+  project.images = orderedIds(formData, project.images)
+  upsertProject(project)
   revalidatePath('/sudo/projects')
-  revalidatePath('/de')
-  revalidatePath('/en')
-  redirect(`/sudo/projects?edited=${encodeURIComponent(slug)}`)
+  revalidatePublicCv()
 }
 
 export async function deleteExperienceAction(formData: FormData) {
