@@ -10,10 +10,17 @@
     linear-gradient(90deg, var(--border) 1px, transparent 1px) 0 0 / 16px 16px,
     var(--surface-2);
   color: var(--muted);
+  container-type: size;
 }
 
 .slug {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 0.8125rem;
   letter-spacing: 0.04em;
+}
+
+@container (max-width: 8rem) {
+  .slug {
+    display: none;
+  }
 }

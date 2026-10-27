@@ -84,6 +84,20 @@
   gap: var(--space-6);
 }
 
+@media (max-width: 1023px) {
+  .portrait {
+    width: min(100%, 15rem);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1023px) {
+  .aside {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
 .portrait {
   position: relative;
   aspect-ratio: 4 / 5;
