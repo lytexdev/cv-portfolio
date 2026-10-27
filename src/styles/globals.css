@@ -11,6 +11,7 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   overflow-x: clip;
+  interpolate-size: allow-keywords;
 }
 
 html.js[data-reduced-motion='false'] {
@@ -268,4 +269,58 @@ html.js:not([data-reduced-motion='true']) [data-reveal].is-visible {
 
 .print-only {
   display: none;
+}
+
+@keyframes boot-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes boot-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0);
+  }
+}
+
+html[data-boot='reveal'] [data-boot-step] {
+  animation: boot-reveal 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+html[data-boot='reveal'] [data-boot-step='type'] {
+  animation: boot-type 560ms steps(24, end) 120ms both;
+}
+
+html[data-boot='reveal'] [data-boot-step='1'] {
+  animation-delay: 700ms;
+}
+
+html[data-boot='reveal'] [data-boot-step='2'] {
+  animation-delay: 800ms;
+}
+
+html[data-boot='reveal'] [data-boot-step='3'] {
+  animation-delay: 900ms;
+}
+
+html[data-boot='reveal'] [data-boot-step='4'] {
+  animation-delay: 1000ms;
+}
+
+html[data-boot='reveal'] [data-boot-step='5'] {
+  animation-delay: 760ms;
+}
+
+html[data-boot='reveal'] [data-boot-step='6'] {
+  animation-delay: 900ms;
 }

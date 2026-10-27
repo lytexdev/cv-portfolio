@@ -1,4 +1,5 @@
 import type { CvDictionary, Locale } from '@/content/types'
+import { Collapsible } from '@/components/content/Collapsible'
 import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { formatDuration, formatRange } from '@/lib/dates'
@@ -24,7 +25,7 @@ export function Experience({ locale, dictionary }: Props) {
     >
       <SectionHeading id="experience" rail={section.rail} title={section.title} />
       <ol className={styles.list}>
-        {experiences.map((entry) => {
+        {experiences.map((entry, index) => {
           const copy = dictionary.experience.entries[
             entry.id as keyof typeof dictionary.experience.entries
           ]
@@ -65,13 +66,19 @@ export function Experience({ locale, dictionary }: Props) {
                   <RichText text={copy.location} />
                 </p>
                 {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
-                  <ul className={styles.highlights}>
-                    {copy.highlights.map((item) => (
-                      <li key={item}>
-                        <RichText text={item} />
-                      </li>
-                    ))}
-                  </ul>
+                  <Collapsible
+                    showLabel={dictionary.collapse.show}
+                    hideLabel={dictionary.collapse.hide}
+                    defaultOpen={index === 0}
+                  >
+                    <ul className={styles.highlights}>
+                      {copy.highlights.map((item) => (
+                        <li key={item}>
+                          <RichText text={item} />
+                        </li>
+                      ))}
+                    </ul>
+                  </Collapsible>
                 ) : null}
                 <ul className={styles.stack}>
                   {entry.stack.map((techId) => (

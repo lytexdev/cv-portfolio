@@ -457,6 +457,10 @@ export const de = {
     privacy: 'Datenschutz',
     source: 'Quellcode',
   },
+  collapse: {
+    show: 'Mehr anzeigen',
+    hide: 'Weniger anzeigen',
+  },
   externalNewTab: '(öffnet in neuem Tab)',
   duration: {
     years: 'J.',

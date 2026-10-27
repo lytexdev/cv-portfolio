@@ -22,6 +22,7 @@ const TYPE_STEP = 26
 const BAR_STEP = 32
 const OPEN_DURATION = 520
 const FADE_DURATION = 380
+const REVEAL_DURATION = 1700
 
 type Phase = 'boot' | 'opening' | 'leaving' | 'done'
 
@@ -67,11 +68,12 @@ export function PageBoot() {
 
     const close = (start: number) => {
       at(start, () => setPhase('opening'))
-      at(start + OPEN_DURATION, () => setPhase('leaving'))
-      at(start + OPEN_DURATION + FADE_DURATION, () => {
-        markDone()
-        setPhase('done')
+      at(start + OPEN_DURATION, () => {
+        if (!reduced) document.documentElement.setAttribute('data-boot', 'reveal')
+        setPhase('leaving')
       })
+      at(start + OPEN_DURATION + FADE_DURATION, () => setPhase('done'))
+      at(start + OPEN_DURATION + (reduced ? FADE_DURATION : REVEAL_DURATION), markDone)
     }
 
     if (skipped || reduced) {

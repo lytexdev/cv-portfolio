@@ -31,6 +31,7 @@ export type TechId =
   | 'linux'
   | 'archlinux'
   | 'ubuntu'
+  | 'ubuntu-server'
   | 'debian'
   | 'nginx'
   | 'npm-proxy'
@@ -97,6 +98,10 @@ export type TechId =
   | 'caddy'
   | 'encryption'
   | 'cli'
+  | 'linuxmint'
+  | 'kali'
+  | 'opensuse'
+  | 'fedora'
 
 export type SpokenLanguageCode = 'de' | 'en' | 'ru' | 'es' | 'fr' | 'tr' | 'it' | 'pl'
 
@@ -270,6 +275,10 @@ export type CvDictionary = {
     source: string
   }
   externalNewTab: string
+  collapse: {
+    show: string
+    hide: string
+  }
   duration: {
     years: string
     year: string

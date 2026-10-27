@@ -36,7 +36,6 @@ import {
   IconBrandTailwind,
   IconBrandTelegram,
   IconBrandTypescript,
-  IconBrandUbuntu,
   IconBrandVite,
   IconBrandVue,
   IconBrandWindows,
@@ -65,6 +64,7 @@ import {
   siEspressif,
   siExpo,
   siFastapi,
+  siFedora,
   siFishshell,
   siFlask,
   siFrigate,
@@ -72,16 +72,18 @@ import {
   siGnuprivacyguard,
   siGo,
   siJellyfin,
+  siKalilinux,
   siKde,
   siLetsencrypt,
   siLinux,
+  siLinuxmint,
   siMariadb,
   siMinio,
   siMonero,
   siNginx,
   siNginxproxymanager,
   siObsidian,
-  siOpenjdk,
+  siOpensuse,
   siPaperlessngx,
   siPostgresql,
   siPrisma,
@@ -90,12 +92,13 @@ import {
   siRedis,
   siShopware,
   siSqlite,
+  siUbuntu,
   siVscodium,
   siVuetify,
   type SimpleIcon,
 } from 'simple-icons'
 import type { TechId } from '@/content/types'
-import { ciMicrosoftCopilot, type CustomIcon } from './custom-icons'
+import { ciJava, ciMicrosoftCopilot, ciUbuntuServer, type CustomIcon } from './custom-icons'
 
 export type TechDef =
   | { label: string; source: 'tabler'; icon: TablerIcon }
@@ -130,7 +133,8 @@ export const techRegistry: Record<TechId, TechDef> = {
   aws: { label: 'AWS', source: 'tabler', icon: IconBrandAws },
   linux: { label: 'Linux', source: 'simple', icon: siLinux },
   archlinux: { label: 'Arch Linux', source: 'simple', icon: siArchlinux },
-  ubuntu: { label: 'Ubuntu Server', source: 'tabler', icon: IconBrandUbuntu },
+  ubuntu: { label: 'Ubuntu', source: 'simple', icon: siUbuntu },
+  'ubuntu-server': { label: 'Ubuntu Server', source: 'custom', icon: ciUbuntuServer },
   debian: { label: 'Debian', source: 'tabler', icon: IconBrandDebian },
   nginx: { label: 'Nginx', source: 'simple', icon: siNginx },
   'npm-proxy': { label: 'Nginx Proxy Manager', source: 'simple', icon: siNginxproxymanager },
@@ -166,7 +170,7 @@ export const techRegistry: Record<TechId, TechDef> = {
   angular: { label: 'Angular', source: 'tabler', icon: IconBrandAngular },
   svelte: { label: 'Svelte', source: 'tabler', icon: IconBrandSvelte },
   go: { label: 'Go', source: 'simple', icon: siGo },
-  java: { label: 'Java', source: 'simple', icon: siOpenjdk },
+  java: { label: 'Java', source: 'custom', icon: ciJava },
   prisma: { label: 'Prisma', source: 'simple', icon: siPrisma },
   wordpress: { label: 'WordPress', source: 'tabler', icon: IconBrandWordpress },
   mariadb: { label: 'MariaDB', source: 'simple', icon: siMariadb },
@@ -197,6 +201,10 @@ export const techRegistry: Record<TechId, TechDef> = {
   caddy: { label: 'Caddy', source: 'simple', icon: siCaddy },
   encryption: { label: 'Kryptografie & Verschlüsselung', source: 'tabler', icon: IconLockPassword },
   cli: { label: 'CLI', source: 'tabler', icon: IconTerminal2 },
+  linuxmint: { label: 'Linux Mint', source: 'simple', icon: siLinuxmint },
+  kali: { label: 'Kali Linux', source: 'simple', icon: siKalilinux },
+  opensuse: { label: 'openSUSE', source: 'simple', icon: siOpensuse },
+  fedora: { label: 'Fedora', source: 'simple', icon: siFedora },
 }
 
 export const techIds = Object.keys(techRegistry) as TechId[]

@@ -54,7 +54,7 @@ export const stackGroups: Record<StackGroupId, TechId[]> = {
   infra: [
     'linux',
     'archlinux',
-    'ubuntu',
+    'ubuntu-server',
     'debian',
     'docker',
     'nginx',

@@ -455,6 +455,10 @@ export const en = {
     privacy: 'Privacy',
     source: 'Source',
   },
+  collapse: {
+    show: 'Show more',
+    hide: 'Show less',
+  },
   externalNewTab: '(opens in a new tab)',
   duration: {
     years: 'yrs',

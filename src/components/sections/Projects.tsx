@@ -34,6 +34,7 @@ export function Projects({ dictionary, accessToken }: Props) {
             dictionary={dictionary}
             accessToken={accessToken}
             alternate={index % 2 === 1}
+            defaultOpen={index === 0}
           />
         ))}
       </div>

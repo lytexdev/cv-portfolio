@@ -1,20 +1,30 @@
+import type { CustomIcon } from './custom-icons'
 import styles from './TechIcon.module.css'
 
 type Props = {
-  icon: { path: string; fillRule?: 'evenodd' | 'nonzero' }
+  icon: { path: string } | CustomIcon
   title?: string
 }
 
 export function SimpleIcon({ icon, title }: Props) {
+  const layers = 'layers' in icon ? icon.layers : [{ d: icon.path }]
   return (
     <svg
-      viewBox="0 0 24 24"
+      viewBox={'viewBox' in icon && icon.viewBox ? icon.viewBox : '0 0 24 24'}
       className={styles.simple}
       aria-hidden={title ? undefined : true}
       role={title ? 'img' : undefined}
     >
       {title ? <title>{title}</title> : null}
-      <path d={icon.path} fill="currentColor" fillRule={icon.fillRule} />
+      {layers.map((layer) => (
+        <path
+          key={layer.d}
+          d={layer.d}
+          fill="currentColor"
+          fillRule={'fillRule' in layer ? layer.fillRule : undefined}
+          transform={'transform' in layer ? layer.transform : undefined}
+        />
+      ))}
     </svg>
   )
 }

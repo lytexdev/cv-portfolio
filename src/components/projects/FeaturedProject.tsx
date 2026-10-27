@@ -1,6 +1,7 @@
 import { IconExternalLink } from '@tabler/icons-react'
 import Image from 'next/image'
 import type { CvDictionary, ProjectSlug } from '@/content/types'
+import { Collapsible } from '@/components/content/Collapsible'
 import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
@@ -15,6 +16,7 @@ type Props = {
   dictionary: CvDictionary
   accessToken?: string
   alternate?: boolean
+  defaultOpen?: boolean
 }
 
 export function FeaturedProject({
@@ -22,6 +24,7 @@ export function FeaturedProject({
   dictionary,
   accessToken,
   alternate = false,
+  defaultOpen = false,
 }: Props) {
   const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.featured[slug]
@@ -95,13 +98,19 @@ export function FeaturedProject({
           <RichText text={copy.summary} />
         </p>
         {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
-          <ul className={styles.highlights}>
-            {copy.highlights.map((item) => (
-              <li key={item}>
-                <RichText text={item} />
-              </li>
-            ))}
-          </ul>
+          <Collapsible
+            showLabel={dictionary.collapse.show}
+            hideLabel={dictionary.collapse.hide}
+            defaultOpen={defaultOpen}
+          >
+            <ul className={styles.highlights}>
+              {copy.highlights.map((item) => (
+                <li key={item}>
+                  <RichText text={item} />
+                </li>
+              ))}
+            </ul>
+          </Collapsible>
         ) : null}
         <ul className={styles.stack}>
           {project.stack.map((techId) => (

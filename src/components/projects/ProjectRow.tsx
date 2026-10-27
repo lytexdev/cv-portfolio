@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { CvDictionary, ProjectSlug } from '@/content/types'
+import { Collapsible } from '@/components/content/Collapsible'
 import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
@@ -55,6 +56,17 @@ export function ProjectRow({ slug, dictionary, accessToken }: Props) {
         <p className={styles.oneLiner}>
           <RichText text={copy.oneLiner} />
         </p>
+        {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
+          <Collapsible showLabel={dictionary.collapse.show} hideLabel={dictionary.collapse.hide}>
+            <ul className={styles.highlights}>
+              {copy.highlights.map((item) => (
+                <li key={item}>
+                  <RichText text={item} />
+                </li>
+              ))}
+            </ul>
+          </Collapsible>
+        ) : null}
         {project.stack.length > 0 ? (
           <ul className={styles.stack}>
             {project.stack.map((techId) => (

@@ -147,6 +147,25 @@ function InteractiveChromeInner({
   }, [token])
 
   useEffect(() => {
+    let expanded: HTMLDetailsElement[] = []
+    const onBeforePrint = () => {
+      expanded = [...document.querySelectorAll<HTMLDetailsElement>('details[data-collapsible]')]
+        .filter((details) => !details.open)
+      for (const details of expanded) details.open = true
+    }
+    const onAfterPrint = () => {
+      for (const details of expanded) details.open = false
+      expanded = []
+    }
+    window.addEventListener('beforeprint', onBeforePrint)
+    window.addEventListener('afterprint', onAfterPrint)
+    return () => {
+      window.removeEventListener('beforeprint', onBeforePrint)
+      window.removeEventListener('afterprint', onAfterPrint)
+    }
+  }, [])
+
+  useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement | null
       if (!target) return
