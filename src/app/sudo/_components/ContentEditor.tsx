@@ -96,7 +96,7 @@ export function ContentEditor({
             className={styles.input}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="hero.ctaContact"
+            placeholder="hero.ctaPrint"
           />
         </label>
         <ul className={styles.keyList}>

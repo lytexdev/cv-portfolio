@@ -21,7 +21,6 @@ export const en = {
   },
   hero: {
     prompt: 'immanuel@lytex ~> whoami',
-    ctaContact: 'Get in touch',
     ctaPrint: 'Save as PDF',
     tokenBadge: 'Personal version for {label}',
     tokenRole: 'Application for {role}',

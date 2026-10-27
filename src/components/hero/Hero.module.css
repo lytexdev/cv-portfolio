@@ -42,7 +42,6 @@
   margin-bottom: var(--space-8);
 }
 
-.primary,
 .secondary,
 .iconLink {
   display: inline-flex;
@@ -54,17 +53,6 @@
   border-radius: var(--radius-sm);
   text-decoration: none;
   font-weight: 600;
-}
-
-.primary {
-  background: var(--ok);
-  color: var(--on-accent);
-  border: 1px solid transparent;
-}
-
-.primary:hover {
-  filter: brightness(1.08);
-  color: var(--on-accent);
 }
 
 .secondary {

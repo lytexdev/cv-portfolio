@@ -21,7 +21,6 @@ export const de = {
   },
   hero: {
     prompt: 'immanuel@lytex ~> whoami',
-    ctaContact: 'Kontakt aufnehmen',
     ctaPrint: 'Als PDF speichern',
     tokenBadge: 'Persönliche Version für {label}',
     tokenRole: 'Bewerbung als {role}',

@@ -146,7 +146,6 @@ export type CvDictionary = {
   >
   hero: {
     prompt: string
-    ctaContact: string
     ctaPrint: string
     tokenBadge: string
     tokenRole: string

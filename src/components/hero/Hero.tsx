@@ -43,9 +43,6 @@ export function Hero({
         </p>
 
         <div className={styles.actions}>
-          <a href={`#contact`} className={styles.primary}>
-            {dictionary.hero.ctaContact}
-          </a>
           <button type="button" className={styles.secondary} data-print-trigger>
             <IconPrinter size={18} stroke={1.75} aria-hidden="true" />
             {dictionary.hero.ctaPrint}
