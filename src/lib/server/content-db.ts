@@ -182,7 +182,7 @@ export function getRuntimeDictionary(locale: Locale): CvDictionary {
         title: project.title[locale],
         summary: project.summary[locale],
         highlights: project.highlights[locale],
-        linkLabel: locale === 'de' ? 'Zur Website' : 'Visit website',
+        linkLabel: base.projects.websiteLink,
         images,
       }
     } else {

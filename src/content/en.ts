@@ -356,6 +356,7 @@ export const en = {
     },
     details: 'Details',
     viewProject: 'View project',
+    websiteLink: 'Visit website',
     gallery: {
       open: 'Enlarge image',
       close: 'Close gallery',

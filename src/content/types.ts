@@ -196,6 +196,7 @@ export type CvDictionary = {
     >
     details: string
     viewProject: string
+    websiteLink: string
     gallery: {
       open: string
       close: string

@@ -3,8 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Lightbox, type ViewableImage } from '@/components/projects/Lightbox'
 import { ProjectDialog, type ProjectDialogData } from '@/components/projects/ProjectDialog'
-import { projects } from '@/content/shared'
-import type { CvDictionary, Locale, ProjectSlug } from '@/content/types'
+import type { CvDictionary, Locale, ProjectSlug, TechId } from '@/content/types'
 import { ActiveSection } from './ActiveSection'
 import { CommandPalette } from './CommandPalette'
 import { MediaProtect } from './MediaProtect'
@@ -15,6 +14,8 @@ import { ToasterProvider, useToast } from './Toaster'
 type ProjectPayload = {
   slug: ProjectSlug
   featured: boolean
+  stack: TechId[]
+  href?: string
   images: Array<{ filename: string; src: string | null; alt: string; caption: string }>
 }
 
@@ -67,8 +68,7 @@ function InteractiveChromeInner({
   const openProject = useCallback(
     (slug: ProjectSlug) => {
       const payload = payloadsBySlug.get(slug)
-      const shared = projects[slug]
-      if (!payload || !shared) return
+      if (!payload) return
 
       const featuredCopy = dictionary.projects.featured[slug]
       const compactCopy = dictionary.projects.compact[slug]
@@ -81,7 +81,9 @@ function InteractiveChromeInner({
         title: copy.title,
         summary: 'summary' in copy ? copy.summary : copy.oneLiner,
         highlights: copy.highlights,
-        stack: shared.stack,
+        stack: payload.stack,
+        href: payload.href,
+        linkLabel: featuredCopy?.linkLabel || dictionary.projects.websiteLink,
         images: payload.images.map((image) => ({
           src: image.src,
           alt: image.alt,
@@ -222,6 +224,7 @@ function InteractiveChromeInner({
         onClose={() => setProjectOpen(false)}
         project={activeProject}
         labelledBy="project-dialog-title"
+        externalNewTab={dictionary.externalNewTab}
         openImageLabel={dictionary.projects.gallery.open}
         onOpenImage={(filename) => {
           if (activeProject) openImage(activeProject.slug as ProjectSlug, filename)

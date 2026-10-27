@@ -1,6 +1,6 @@
 'use client'
 
-import { IconX } from '@tabler/icons-react'
+import { IconExternalLink, IconX } from '@tabler/icons-react'
 import { useEffect, useRef } from 'react'
 import { TechIcon } from '@/components/icons/TechIcon'
 import type { TechId } from '@/content/types'
@@ -15,6 +15,8 @@ export type ProjectDialogData = {
   summary: string
   highlights: string[]
   stack: TechId[]
+  href?: string
+  linkLabel: string
   images: GalleryImage[]
 }
 
@@ -23,6 +25,7 @@ type Props = {
   onClose: () => void
   project: ProjectDialogData | null
   labelledBy: string
+  externalNewTab: string
   openImageLabel: string
   onOpenImage: (filename: string) => void
 }
@@ -32,6 +35,7 @@ export function ProjectDialog({
   onClose,
   project,
   labelledBy,
+  externalNewTab,
   openImageLabel,
   onOpenImage,
 }: Props) {
@@ -119,6 +123,18 @@ export function ProjectDialog({
               </li>
             ))}
           </ul>
+          {project.href ? (
+            <a
+              href={project.href}
+              className={styles.link}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {project.linkLabel}
+              <IconExternalLink size={16} stroke={1.75} aria-hidden="true" />
+              <span className="visually-hidden"> {externalNewTab}</span>
+            </a>
+          ) : null}
         </div>
       ) : null}
     </dialog>

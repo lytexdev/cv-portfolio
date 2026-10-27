@@ -53,6 +53,8 @@ function buildProjectPayloads(
     return {
       slug,
       featured: Boolean(featured),
+      stack: project?.stack ?? [],
+      href: project?.href,
       images: (project?.images ?? []).map((filename) => ({
         filename,
         src: projectImageSrc(slug, filename, token),

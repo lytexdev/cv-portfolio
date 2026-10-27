@@ -357,6 +357,7 @@ export const de = {
     },
     details: 'Details',
     viewProject: 'Projekt ansehen',
+    websiteLink: 'Zur Website',
     gallery: {
       open: 'Bild vergrößern',
       close: 'Galerie schließen',
