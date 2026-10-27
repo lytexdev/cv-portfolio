@@ -11,7 +11,7 @@ type Props = {
   params: Promise<{ lang: string }>
 }
 
-const themeInitScript = `(function(){try{var t=localStorage.getItem('cv-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}document.documentElement.setAttribute('lang',document.documentElement.getAttribute('data-lang')||'de')}catch(e){}document.documentElement.classList.add('js');if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-reduced-motion','true')}else{document.documentElement.setAttribute('data-reduced-motion','false')}})();`
+const themeInitScript = `(function(){try{var t=localStorage.getItem('cv-theme');if(t==='light'||t==='dark'){document.documentElement.setAttribute('data-theme',t)}document.documentElement.setAttribute('lang',document.documentElement.getAttribute('data-lang')||'de')}catch(e){}document.documentElement.classList.add('js');try{if(sessionStorage.getItem('cv-boot-done')==='1'){document.documentElement.setAttribute('data-boot','done')}}catch(e){}if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){document.documentElement.setAttribute('data-reduced-motion','true')}else{document.documentElement.setAttribute('data-reduced-motion','false')}})();`
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   await connection()
