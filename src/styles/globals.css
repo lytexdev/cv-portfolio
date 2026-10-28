@@ -294,33 +294,33 @@ html.js:not([data-reduced-motion='true']) [data-reveal].is-visible {
 }
 
 html[data-boot='reveal'] [data-boot-step] {
-  animation: boot-reveal 460ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: boot-reveal 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 html[data-boot='reveal'] [data-boot-step='type'] {
-  animation: boot-type 560ms steps(24, end) 120ms both;
+  animation: boot-type 420ms steps(24, end) 80ms both;
 }
 
 html[data-boot='reveal'] [data-boot-step='1'] {
-  animation-delay: 700ms;
+  animation-delay: 260ms;
 }
 
 html[data-boot='reveal'] [data-boot-step='2'] {
-  animation-delay: 800ms;
+  animation-delay: 320ms;
 }
 
 html[data-boot='reveal'] [data-boot-step='3'] {
-  animation-delay: 900ms;
+  animation-delay: 380ms;
 }
 
 html[data-boot='reveal'] [data-boot-step='4'] {
-  animation-delay: 1000ms;
+  animation-delay: 440ms;
 }
 
 html[data-boot='reveal'] [data-boot-step='5'] {
-  animation-delay: 760ms;
+  animation-delay: 300ms;
 }
 
 html[data-boot='reveal'] [data-boot-step='6'] {
-  animation-delay: 900ms;
+  animation-delay: 380ms;
 }

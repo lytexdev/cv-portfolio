@@ -20,11 +20,10 @@ const LINE_DELAY = 150
 const LINE_STEP = 150
 const TYPE_STEP = 26
 const BAR_STEP = 32
-const OPEN_DURATION = 520
-const FADE_DURATION = 380
-const REVEAL_DURATION = 1700
+const FADE_DURATION = 460
+const REVEAL_DURATION = 1100
 
-type Phase = 'boot' | 'opening' | 'leaving' | 'done'
+type Phase = 'boot' | 'leaving' | 'done'
 
 function subscribe() {
   return () => {}
@@ -67,13 +66,12 @@ export function PageBoot() {
     }
 
     const close = (start: number) => {
-      at(start, () => setPhase('opening'))
-      at(start + OPEN_DURATION, () => {
+      at(start, () => {
         if (!reduced) document.documentElement.setAttribute('data-boot', 'reveal')
         setPhase('leaving')
       })
-      at(start + OPEN_DURATION + FADE_DURATION, () => setPhase('done'))
-      at(start + OPEN_DURATION + (reduced ? FADE_DURATION : REVEAL_DURATION), markDone)
+      at(start + FADE_DURATION, () => setPhase('done'))
+      at(start + (reduced ? FADE_DURATION : REVEAL_DURATION), markDone)
     }
 
     if (skipped || reduced) {
@@ -114,15 +112,12 @@ export function PageBoot() {
 
   if (!shouldBoot || phase === 'done') return null
 
-  const phaseClass =
-    phase === 'opening'
-      ? styles.opening
-      : phase === 'leaving'
-        ? `${styles.opening} ${styles.leaving}`
-        : ''
-
   return (
-    <div className={`${styles.overlay} ${phaseClass}`} aria-hidden="true" data-page-boot>
+    <div
+      className={`${styles.overlay} ${phase === 'leaving' ? styles.leaving : ''}`}
+      aria-hidden="true"
+      data-page-boot
+    >
       <div className={styles.panel}>
         <div className={styles.chrome}>
           <span />

@@ -41,7 +41,7 @@ export function TokenBanner({ label, role, badgeTemplate, roleTemplate, dismissL
   if (!visible) return null
 
   return (
-    <div className={styles.tokenBanner}>
+    <div className={styles.tokenBanner} data-boot-step="0">
       <div className={styles.tokenBannerBody}>
         <strong>{badgeTemplate.replace('{label}', label)}</strong>
         {role ? (
