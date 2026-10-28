@@ -189,17 +189,25 @@ export async function skipTotpAction(formData: FormData) {
   redirect('/sudo')
 }
 
+function expiryFromValidity(validity: string): string | null {
+  const expires = new Date()
+  if (validity === '30d') {
+    expires.setDate(expires.getDate() + 30)
+    return expires.toISOString()
+  }
+  if (validity === '1y') {
+    expires.setFullYear(expires.getFullYear() + 1)
+    return expires.toISOString()
+  }
+  return null
+}
+
 export async function createTokenAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
   const label = formString(formData, 'label')
   const role = formString(formData, 'role') || undefined
-  const expiresRaw = formString(formData, 'expiresAt')
-  let expiresAt: string | null = null
-  if (expiresRaw) {
-    const parsed = Date.parse(expiresRaw)
-    expiresAt = Number.isNaN(parsed) ? null : new Date(parsed).toISOString()
-  }
+  const expiresAt = expiryFromValidity(formString(formData, 'validity'))
   if (!label) redirect('/sudo/tokens?error=label')
   const created = createToken({ label, role, expiresAt })
   revalidatePath('/sudo/tokens')

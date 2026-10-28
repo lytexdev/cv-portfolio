@@ -57,12 +57,12 @@ export default async function TokensPage({ searchParams }: Props) {
             <input className={styles.input} name="role" placeholder="Frontend Developer" />
           </label>
           <label className={styles.label}>
-            Expires (optional ISO date)
-            <input
-              className={styles.input}
-              name="expiresAt"
-              type="datetime-local"
-            />
+            Valid for
+            <select className={styles.select} name="validity" defaultValue="none">
+              <option value="none">No expiry</option>
+              <option value="30d">30 days</option>
+              <option value="1y">1 year</option>
+            </select>
           </label>
           <div className={styles.toolbar} style={{ border: 0, margin: 0, padding: 0 }}>
             <button className={styles.button} type="submit">

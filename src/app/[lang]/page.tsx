@@ -3,7 +3,6 @@ import { headers } from 'next/headers'
 import { notFound } from 'next/navigation'
 import { Suspense } from 'react'
 import { TokenGate } from '@/components/gate/TokenGate'
-import { PageBoot } from '@/components/hero/PageBoot'
 import { InteractiveChrome } from '@/components/interactive/InteractiveChrome'
 import { TokenPersist } from '@/components/interactive/TokenPersist'
 import { CvShell } from '@/components/layout/CvShell'
@@ -147,7 +146,6 @@ export default async function Page({ params, searchParams }: Props) {
       <Suspense fallback={null}>
         <TokenPersist locale={lang} knownToken={tokenQuery} />
       </Suspense>
-      <PageBoot />
       <InteractiveChrome
         locale={lang}
         dictionary={dictionary}
