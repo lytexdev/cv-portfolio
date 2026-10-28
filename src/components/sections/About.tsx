@@ -46,13 +46,7 @@ export function About({
           dismissLabel={dictionary.hero.tokenDismiss}
         />
       ) : null}
-      <SectionHeading
-        id="whoami"
-        rail={section.rail}
-        title={section.title}
-        hideTitle
-        bootStep="0"
-      />
+      <SectionHeading id="whoami" rail={section.rail} title={section.title} hideTitle />
       <Hero
         dictionary={dictionary}
         age={age}

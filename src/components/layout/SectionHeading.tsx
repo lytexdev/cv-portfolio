@@ -6,12 +6,11 @@ type Props = {
   rail: string
   title: string
   hideTitle?: boolean
-  bootStep?: string
 }
 
-export function SectionHeading({ id, rail, title, hideTitle = false, bootStep }: Props) {
+export function SectionHeading({ id, rail, title, hideTitle = false }: Props) {
   return (
-    <div className={styles.root} data-boot-step={bootStep}>
+    <div className={styles.root}>
       <p className={`mono-label ${styles.rail}`} id={`${id}-label`}>
         {rail}
       </p>

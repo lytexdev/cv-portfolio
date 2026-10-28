@@ -20,10 +20,10 @@ const LINE_DELAY = 150
 const LINE_STEP = 150
 const TYPE_STEP = 26
 const BAR_STEP = 32
-const FADE_DURATION = 460
-const REVEAL_DURATION = 1100
+const WINDOW_DURATION = 420
+const EXPAND_DURATION = 620
 
-type Phase = 'boot' | 'leaving' | 'done'
+type Phase = 'boot' | 'window' | 'expand' | 'done'
 
 function subscribe() {
   return () => {}
@@ -65,13 +65,19 @@ export function PageBoot() {
       timers.push(window.setTimeout(run, delay))
     }
 
+    const finish = () => {
+      markDone()
+      setPhase('done')
+    }
+
     const close = (start: number) => {
-      at(start, () => {
-        if (!reduced) document.documentElement.setAttribute('data-boot', 'reveal')
-        setPhase('leaving')
-      })
-      at(start + FADE_DURATION, () => setPhase('done'))
-      at(start + (reduced ? FADE_DURATION : REVEAL_DURATION), markDone)
+      if (reduced) {
+        at(start, finish)
+        return
+      }
+      at(start, () => setPhase('window'))
+      at(start + WINDOW_DURATION, () => setPhase('expand'))
+      at(start + WINDOW_DURATION + EXPAND_DURATION, finish)
     }
 
     if (skipped || reduced) {
@@ -112,18 +118,23 @@ export function PageBoot() {
 
   if (!shouldBoot || phase === 'done') return null
 
+  const phaseClass =
+    phase === 'window'
+      ? styles.window
+      : phase === 'expand'
+        ? `${styles.window} ${styles.expand}`
+        : ''
+
   return (
-    <div
-      className={`${styles.overlay} ${phase === 'leaving' ? styles.leaving : ''}`}
-      aria-hidden="true"
-      data-page-boot
-    >
+    <div className={`${styles.overlay} ${phaseClass}`} aria-hidden="true" data-page-boot>
       <div className={styles.panel}>
         <div className={styles.chrome}>
           <span />
           <span />
           <span />
-          <p className={styles.title}>boot - cv.lytex.dev</p>
+          <p className={styles.title}>
+            {phase === 'boot' ? 'boot - cv.lytex.dev' : 'cv.lytex.dev'}
+          </p>
         </div>
         <div className={styles.log}>
           {LINES.slice(0, lines).map((line) => (

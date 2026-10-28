@@ -16,7 +16,7 @@ type Props = {
 
 export function SectionRail({ locale, dictionary, token }: Props) {
   return (
-    <nav className={`rail-root ${styles.root}`} aria-label="Sections" data-boot-step="0">
+    <nav className={`rail-root ${styles.root}`} aria-label="Sections">
       <ul className={styles.list}>
         {sectionOrder.map((id: SectionId) => {
           const section = dictionary.sections[id]
