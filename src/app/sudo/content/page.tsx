@@ -11,6 +11,7 @@ import styles from '../sudo.module.css'
 
 const EDITABLE_PREFIXES = [
   'meta.',
+  'sections.',
   'role',
   'summary',
   'availability',

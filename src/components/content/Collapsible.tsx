@@ -5,13 +5,12 @@ import styles from './Collapsible.module.css'
 type Props = {
   showLabel: string
   hideLabel: string
-  defaultOpen?: boolean
   children: ReactNode
 }
 
-export function Collapsible({ showLabel, hideLabel, defaultOpen = false, children }: Props) {
+export function Collapsible({ showLabel, hideLabel, children }: Props) {
   return (
-    <details className={styles.root} open={defaultOpen} data-collapsible>
+    <details className={styles.root} data-collapsible>
       <summary className={styles.summary}>
         <IconChevronDown size={16} stroke={1.75} aria-hidden="true" className={styles.chevron} />
         <span className={styles.show}>{showLabel}</span>

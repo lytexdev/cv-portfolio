@@ -25,7 +25,7 @@ export function Experience({ locale, dictionary }: Props) {
     >
       <SectionHeading id="experience" rail={section.rail} title={section.title} />
       <ol className={styles.list}>
-        {experiences.map((entry, index) => {
+        {experiences.map((entry) => {
           const copy = dictionary.experience.entries[
             entry.id as keyof typeof dictionary.experience.entries
           ]
@@ -69,7 +69,6 @@ export function Experience({ locale, dictionary }: Props) {
                   <Collapsible
                     showLabel={dictionary.collapse.show}
                     hideLabel={dictionary.collapse.hide}
-                    defaultOpen={index === 0}
                   >
                     <ul className={styles.highlights}>
                       {copy.highlights.map((item) => (

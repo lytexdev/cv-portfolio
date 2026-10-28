@@ -16,7 +16,7 @@ export const de = {
     experience: { rail: '02 / experience', title: 'Werdegang' },
     stack: { rail: '03 / stack', title: 'Tech-Stack' },
     projects: { rail: '04 / projects', title: 'Projekte' },
-    more: { rail: '05 / more', title: 'Sprachen, Interessen & Stärken' },
+    more: { rail: '05 / more', title: 'Interessen & Stärken' },
     contact: { rail: '06 / contact', title: 'Kontakt' },
   },
   hero: {

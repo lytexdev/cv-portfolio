@@ -16,7 +16,6 @@ type Props = {
   dictionary: CvDictionary
   accessToken?: string
   alternate?: boolean
-  defaultOpen?: boolean
 }
 
 export function FeaturedProject({
@@ -24,7 +23,6 @@ export function FeaturedProject({
   dictionary,
   accessToken,
   alternate = false,
-  defaultOpen = false,
 }: Props) {
   const project = getRuntimeProjects()[slug]
   const copy = dictionary.projects.featured[slug]
@@ -98,11 +96,7 @@ export function FeaturedProject({
           <RichText text={copy.summary} />
         </p>
         {Array.isArray(copy.highlights) && copy.highlights.length > 0 ? (
-          <Collapsible
-            showLabel={dictionary.collapse.show}
-            hideLabel={dictionary.collapse.hide}
-            defaultOpen={defaultOpen}
-          >
+          <Collapsible showLabel={dictionary.collapse.show} hideLabel={dictionary.collapse.hide}>
             <ul className={styles.highlights}>
               {copy.highlights.map((item) => (
                 <li key={item}>

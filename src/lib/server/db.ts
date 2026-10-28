@@ -190,6 +190,31 @@ function ensureSeed(database: DatabaseSync) {
   migrateTokensJson(database)
   seedAdminIfNeeded(database)
   seedContentIfNeeded(database)
+  migrateContentDefaults(database)
+}
+
+const CONTENT_DEFAULT_UPDATES = [
+  {
+    key: 'sections.more.title',
+    locale: 'de',
+    from: 'Sprachen, Interessen & Stärken',
+    to: de.sections.more.title,
+  },
+  {
+    key: 'sections.more.title',
+    locale: 'en',
+    from: 'Languages, interests & strengths',
+    to: en.sections.more.title,
+  },
+]
+
+function migrateContentDefaults(database: DatabaseSync) {
+  const update = database.prepare(
+    'UPDATE content_strings SET value = ? WHERE key = ? AND locale = ? AND value = ?',
+  )
+  for (const { key, locale, from, to } of CONTENT_DEFAULT_UPDATES) {
+    update.run(to, key, locale, from)
+  }
 }
 
 function migrateTokensJson(database: DatabaseSync) {
