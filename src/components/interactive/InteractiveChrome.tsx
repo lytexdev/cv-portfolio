@@ -8,6 +8,7 @@ import type {
   CvDictionary,
   Locale,
   ProjectSlug,
+  ProjectStatus,
   SpokenLanguage,
   StackGroupId,
   TechId,
@@ -24,6 +25,8 @@ type ProjectPayload = {
   featured: boolean
   stack: TechId[]
   href?: string
+  startYear?: number
+  status: ProjectStatus
   documents: DocumentLink[]
   images: Array<{ filename: string; src: string | null; alt: string; caption: string }>
 }
@@ -96,6 +99,8 @@ function InteractiveChromeInner({
       setActiveProject({
         slug,
         kicker: copy.kicker,
+        status: payload.status,
+        startYear: payload.startYear,
         title: copy.title,
         summary: 'summary' in copy ? copy.summary : copy.oneLiner,
         highlights: copy.highlights,
@@ -268,6 +273,7 @@ function InteractiveChromeInner({
         externalNewTab={dictionary.externalNewTab}
         locale={locale}
         documentLabels={dictionary.documents}
+        projectLabels={dictionary.projects}
         openImageLabel={dictionary.projects.gallery.open}
         onOpenImage={(filename) => {
           if (activeProject) openImage(activeProject.slug as ProjectSlug, filename)

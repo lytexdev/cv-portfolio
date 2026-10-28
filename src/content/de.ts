@@ -358,6 +358,13 @@ export const de = {
     details: 'Details',
     viewProject: 'Projekt ansehen',
     websiteLink: 'Zur Website',
+    started: 'Start {year}',
+    status: {
+      label: 'Status',
+      active: 'Aktiv',
+      archived: 'Archiv',
+      ended: 'Beendet',
+    },
     gallery: {
       open: 'Bild vergrößern',
       close: 'Galerie schließen',

@@ -15,6 +15,7 @@ import { More } from '@/components/sections/More'
 import { Projects } from '@/components/sections/Projects'
 import { Stack } from '@/components/sections/Stack'
 import type { Locale, ProjectSlug } from '@/content/types'
+import { defaultProjectStatus } from '@/content/shared'
 import { hasLocale } from '@/lib/i18n'
 import { plainText } from '@/lib/rich-text'
 import { portraitSrc, projectImageSrc, withAccessToken } from '@/lib/server/assets'
@@ -63,6 +64,8 @@ function buildProjectPayloads(
       featured: Boolean(featured),
       stack: project?.stack ?? [],
       href: project?.href,
+      startYear: project?.startYear,
+      status: project?.status ?? defaultProjectStatus,
       documents: documentLinks({ type: 'project', id: slug }, token, locale),
       images: (project?.images ?? []).map((filename) => ({
         filename,

@@ -16,6 +16,8 @@
   color: var(--text);
   font-size: 0.75rem;
   font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
@@ -32,10 +34,26 @@
   transform: translateX(-50%) translateY(0);
 }
 
+.end::after {
+  left: calc(100% + 0.5rem);
+  bottom: 50%;
+  transform: translateX(-0.15rem) translateY(50%);
+}
+
+.end:hover::after,
+.end:focus-within::after,
+.end:active::after {
+  transform: translateX(0) translateY(50%);
+}
+
 @media (hover: none) {
   .root:focus-within::after {
     opacity: 1;
     transform: translateX(-50%) translateY(0);
+  }
+
+  .end:focus-within::after {
+    transform: translateX(0) translateY(50%);
   }
 }
 

@@ -3,15 +3,18 @@
 import { IconExternalLink, IconX } from '@tabler/icons-react'
 import { useEffect, useRef } from 'react'
 import { TechIcon } from '@/components/icons/TechIcon'
-import type { CvDictionary, Locale, TechId } from '@/content/types'
+import type { CvDictionary, Locale, ProjectStatus as Status, TechId } from '@/content/types'
 import { DocumentList, type DocumentLink } from '@/components/content/DocumentList'
 import { RichText } from '@/components/content/RichText'
 import { Gallery, type GalleryImage } from './Gallery'
+import { ProjectStatus } from './ProjectStatus'
 import styles from './ProjectDialog.module.css'
 
 export type ProjectDialogData = {
   slug: string
   kicker: string
+  status: Status
+  startYear?: number
   title: string
   summary: string
   highlights: string[]
@@ -30,6 +33,7 @@ type Props = {
   externalNewTab: string
   locale: Locale
   documentLabels: CvDictionary['documents']
+  projectLabels: CvDictionary['projects']
   openImageLabel: string
   onOpenImage: (filename: string) => void
 }
@@ -42,6 +46,7 @@ export function ProjectDialog({
   externalNewTab,
   locale,
   documentLabels,
+  projectLabels,
   openImageLabel,
   onOpenImage,
 }: Props) {
@@ -94,9 +99,13 @@ export function ProjectDialog({
         <div className={styles.inner}>
           <div className={styles.header}>
             <div>
-              <p className={`mono-label ${styles.kicker}`}>
-                <RichText text={project.kicker} />
-              </p>
+              <ProjectStatus
+                className={styles.kicker}
+                status={project.status}
+                startYear={project.startYear}
+                kicker={project.kicker}
+                labels={projectLabels}
+              />
               <h2 id={labelledBy}>
                 <RichText text={project.title} />
               </h2>

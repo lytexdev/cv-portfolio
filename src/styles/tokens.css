@@ -12,6 +12,9 @@
   --on-accent: #0b0e14;
   --ok: #3ddc97;
   --focus: #62e6ae;
+  --status-active: #3ddc97;
+  --status-archived: #f2c14e;
+  --status-ended: #f2676b;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -45,4 +48,7 @@
   --on-accent: #ffffff;
   --ok: #0b6440;
   --focus: #0a5537;
+  --status-active: #0f7a4a;
+  --status-archived: #9a6a00;
+  --status-ended: #c0262d;
 }

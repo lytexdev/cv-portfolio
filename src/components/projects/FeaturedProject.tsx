@@ -7,7 +7,9 @@ import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { ImageZoomTrigger } from './ImageZoomTrigger'
+import { ProjectStatus } from './ProjectStatus'
 import { projectImageSrc } from '@/lib/server/assets'
+import { defaultProjectStatus } from '@/content/shared'
 import { getRuntimeProjects } from '@/lib/server/content-db'
 import { documentLinks } from '@/lib/server/documents'
 import { plainText } from '@/lib/rich-text'
@@ -90,9 +92,13 @@ export function FeaturedProject({
       </div>
 
       <div className={styles.body}>
-        <p className={`mono-label ${styles.kicker}`}>
-          <RichText text={copy.kicker} />
-        </p>
+        <ProjectStatus
+          className={styles.kicker}
+          status={project.status ?? defaultProjectStatus}
+          startYear={project.startYear}
+          kicker={copy.kicker}
+          labels={dictionary.projects}
+        />
         <h3 className={styles.title}>
           <RichText text={copy.title} />
         </h3>

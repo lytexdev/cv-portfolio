@@ -78,7 +78,9 @@ CREATE TABLE IF NOT EXISTS projects (
   one_liner_en TEXT NOT NULL DEFAULT '',
   highlights_de_json TEXT NOT NULL DEFAULT '[]',
   highlights_en_json TEXT NOT NULL DEFAULT '[]',
-  images_meta_json TEXT NOT NULL DEFAULT '{}'
+  images_meta_json TEXT NOT NULL DEFAULT '{}',
+  start_year INTEGER,
+  status TEXT NOT NULL DEFAULT 'archived'
 );
 
 CREATE TABLE IF NOT EXISTS experience (
@@ -175,6 +177,16 @@ function migrateSchema(database: DatabaseSync) {
     .all() as Array<{ name: string }>
   if (!experienceCols.some((col) => col.name === 'company_url')) {
     database.exec('ALTER TABLE experience ADD COLUMN company_url TEXT')
+  }
+
+  const projectCols = database
+    .prepare("PRAGMA table_info('projects')")
+    .all() as Array<{ name: string }>
+  if (!projectCols.some((col) => col.name === 'start_year')) {
+    database.exec('ALTER TABLE projects ADD COLUMN start_year INTEGER')
+  }
+  if (!projectCols.some((col) => col.name === 'status')) {
+    database.exec("ALTER TABLE projects ADD COLUMN status TEXT NOT NULL DEFAULT 'archived'")
   }
 
   const legacyDocuments = database

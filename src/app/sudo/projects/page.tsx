@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { de } from '@/content/de'
+import { defaultProjectStatus, projectStatuses } from '@/content/shared'
 import { createCsrfToken } from '@/lib/server/csrf'
 import { listDbProjects } from '@/lib/server/content-db'
 import { projectImageSrc } from '@/lib/server/assets'
@@ -138,6 +140,33 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                   defaultValue={editing?.href ?? ''}
                   placeholder="https://"
                 />
+              </label>
+              <label className={styles.label}>
+                Start year
+                <input
+                  className={styles.input}
+                  name="startYear"
+                  type="number"
+                  min={1980}
+                  max={new Date().getFullYear() + 1}
+                  step={1}
+                  defaultValue={editing?.startYear ?? ''}
+                  placeholder={String(new Date().getFullYear())}
+                />
+              </label>
+              <label className={styles.label}>
+                Status
+                <select
+                  className={styles.select}
+                  name="status"
+                  defaultValue={editing?.status ?? defaultProjectStatus}
+                >
+                  {projectStatuses.map((status) => (
+                    <option key={status} value={status}>
+                      {de.projects.status[status]}
+                    </option>
+                  ))}
+                </select>
               </label>
               <label className={styles.label}>
                 Stack IDs

@@ -2,6 +2,7 @@ import type {
   ExperienceId,
   InterestId,
   LanguageLevel,
+  ProjectStatus,
   ProjectSlug,
   SpokenLanguage,
   SpokenLanguageCode,
@@ -129,12 +130,18 @@ export const experiences: ExperienceShared[] = [
   },
 ]
 
+export const projectStatuses: ProjectStatus[] = ['active', 'archived', 'ended']
+
+export const defaultProjectStatus: ProjectStatus = 'archived'
+
 export type ProjectShared = {
   slug: ProjectSlug
   featured: boolean
   stack: TechId[]
   images: string[]
   href?: string
+  startYear?: number
+  status?: ProjectStatus
 }
 
 export const featuredProjectOrder: ProjectSlug[] = [

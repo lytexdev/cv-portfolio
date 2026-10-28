@@ -1,10 +1,12 @@
 import 'server-only'
 import { de } from '@/content/de'
-import type { CvDictionary, Locale, ProjectSlug, TechId } from '@/content/types'
+import type { CvDictionary, Locale, ProjectSlug, ProjectStatus, TechId } from '@/content/types'
 import {
   compactProjectOrder as seedCompact,
+  defaultProjectStatus,
   experiences as seedExperiences,
   featuredProjectOrder as seedFeatured,
+  projectStatuses,
   projects as seedProjects,
   type ExperienceShared,
   type ProjectShared,
@@ -19,6 +21,8 @@ export type DbProject = {
   stack: TechId[]
   images: string[]
   href?: string
+  startYear?: number
+  status: ProjectStatus
   title: { de: string; en: string }
   kicker: { de: string; en: string }
   summary: { de: string; en: string }
@@ -69,6 +73,8 @@ export function listDbProjects(): DbProject[] {
       stack: parseJson<TechId[]>(String(row.stack_json), []),
       images: parseJson<string[]>(String(row.images_json), []),
       href: row.href ? String(row.href) : undefined,
+      startYear: row.start_year ? Number(row.start_year) : undefined,
+      status: projectStatuses.find((status) => status === row.status) ?? defaultProjectStatus,
       title: { de: String(row.title_de), en: String(row.title_en) },
       kicker: { de: String(row.kicker_de), en: String(row.kicker_en) },
       summary: { de: String(row.summary_de), en: String(row.summary_en) },
@@ -225,6 +231,8 @@ export function getRuntimeProjects(): Record<string, ProjectShared> {
       stack: project.stack,
       images: project.images,
       href: project.href,
+      startYear: project.startYear,
+      status: project.status,
     }
   }
   return out
@@ -261,8 +269,9 @@ export function upsertProject(project: DbProject) {
       `INSERT INTO projects (
         slug, featured, sort_order, stack_json, images_json, href,
         title_de, title_en, kicker_de, kicker_en, summary_de, summary_en,
-        one_liner_de, one_liner_en, highlights_de_json, highlights_en_json, images_meta_json
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        one_liner_de, one_liner_en, highlights_de_json, highlights_en_json, images_meta_json,
+        start_year, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(slug) DO UPDATE SET
         featured = excluded.featured,
         sort_order = excluded.sort_order,
@@ -279,7 +288,9 @@ export function upsertProject(project: DbProject) {
         one_liner_en = excluded.one_liner_en,
         highlights_de_json = excluded.highlights_de_json,
         highlights_en_json = excluded.highlights_en_json,
-        images_meta_json = excluded.images_meta_json`,
+        images_meta_json = excluded.images_meta_json,
+        start_year = excluded.start_year,
+        status = excluded.status`,
     )
     .run(
       project.slug,
@@ -299,6 +310,8 @@ export function upsertProject(project: DbProject) {
       JSON.stringify(project.highlights.de),
       JSON.stringify(project.highlights.en),
       JSON.stringify(project.imagesMeta),
+      project.startYear ?? null,
+      project.status,
     )
 }
 

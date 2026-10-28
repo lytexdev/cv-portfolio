@@ -71,6 +71,7 @@ import {
 } from '@/lib/server/tokens'
 import { createTotpUri, generateBase32Secret, verifyTotp } from '@/lib/server/totp'
 import { parseTechIds } from '@/components/icons/registry'
+import { defaultProjectStatus, projectStatuses } from '@/content/shared'
 import type { Locale, StackGroupId, TechId } from '@/content/types'
 
 async function requireSession() {
@@ -239,6 +240,12 @@ export async function updateTokenAction(formData: FormData) {
   redirect('/sudo/tokens')
 }
 
+function parseStartYear(raw: string): number | undefined {
+  const year = Number(raw)
+  const latest = new Date().getFullYear() + 1
+  return Number.isInteger(year) && year >= 1980 && year <= latest ? year : undefined
+}
+
 export async function saveProjectAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
@@ -253,6 +260,10 @@ export async function saveProjectAction(formData: FormData) {
     stack: parseTechIds(formString(formData, 'stack')),
     images: existing?.images ?? [],
     href: formString(formData, 'href') || undefined,
+    startYear: parseStartYear(formString(formData, 'startYear')),
+    status:
+      projectStatuses.find((status) => status === formString(formData, 'status')) ??
+      defaultProjectStatus,
     title: {
       de: formString(formData, 'title_de'),
       en: formString(formData, 'title_en'),

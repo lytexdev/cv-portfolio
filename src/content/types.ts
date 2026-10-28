@@ -136,6 +136,8 @@ export type TechId =
   | 'unrealengine'
   | 'godot'
 
+export type ProjectStatus = 'active' | 'archived' | 'ended'
+
 export type SpokenLanguageCode = 'de' | 'en' | 'ru' | 'es' | 'fr' | 'tr' | 'it' | 'pl'
 
 export type LanguageLevel = 'native' | 'fluent' | 'advanced' | 'good' | 'basic'
@@ -235,6 +237,8 @@ export type CvDictionary = {
     details: string
     viewProject: string
     websiteLink: string
+    started: string
+    status: Record<ProjectStatus, string> & { label: string }
     gallery: {
       open: string
       close: string

@@ -357,6 +357,13 @@ export const en = {
     details: 'Details',
     viewProject: 'View project',
     websiteLink: 'Visit website',
+    started: 'Started {year}',
+    status: {
+      label: 'Status',
+      active: 'Active',
+      archived: 'Archived',
+      ended: 'Ended',
+    },
     gallery: {
       open: 'Enlarge image',
       close: 'Close gallery',
