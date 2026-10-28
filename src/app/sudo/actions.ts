@@ -24,12 +24,14 @@ import { writeAudit } from '@/lib/server/audit'
 import { createCsrfToken, verifyCsrfToken } from '@/lib/server/csrf'
 import {
   DocumentRejectedError,
-  addExperienceDocument,
-  deleteDocumentsForExperience,
-  deleteExperienceDocument,
-  getExperienceDocument,
-  listExperienceDocuments,
-  reorderExperienceDocuments,
+  addDocument,
+  deleteDocument,
+  deleteDocumentsForOwner,
+  getDocument,
+  isDocumentOwnerType,
+  listDocuments,
+  reorderDocuments,
+  type DocumentOwner,
 } from '@/lib/server/documents'
 import { translateDeToEn } from '@/lib/server/deepl'
 import { logEvent } from '@/lib/server/log'
@@ -290,8 +292,11 @@ export async function saveProjectAction(formData: FormData) {
 export async function deleteProjectAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
-  deleteProject(formString(formData, 'slug'))
+  const slug = formString(formData, 'slug')
+  deleteDocumentsForOwner({ type: 'project', id: slug })
+  deleteProject(slug)
   revalidatePath('/sudo/projects')
+  revalidatePublicCv()
   redirect('/sudo/projects')
 }
 
@@ -466,70 +471,87 @@ export async function deleteExperienceAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
   const id = formString(formData, 'id')
-  deleteDocumentsForExperience(id)
+  deleteDocumentsForOwner({ type: 'experience', id })
   deleteExperience(id)
   revalidatePublicCv()
   revalidatePath('/sudo/experience')
   redirect('/sudo/experience')
 }
 
-export async function uploadExperienceDocumentAction(formData: FormData) {
+function documentOwnerFromForm(formData: FormData): DocumentOwner | null {
+  const type = formString(formData, 'ownerType')
+  const id = formString(formData, 'ownerId')
+  if (!isDocumentOwnerType(type) || !id) return null
+  const exists =
+    type === 'experience'
+      ? listDbExperiences().some((e) => e.id === id)
+      : listDbProjects().some((p) => p.slug === id)
+  return exists ? { type, id } : null
+}
+
+function documentOwnerPath(owner: DocumentOwner): string {
+  const page = owner.type === 'experience' ? 'experience' : 'projects'
+  return `/sudo/${page}?edited=${encodeURIComponent(owner.id)}`
+}
+
+export async function uploadDocumentAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
-  const experienceId = formString(formData, 'experienceId')
-  const target = `/sudo/experience?edited=${encodeURIComponent(experienceId)}`
+  const owner = documentOwnerFromForm(formData)
+  if (!owner) redirect('/sudo')
+  const target = documentOwnerPath(owner)
   const file = formFile(formData, 'file')
   const labelDe = formString(formData, 'label_de').slice(0, 120)
   const labelEn = formString(formData, 'label_en').slice(0, 120) || labelDe
-  if (!listDbExperiences().some((e) => e.id === experienceId) || !file || !labelDe) {
-    redirect(`${target}&docError=invalid`)
-  }
+  if (!file || !labelDe) redirect(`${target}&docError=invalid`)
 
   let error: string | null = null
   try {
-    const document = await addExperienceDocument({
-      experienceId,
+    const document = await addDocument({
+      owner,
       label: { de: labelDe, en: labelEn },
       file: Buffer.from(await file.arrayBuffer()),
     })
     writeAudit({
       category: 'admin',
       event: 'document_upload',
-      detail: `${experienceId}: ${document.label.de} (${document.kind}, ${document.size} B)`,
+      detail: `${owner.type}/${owner.id}: ${document.label.de} (${document.kind}, ${document.size} B)`,
     })
   } catch (caught) {
     error = caught instanceof DocumentRejectedError ? caught.reason : 'invalid'
   }
   if (error) redirect(`${target}&docError=${error}`)
 
-  revalidatePath('/sudo/experience')
+  revalidatePath(target.split('?')[0] ?? '/sudo')
   revalidatePublicCv()
   redirect(`${target}&docUploaded=1`)
 }
 
-export async function deleteExperienceDocumentAction(formData: FormData) {
+export async function deleteDocumentAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
-  const document = getExperienceDocument(formString(formData, 'id'))
-  if (!document) redirect('/sudo/experience')
-  deleteExperienceDocument(document.id)
+  const document = getDocument(formString(formData, 'id'))
+  if (!document) redirect('/sudo')
+  deleteDocument(document.id)
   writeAudit({
     category: 'admin',
     event: 'document_delete',
-    detail: `${document.experienceId}: ${document.label.de}`,
+    detail: `${document.owner.type}/${document.owner.id}: ${document.label.de}`,
   })
-  revalidatePath('/sudo/experience')
+  const target = documentOwnerPath(document.owner)
+  revalidatePath(target.split('?')[0] ?? '/sudo')
   revalidatePublicCv()
-  redirect(`/sudo/experience?edited=${encodeURIComponent(document.experienceId)}`)
+  redirect(target)
 }
 
-export async function reorderExperienceDocumentsAction(formData: FormData) {
+export async function reorderDocumentsAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
-  const experienceId = formString(formData, 'experienceId')
-  const existing = listExperienceDocuments(experienceId).map((d) => d.id)
-  reorderExperienceDocuments(experienceId, orderedIds(formData, existing))
-  revalidatePath('/sudo/experience')
+  const owner = documentOwnerFromForm(formData)
+  if (!owner) return
+  const existing = listDocuments(owner).map((document) => document.id)
+  reorderDocuments(owner, orderedIds(formData, existing))
+  revalidatePath(documentOwnerPath(owner).split('?')[0] ?? '/sudo')
   revalidatePublicCv()
 }
 

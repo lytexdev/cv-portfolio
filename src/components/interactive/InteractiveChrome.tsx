@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import type { DocumentLink } from '@/components/content/DocumentList'
 import { Lightbox, type ViewableImage } from '@/components/projects/Lightbox'
 import { ProjectDialog, type ProjectDialogData } from '@/components/projects/ProjectDialog'
 import type {
@@ -23,6 +24,7 @@ type ProjectPayload = {
   featured: boolean
   stack: TechId[]
   href?: string
+  documents: DocumentLink[]
   images: Array<{ filename: string; src: string | null; alt: string; caption: string }>
 }
 
@@ -99,6 +101,7 @@ function InteractiveChromeInner({
         highlights: copy.highlights,
         stack: payload.stack,
         href: payload.href,
+        documents: payload.documents,
         linkLabel: featuredCopy?.linkLabel || dictionary.projects.websiteLink,
         images: payload.images.map((image) => ({
           src: image.src,
@@ -263,6 +266,8 @@ function InteractiveChromeInner({
         project={activeProject}
         labelledBy="project-dialog-title"
         externalNewTab={dictionary.externalNewTab}
+        locale={locale}
+        documentLabels={dictionary.documents}
         openImageLabel={dictionary.projects.gallery.open}
         onOpenImage={(filename) => {
           if (activeProject) openImage(activeProject.slug as ProjectSlug, filename)

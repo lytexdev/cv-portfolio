@@ -3,7 +3,8 @@
 import { IconExternalLink, IconX } from '@tabler/icons-react'
 import { useEffect, useRef } from 'react'
 import { TechIcon } from '@/components/icons/TechIcon'
-import type { TechId } from '@/content/types'
+import type { CvDictionary, Locale, TechId } from '@/content/types'
+import { DocumentList, type DocumentLink } from '@/components/content/DocumentList'
 import { RichText } from '@/components/content/RichText'
 import { Gallery, type GalleryImage } from './Gallery'
 import styles from './ProjectDialog.module.css'
@@ -17,6 +18,7 @@ export type ProjectDialogData = {
   stack: TechId[]
   href?: string
   linkLabel: string
+  documents: DocumentLink[]
   images: GalleryImage[]
 }
 
@@ -26,6 +28,8 @@ type Props = {
   project: ProjectDialogData | null
   labelledBy: string
   externalNewTab: string
+  locale: Locale
+  documentLabels: CvDictionary['documents']
   openImageLabel: string
   onOpenImage: (filename: string) => void
 }
@@ -36,6 +40,8 @@ export function ProjectDialog({
   project,
   labelledBy,
   externalNewTab,
+  locale,
+  documentLabels,
   openImageLabel,
   onOpenImage,
 }: Props) {
@@ -139,6 +145,12 @@ export function ProjectDialog({
               <span className="visually-hidden"> {externalNewTab}</span>
             </a>
           ) : null}
+          <DocumentList
+            documents={project.documents}
+            locale={locale}
+            labels={documentLabels}
+            externalNewTab={externalNewTab}
+          />
         </div>
       ) : null}
     </dialog>

@@ -15,6 +15,8 @@ import {
 import { AdminNav } from '../_components/AdminNav'
 import { TechIdReference } from '../_components/TechIdReference'
 import { ConfirmForm } from '../_components/ConfirmForm'
+import { DocumentFlash } from '../_components/DocumentFlash'
+import { DocumentManager } from '../_components/DocumentManager'
 import { ImageUploader } from '../_components/ImageUploader'
 import { LocaleTabs } from '../_components/LocaleTabs'
 import { SortableList } from '../_components/SortableList'
@@ -28,6 +30,8 @@ type Props = {
     uploaded?: string
     error?: string
     new?: string
+    docUploaded?: string
+    docError?: string
   }>
 }
 
@@ -63,6 +67,7 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
       {query.saved ? (
         <p className={`${styles.flash} ${styles.flashOk}`}>Project saved.</p>
       ) : null}
+      <DocumentFlash uploaded={query.docUploaded} error={query.docError} />
       {query.error === 'upload' ? (
         <p className={`${styles.flash} ${styles.flashError}`}>Upload failed. Check file type and size.</p>
       ) : null}
@@ -318,6 +323,12 @@ export default async function ProjectsAdminPage({ searchParams }: Props) {
                 action={uploadProjectImageAction}
                 csrf={csrf}
                 slug={editing.slug}
+              />
+
+              <DocumentManager
+                owner={{ type: 'project', id: editing.slug }}
+                csrf={csrf}
+                description="Additional files such as documentation, specifications or reports."
               />
 
               <div className={styles.toolbar}>

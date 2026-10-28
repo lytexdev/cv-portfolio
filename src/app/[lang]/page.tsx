@@ -14,7 +14,7 @@ import { Experience } from '@/components/sections/Experience'
 import { More } from '@/components/sections/More'
 import { Projects } from '@/components/sections/Projects'
 import { Stack } from '@/components/sections/Stack'
-import type { ProjectSlug } from '@/content/types'
+import type { Locale, ProjectSlug } from '@/content/types'
 import { hasLocale } from '@/lib/i18n'
 import { plainText } from '@/lib/rich-text'
 import { portraitSrc, projectImageSrc, withAccessToken } from '@/lib/server/assets'
@@ -24,7 +24,7 @@ import {
   getRuntimeFeaturedOrder,
   getRuntimeProjects,
 } from '@/lib/server/content-db'
-import { listDocumentsByExperience } from '@/lib/server/documents'
+import { documentLinks } from '@/lib/server/documents'
 import { getEnv } from '@/lib/server/env'
 import { detectAgent, logEvent } from '@/lib/server/log'
 import { getPrivateData, getPublicAge } from '@/lib/server/private-data'
@@ -46,6 +46,7 @@ type Props = {
 
 function buildProjectPayloads(
   dictionary: ReturnType<typeof getRuntimeDictionary>,
+  locale: Locale,
   token?: string,
 ) {
   const projects = getRuntimeProjects()
@@ -62,6 +63,7 @@ function buildProjectPayloads(
       featured: Boolean(featured),
       stack: project?.stack ?? [],
       href: project?.href,
+      documents: documentLinks({ type: 'project', id: slug }, token, locale),
       images: (project?.images ?? []).map((filename) => ({
         filename,
         src: projectImageSrc(slug, filename, token),
@@ -154,7 +156,7 @@ export default async function Page({ params, searchParams }: Props) {
         linkedin={profile.linkedin}
         personName={profile.name}
         personCity={profile.city}
-        projectPayloads={buildProjectPayloads(dictionary, tokenQuery)}
+        projectPayloads={buildProjectPayloads(dictionary, lang, tokenQuery)}
         stackGroups={getStackConfig().groups}
         spokenLanguages={getSpokenLanguages()}
       />
@@ -188,14 +190,9 @@ export default async function Page({ params, searchParams }: Props) {
             github={profile.github}
             linkedin={profile.linkedin}
           />
-          <Experience
-            locale={lang}
-            dictionary={dictionary}
-            documents={isToken ? listDocumentsByExperience() : undefined}
-            accessToken={tokenQuery}
-          />
+          <Experience locale={lang} dictionary={dictionary} accessToken={tokenQuery} />
           <Stack dictionary={dictionary} />
-          <Projects dictionary={dictionary} accessToken={tokenQuery} />
+          <Projects locale={lang} dictionary={dictionary} accessToken={tokenQuery} />
           <More dictionary={dictionary} />
           <Contact
             locale={lang}

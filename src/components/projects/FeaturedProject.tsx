@@ -1,18 +1,21 @@
 import { IconExternalLink } from '@tabler/icons-react'
 import Image from 'next/image'
-import type { CvDictionary, ProjectSlug } from '@/content/types'
+import type { CvDictionary, Locale, ProjectSlug } from '@/content/types'
 import { Collapsible } from '@/components/content/Collapsible'
+import { DocumentList } from '@/components/content/DocumentList'
 import { RichText } from '@/components/content/RichText'
 import { TechIcon } from '@/components/icons/TechIcon'
 import { ImagePlaceholder } from '@/components/sections/ImagePlaceholder'
 import { ImageZoomTrigger } from './ImageZoomTrigger'
 import { projectImageSrc } from '@/lib/server/assets'
 import { getRuntimeProjects } from '@/lib/server/content-db'
+import { documentLinks } from '@/lib/server/documents'
 import { plainText } from '@/lib/rich-text'
 import styles from './FeaturedProject.module.css'
 
 type Props = {
   slug: ProjectSlug
+  locale: Locale
   dictionary: CvDictionary
   accessToken?: string
   alternate?: boolean
@@ -20,6 +23,7 @@ type Props = {
 
 export function FeaturedProject({
   slug,
+  locale,
   dictionary,
   accessToken,
   alternate = false,
@@ -125,6 +129,12 @@ export function FeaturedProject({
             <span className="visually-hidden"> {dictionary.externalNewTab}</span>
           </a>
         ) : null}
+        <DocumentList
+          documents={documentLinks({ type: 'project', id: slug }, accessToken, locale)}
+          locale={locale}
+          labels={dictionary.documents}
+          externalNewTab={dictionary.externalNewTab}
+        />
       </div>
     </article>
   )

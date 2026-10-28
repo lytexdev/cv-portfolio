@@ -205,13 +205,6 @@ export type CvDictionary = {
       }
     >
     since: string
-    documents: {
-      title: string
-      view: string
-      download: string
-      pdf: string
-      image: string
-    }
   }
   stack: {
     groups: Record<StackGroupId, string>
@@ -315,6 +308,13 @@ export type CvDictionary = {
     source: string
   }
   externalNewTab: string
+  documents: {
+    title: string
+    view: string
+    download: string
+    pdf: string
+    image: string
+  }
   collapse: {
     show: string
     hide: string

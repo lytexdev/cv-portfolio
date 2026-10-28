@@ -1,33 +1,21 @@
 import Link from 'next/link'
 import { createCsrfToken } from '@/lib/server/csrf'
 import { listDbExperiences, listDbProjects } from '@/lib/server/content-db'
-import { MAX_DOCUMENT_BYTES, listExperienceDocuments } from '@/lib/server/documents'
 import {
   deleteExperienceAction,
-  deleteExperienceDocumentAction,
   ensureAdminOrRedirect,
   reorderExperienceAction,
-  reorderExperienceDocumentsAction,
   saveExperienceAction,
   translateExperienceAction,
-  uploadExperienceDocumentAction,
 } from '../actions'
 import { AdminNav } from '../_components/AdminNav'
 import { TechIdReference } from '../_components/TechIdReference'
 import { ConfirmForm } from '../_components/ConfirmForm'
-import { DocumentUploader } from '../_components/DocumentUploader'
+import { DocumentFlash } from '../_components/DocumentFlash'
+import { DocumentManager } from '../_components/DocumentManager'
 import { LocaleTabs } from '../_components/LocaleTabs'
 import { SortableList } from '../_components/SortableList'
 import styles from '../sudo.module.css'
-
-const DOCUMENT_ERRORS: Record<string, string> = {
-  size: 'Upload failed: the file is empty or larger than 9 MB.',
-  type: 'Upload failed: only PDF, JPEG, PNG and WebP files are accepted.',
-  encrypted:
-    'Upload failed: encrypted or password-protected PDFs cannot be cleaned. Print the file to a new PDF first.',
-  pages: 'Upload failed: the PDF has more than 100 pages.',
-  invalid: 'Upload failed: the file could not be read or is damaged.',
-}
 
 type Props = {
   searchParams: Promise<{
@@ -49,7 +37,6 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
   const creating = query.new === '1'
   const editing = creating ? null : (items.find((e) => e.id === query.edited) ?? items[0] ?? null)
   const selectedLinks = new Set(editing?.projectLinks ?? [])
-  const documents = editing ? listExperienceDocuments(editing.id) : []
 
   return (
     <div className={styles.wrap}>
@@ -69,16 +56,7 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
       {query.saved ? (
         <p className={`${styles.flash} ${styles.flashOk}`}>Experience saved.</p>
       ) : null}
-      {query.docUploaded ? (
-        <p className={`${styles.flash} ${styles.flashOk}`}>
-          Document uploaded. Metadata and active content were removed.
-        </p>
-      ) : null}
-      {query.docError ? (
-        <p className={`${styles.flash} ${styles.flashError}`}>
-          {DOCUMENT_ERRORS[query.docError] ?? DOCUMENT_ERRORS.invalid}
-        </p>
-      ) : null}
+      <DocumentFlash uploaded={query.docUploaded} error={query.docError} />
 
       <div className={styles.split}>
         <aside className={styles.sideList}>
@@ -270,71 +248,10 @@ export default async function ExperienceAdminPage({ searchParams }: Props) {
 
           {editing ? (
             <>
-              <p className={styles.sectionLabel}>Documents</p>
-              <p className={styles.muted}>
-                Certificates and references. Visible on the CV only with a valid access token. PDFs
-                are rewritten without metadata, scripts, forms or attachments, images are re-encoded
-                without EXIF/GPS. Password-protected PDFs are rejected.
-              </p>
-              {documents.length > 0 ? (
-                <SortableList
-                  key={documents.map((d) => d.id).join('|')}
-                  action={reorderExperienceDocumentsAction}
-                  csrf={csrf}
-                  fields={{ experienceId: editing.id }}
-                  items={documents.map((document) => ({
-                    id: document.id,
-                    label: document.label.de,
-                    content: (
-                      <div className={styles.documentRow}>
-                        <div>
-                          <span className={styles.sideItemTitle}>{document.label.de}</span>
-                          <span className={styles.muted}>
-                            {' '}
-                            {document.label.en !== document.label.de
-                              ? `/ ${document.label.en} `
-                              : ''}
-                            · {document.kind === 'pdf' ? 'PDF' : 'Image'} ·{' '}
-                            {Math.max(1, Math.round(document.size / 1024))} KB
-                          </span>
-                        </div>
-                        <div className={styles.buttonRow}>
-                          <a
-                            className={styles.buttonGhost}
-                            href={`/media/documents/${document.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            View
-                          </a>
-                          <ConfirmForm
-                            action={deleteExperienceDocumentAction}
-                            title="Delete document?"
-                            message={`Delete "${document.label.de}"? The file is removed from disk.`}
-                            confirmLabel="Delete"
-                          >
-                            <input type="hidden" name="csrf" value={csrf} />
-                            <input type="hidden" name="id" value={document.id} />
-                            <button
-                              className={`${styles.button} ${styles.buttonDanger}`}
-                              type="submit"
-                            >
-                              Delete
-                            </button>
-                          </ConfirmForm>
-                        </div>
-                      </div>
-                    ),
-                  }))}
-                />
-              ) : (
-                <p className={styles.muted}>No documents yet.</p>
-              )}
-              <DocumentUploader
-                action={uploadExperienceDocumentAction}
+              <DocumentManager
+                owner={{ type: 'experience', id: editing.id }}
                 csrf={csrf}
-                experienceId={editing.id}
-                maxBytes={MAX_DOCUMENT_BYTES}
+                description="Certificates and references."
               />
 
               <form action={translateExperienceAction} className={styles.toolbar}>

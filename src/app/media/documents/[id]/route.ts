@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { NextRequest, NextResponse } from 'next/server'
 import { writeAudit } from '@/lib/server/audit'
-import { documentFilePath, getExperienceDocument } from '@/lib/server/documents'
+import { documentFilePath, getDocument } from '@/lib/server/documents'
 import { resolveDocumentAccess } from '@/lib/server/media-auth'
 
 type Params = { params: Promise<{ id: string }> }
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest, { params }: Params) {
   const access = await resolveDocumentAccess(request.nextUrl.searchParams.get('k'))
   if (!access.allowed) return notFound()
 
-  const document = getExperienceDocument(id)
+  const document = getDocument(id)
   const absolute = document ? documentFilePath(document) : null
   if (!document || !absolute) return notFound()
 

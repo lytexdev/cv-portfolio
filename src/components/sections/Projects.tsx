@@ -1,4 +1,4 @@
-import type { CvDictionary } from '@/content/types'
+import type { CvDictionary, Locale } from '@/content/types'
 import { SectionHeading } from '@/components/layout/SectionHeading'
 import { FeaturedProject } from '@/components/projects/FeaturedProject'
 import { ProjectRow } from '@/components/projects/ProjectRow'
@@ -9,11 +9,12 @@ import {
 import styles from './Projects.module.css'
 
 type Props = {
+  locale: Locale
   dictionary: CvDictionary
   accessToken?: string
 }
 
-export function Projects({ dictionary, accessToken }: Props) {
+export function Projects({ locale, dictionary, accessToken }: Props) {
   const section = dictionary.sections.projects
   const featuredProjectOrder = getRuntimeFeaturedOrder()
   const compactProjectOrder = getRuntimeCompactOrder()
@@ -31,6 +32,7 @@ export function Projects({ dictionary, accessToken }: Props) {
           <FeaturedProject
             key={slug}
             slug={slug}
+            locale={locale}
             dictionary={dictionary}
             accessToken={accessToken}
             alternate={index % 2 === 1}

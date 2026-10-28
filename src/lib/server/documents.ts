@@ -7,6 +7,8 @@ import { getDataDir } from './data-dir'
 import { getDb, nowIso } from './db'
 import { PdfRejectedError, sanitizePdf } from './pdf-sanitize'
 import { isSupportedImage } from './uploads'
+import type { DocumentLink } from '@/components/content/DocumentList'
+import type { Locale } from '@/content/types'
 
 export const MAX_DOCUMENT_BYTES = 9 * 1024 * 1024
 const MAX_IMAGE_EDGE = 2400
@@ -15,9 +17,13 @@ const DOCUMENT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
 
 export type DocumentKind = 'pdf' | 'image'
 
-export type ExperienceDocument = {
+export type DocumentOwnerType = 'experience' | 'project'
+
+export type DocumentOwner = { type: DocumentOwnerType; id: string }
+
+export type StoredDocument = {
   id: string
-  experienceId: string
+  owner: DocumentOwner
   sortOrder: number
   label: { de: string; en: string }
   kind: DocumentKind
@@ -42,10 +48,13 @@ function documentsDir(): string {
   return path.join(getDataDir(), 'uploads', 'documents')
 }
 
-function toDocument(row: Record<string, unknown>): ExperienceDocument {
+function toDocument(row: Record<string, unknown>): StoredDocument {
   return {
     id: String(row.id),
-    experienceId: String(row.experience_id),
+    owner: {
+      type: row.owner_type === 'project' ? 'project' : 'experience',
+      id: String(row.owner_id),
+    },
     sortOrder: Number(row.sort_order),
     label: { de: String(row.label_de), en: String(row.label_en) },
     kind: row.kind === 'pdf' ? 'pdf' : 'image',
@@ -59,36 +68,44 @@ export function isDocumentId(value: string): boolean {
   return DOCUMENT_ID.test(value)
 }
 
-export function listExperienceDocuments(experienceId?: string): ExperienceDocument[] {
-  const db = getDb()
-  const rows = experienceId
-    ? db
-        .prepare(
-          'SELECT * FROM experience_documents WHERE experience_id = ? ORDER BY sort_order, created_at',
-        )
-        .all(experienceId)
-    : db.prepare('SELECT * FROM experience_documents ORDER BY sort_order, created_at').all()
-  return (rows as Record<string, unknown>[]).map(toDocument)
+export function isDocumentOwnerType(value: string): value is DocumentOwnerType {
+  return value === 'experience' || value === 'project'
 }
 
-export function listDocumentsByExperience(): Record<string, ExperienceDocument[]> {
-  const grouped: Record<string, ExperienceDocument[]> = {}
-  for (const document of listExperienceDocuments()) {
-    grouped[document.experienceId] = [...(grouped[document.experienceId] ?? []), document]
-  }
-  return grouped
+export function listDocuments(owner: DocumentOwner): StoredDocument[] {
+  const rows = getDb()
+    .prepare(
+      'SELECT * FROM documents WHERE owner_type = ? AND owner_id = ? ORDER BY sort_order, created_at',
+    )
+    .all(owner.type, owner.id) as Record<string, unknown>[]
+  return rows.map(toDocument)
 }
 
-export function getExperienceDocument(id: string): ExperienceDocument | null {
+export function getDocument(id: string): StoredDocument | null {
   if (!isDocumentId(id)) return null
-  const row = getDb().prepare('SELECT * FROM experience_documents WHERE id = ?').get(id)
+  const row = getDb().prepare('SELECT * FROM documents WHERE id = ?').get(id)
   return row ? toDocument(row as Record<string, unknown>) : null
 }
 
-export function documentFilePath(document: ExperienceDocument): string | null {
+export function documentFilePath(document: StoredDocument): string | null {
   const absolute = path.join(documentsDir(), document.filename)
   if (path.dirname(absolute) !== documentsDir() || !existsSync(absolute)) return null
   return absolute
+}
+
+export function documentLinks(
+  owner: DocumentOwner,
+  accessToken: string | undefined,
+  locale: Locale,
+): DocumentLink[] {
+  if (!accessToken) return []
+  return listDocuments(owner).map((document) => ({
+    id: document.id,
+    label: document.label[locale],
+    kind: document.kind,
+    size: document.size,
+    href: `/media/documents/${document.id}?k=${encodeURIComponent(accessToken)}&lang=${locale}`,
+  }))
 }
 
 async function sanitize(input: Buffer): Promise<{ kind: DocumentKind; data: Buffer }> {
@@ -122,11 +139,11 @@ async function sanitize(input: Buffer): Promise<{ kind: DocumentKind; data: Buff
   throw new DocumentRejectedError('type')
 }
 
-export async function addExperienceDocument(input: {
-  experienceId: string
+export async function addDocument(input: {
+  owner: DocumentOwner
   label: { de: string; en: string }
   file: Buffer
-}): Promise<ExperienceDocument> {
+}): Promise<StoredDocument> {
   const { kind, data } = await sanitize(input.file)
   const id = randomUUID()
   const filename = `${id}.${kind === 'pdf' ? 'pdf' : 'webp'}`
@@ -136,16 +153,17 @@ export async function addExperienceDocument(input: {
   const db = getDb()
   const next = db
     .prepare(
-      'SELECT COALESCE(MAX(sort_order), -1) + 1 AS next FROM experience_documents WHERE experience_id = ?',
+      'SELECT COALESCE(MAX(sort_order), -1) + 1 AS next FROM documents WHERE owner_type = ? AND owner_id = ?',
     )
-    .get(input.experienceId) as { next: number }
+    .get(input.owner.type, input.owner.id) as { next: number }
   db.prepare(
-    `INSERT INTO experience_documents
-      (id, experience_id, sort_order, label_de, label_en, kind, filename, size, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO documents
+      (id, owner_type, owner_id, sort_order, label_de, label_en, kind, filename, size, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
-    input.experienceId,
+    input.owner.type,
+    input.owner.id,
     next.next,
     input.label.de,
     input.label.en,
@@ -155,32 +173,32 @@ export async function addExperienceDocument(input: {
     nowIso(),
   )
 
-  const created = getExperienceDocument(id)
+  const created = getDocument(id)
   if (!created) throw new DocumentRejectedError('invalid')
   return created
 }
 
-function removeFile(document: ExperienceDocument) {
+function removeFile(document: StoredDocument) {
   const absolute = documentFilePath(document)
   if (absolute) rmSync(absolute, { force: true })
 }
 
-export function deleteExperienceDocument(id: string) {
-  const document = getExperienceDocument(id)
+export function deleteDocument(id: string) {
+  const document = getDocument(id)
   if (!document) return
   removeFile(document)
-  getDb().prepare('DELETE FROM experience_documents WHERE id = ?').run(id)
+  getDb().prepare('DELETE FROM documents WHERE id = ?').run(id)
 }
 
-export function deleteDocumentsForExperience(experienceId: string) {
-  for (const document of listExperienceDocuments(experienceId)) {
-    deleteExperienceDocument(document.id)
+export function deleteDocumentsForOwner(owner: DocumentOwner) {
+  for (const document of listDocuments(owner)) {
+    deleteDocument(document.id)
   }
 }
 
-export function reorderExperienceDocuments(experienceId: string, order: string[]) {
+export function reorderDocuments(owner: DocumentOwner, order: string[]) {
   const update = getDb().prepare(
-    'UPDATE experience_documents SET sort_order = ? WHERE id = ? AND experience_id = ?',
+    'UPDATE documents SET sort_order = ? WHERE id = ? AND owner_type = ? AND owner_id = ?',
   )
-  order.forEach((id, index) => update.run(index, id, experienceId))
+  order.forEach((id, index) => update.run(index, id, owner.type, owner.id))
 }

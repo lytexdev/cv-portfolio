@@ -99,17 +99,17 @@ CREATE TABLE IF NOT EXISTS experience (
   highlights_en_json TEXT NOT NULL DEFAULT '[]'
 );
 
-CREATE TABLE IF NOT EXISTS experience_documents (
+CREATE TABLE IF NOT EXISTS documents (
   id TEXT PRIMARY KEY,
-  experience_id TEXT NOT NULL,
+  owner_type TEXT NOT NULL CHECK (owner_type IN ('experience', 'project')),
+  owner_id TEXT NOT NULL,
   sort_order INTEGER NOT NULL DEFAULT 0,
   label_de TEXT NOT NULL,
   label_en TEXT NOT NULL,
   kind TEXT NOT NULL,
   filename TEXT NOT NULL,
   size INTEGER NOT NULL,
-  created_at TEXT NOT NULL,
-  FOREIGN KEY (experience_id) REFERENCES experience(id) ON DELETE CASCADE
+  created_at TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS content_strings (
@@ -135,7 +135,7 @@ CREATE INDEX IF NOT EXISTS idx_tokens_hash ON tokens(hash);
 CREATE INDEX IF NOT EXISTS idx_token_views_token ON token_views(token_id);
 CREATE INDEX IF NOT EXISTS idx_projects_sort ON projects(sort_order);
 CREATE INDEX IF NOT EXISTS idx_experience_sort ON experience(sort_order);
-CREATE INDEX IF NOT EXISTS idx_experience_documents ON experience_documents(experience_id, sort_order);
+CREATE INDEX IF NOT EXISTS idx_documents_owner ON documents(owner_type, owner_id, sort_order);
 CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);
 CREATE INDEX IF NOT EXISTS idx_audit_category ON audit_logs(category);
 `
@@ -175,6 +175,21 @@ function migrateSchema(database: DatabaseSync) {
     .all() as Array<{ name: string }>
   if (!experienceCols.some((col) => col.name === 'company_url')) {
     database.exec('ALTER TABLE experience ADD COLUMN company_url TEXT')
+  }
+
+  const legacyDocuments = database
+    .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'experience_documents'")
+    .get()
+  if (legacyDocuments) {
+    database.exec(`
+      BEGIN;
+      INSERT OR IGNORE INTO documents
+        (id, owner_type, owner_id, sort_order, label_de, label_en, kind, filename, size, created_at)
+        SELECT id, 'experience', experience_id, sort_order, label_de, label_en, kind, filename, size, created_at
+        FROM experience_documents;
+      DROP TABLE experience_documents;
+      COMMIT;
+    `)
   }
 }
 

@@ -6,7 +6,8 @@ import styles from '../sudo.module.css'
 type Props = {
   action: (formData: FormData) => void | Promise<void>
   csrf: string
-  experienceId: string
+  ownerType: 'experience' | 'project'
+  ownerId: string
   maxBytes: number
 }
 
@@ -18,7 +19,7 @@ function formatSize(bytes: number): string {
     : `${Math.max(1, Math.round(bytes / 1024))} KB`
 }
 
-export function DocumentUploader({ action, csrf, experienceId, maxBytes }: Props) {
+export function DocumentUploader({ action, csrf, ownerType, ownerId, maxBytes }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [file, setFile] = useState<File | null>(null)
   const [label, setLabel] = useState('')
@@ -52,7 +53,8 @@ export function DocumentUploader({ action, csrf, experienceId, maxBytes }: Props
       className={styles.uploadBlock}
     >
       <input type="hidden" name="csrf" value={csrf} />
-      <input type="hidden" name="experienceId" value={experienceId} />
+      <input type="hidden" name="ownerType" value={ownerType} />
+      <input type="hidden" name="ownerId" value={ownerId} />
 
       <button
         type="button"
