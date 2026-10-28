@@ -172,6 +172,13 @@ export type CvDictionary = {
       }
     >
     since: string
+    documents: {
+      title: string
+      view: string
+      download: string
+      pdf: string
+      image: string
+    }
   }
   stack: {
     groups: Record<StackGroupId, string>

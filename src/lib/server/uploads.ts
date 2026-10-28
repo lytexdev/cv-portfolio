@@ -28,6 +28,10 @@ const MAGIC: Array<{ mime: string; test: (buf: Buffer) => boolean }> = [
   },
 ]
 
+export function isSupportedImage(input: Buffer): boolean {
+  return MAGIC.some((m) => m.test(input))
+}
+
 export async function processProjectImage(
   slug: string,
   filenameBase: string,

@@ -33,6 +33,13 @@ export const de = {
   },
   experience: {
     since: 'seit {date}',
+    documents: {
+      title: 'Dokumente',
+      view: 'Ansehen',
+      download: 'Herunterladen',
+      pdf: 'PDF',
+      image: 'Bild',
+    },
     entries: {
       freelance: {
         role: 'Freelance Fullstack-Entwickler',

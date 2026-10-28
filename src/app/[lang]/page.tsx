@@ -24,6 +24,7 @@ import {
   getRuntimeFeaturedOrder,
   getRuntimeProjects,
 } from '@/lib/server/content-db'
+import { listDocumentsByExperience } from '@/lib/server/documents'
 import { getEnv } from '@/lib/server/env'
 import { detectAgent, logEvent } from '@/lib/server/log'
 import { getPrivateData, getPublicAge } from '@/lib/server/private-data'
@@ -187,7 +188,12 @@ export default async function Page({ params, searchParams }: Props) {
             github={profile.github}
             linkedin={profile.linkedin}
           />
-          <Experience locale={lang} dictionary={dictionary} />
+          <Experience
+            locale={lang}
+            dictionary={dictionary}
+            documents={isToken ? listDocumentsByExperience() : undefined}
+            accessToken={tokenQuery}
+          />
           <Stack dictionary={dictionary} />
           <Projects dictionary={dictionary} accessToken={tokenQuery} />
           <More dictionary={dictionary} />

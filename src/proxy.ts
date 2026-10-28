@@ -41,6 +41,16 @@ function buildCsp(nonce: string): string {
   return csp.replace(/\s{2,}/g, ' ').trim()
 }
 
+const DOCUMENT_CSP = [
+  "default-src 'none'",
+  "img-src 'self'",
+  "object-src 'self'",
+  "style-src 'unsafe-inline'",
+  "base-uri 'none'",
+  "form-action 'none'",
+  "frame-ancestors 'none'",
+].join('; ')
+
 function withSecurityHeaders(
   response: NextResponse,
   csp: string,
@@ -74,6 +84,10 @@ export function proxy(request: NextRequest) {
       csp,
       url.pathname,
     )
+  }
+
+  if (pathname.startsWith('/media/documents/')) {
+    return withSecurityHeaders(NextResponse.next(), DOCUMENT_CSP, pathname)
   }
 
   if (

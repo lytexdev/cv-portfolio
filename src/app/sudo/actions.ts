@@ -20,7 +20,17 @@ import {
   type DbExperience,
   type DbProject,
 } from '@/lib/server/content-db'
+import { writeAudit } from '@/lib/server/audit'
 import { createCsrfToken, verifyCsrfToken } from '@/lib/server/csrf'
+import {
+  DocumentRejectedError,
+  addExperienceDocument,
+  deleteDocumentsForExperience,
+  deleteExperienceDocument,
+  getExperienceDocument,
+  listExperienceDocuments,
+  reorderExperienceDocuments,
+} from '@/lib/server/documents'
 import { translateDeToEn } from '@/lib/server/deepl'
 import { logEvent } from '@/lib/server/log'
 import { updateBirthDate } from '@/lib/server/private-data'
@@ -455,9 +465,72 @@ export async function reorderProjectImagesAction(formData: FormData) {
 export async function deleteExperienceAction(formData: FormData) {
   const session = await requireSession()
   await assertCsrf(formData, String(session.adminId))
-  deleteExperience(formString(formData, 'id'))
+  const id = formString(formData, 'id')
+  deleteDocumentsForExperience(id)
+  deleteExperience(id)
+  revalidatePublicCv()
   revalidatePath('/sudo/experience')
   redirect('/sudo/experience')
+}
+
+export async function uploadExperienceDocumentAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const experienceId = formString(formData, 'experienceId')
+  const target = `/sudo/experience?edited=${encodeURIComponent(experienceId)}`
+  const file = formFile(formData, 'file')
+  const labelDe = formString(formData, 'label_de').slice(0, 120)
+  const labelEn = formString(formData, 'label_en').slice(0, 120) || labelDe
+  if (!listDbExperiences().some((e) => e.id === experienceId) || !file || !labelDe) {
+    redirect(`${target}&docError=invalid`)
+  }
+
+  let error: string | null = null
+  try {
+    const document = await addExperienceDocument({
+      experienceId,
+      label: { de: labelDe, en: labelEn },
+      file: Buffer.from(await file.arrayBuffer()),
+    })
+    writeAudit({
+      category: 'admin',
+      event: 'document_upload',
+      detail: `${experienceId}: ${document.label.de} (${document.kind}, ${document.size} B)`,
+    })
+  } catch (caught) {
+    error = caught instanceof DocumentRejectedError ? caught.reason : 'invalid'
+  }
+  if (error) redirect(`${target}&docError=${error}`)
+
+  revalidatePath('/sudo/experience')
+  revalidatePublicCv()
+  redirect(`${target}&docUploaded=1`)
+}
+
+export async function deleteExperienceDocumentAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const document = getExperienceDocument(formString(formData, 'id'))
+  if (!document) redirect('/sudo/experience')
+  deleteExperienceDocument(document.id)
+  writeAudit({
+    category: 'admin',
+    event: 'document_delete',
+    detail: `${document.experienceId}: ${document.label.de}`,
+  })
+  revalidatePath('/sudo/experience')
+  revalidatePublicCv()
+  redirect(`/sudo/experience?edited=${encodeURIComponent(document.experienceId)}`)
+}
+
+export async function reorderExperienceDocumentsAction(formData: FormData) {
+  const session = await requireSession()
+  await assertCsrf(formData, String(session.adminId))
+  const experienceId = formString(formData, 'experienceId')
+  const existing = listExperienceDocuments(experienceId).map((d) => d.id)
+  reorderExperienceDocuments(experienceId, orderedIds(formData, existing))
+  revalidatePath('/sudo/experience')
+  revalidatePublicCv()
 }
 
 export async function translateExperienceAction(formData: FormData) {

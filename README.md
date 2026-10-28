@@ -105,6 +105,12 @@ Media follows the same rule: public mode allows unauthenticated reads; gated mod
 - CRUD: **tokens** (create/revoke in UI), projects, experience, content, stack, spoken languages, footer socials
 - Text fields support `**bold**`, `*italic*`, `` `code` ``, line breaks via `<br>`, and stack icons via `<icon-github>` (any tech id from the stack registry)
 - Image upload: magic-byte check → sharp → WebP → `data/uploads/`
+- Experience documents (certificates, references): PDF, JPEG, PNG or WebP up to 9 MB, detected by content, not by extension
+  - Images are re-encoded to WebP without EXIF, GPS or XMP
+  - PDFs are rebuilt with `pdf-lib`: form fields flattened, then Info dictionary, XMP, JavaScript, actions, annotations, attachments and form structures removed, EXIF/XMP stripped from embedded JPEG scans
+  - Encrypted or password-protected PDFs are rejected
+  - Stored as `data/uploads/documents/<uuid>` with mode `0600`
+  - Served from `/media/documents/<uuid>` only to valid tokens or an admin session, also in public mode, with a strict CSP and `no-store`; every view and download is audited
 - DeepL translate actions (server-side only)
 
 Honeypots (fake login, never real auth): `/admin`, `/wp-admin` — rate-limited, `honeypot_hit` logged.
